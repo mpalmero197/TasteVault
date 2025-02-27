@@ -1060,7 +1060,8 @@
             <header className="bg-teal-600 text-white flex items-center justify-between p-4" role="banner">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-8">TasteVault</h1>
-                <nav className="hidden md:flex space-x-4">
+                {/* Horizontal nav shown only on large screens */}
+                <nav className="hidden lg:flex space-x-4">
                   <button
                     onClick={() => {
                       setActiveTab("categories");
@@ -1140,8 +1141,9 @@
                 >
                   <span className="text-xl">+</span>
                 </button>
+                {/* Hamburger shown on screens smaller than lg (including iPad) */}
                 <button
-                  className="md:hidden"
+                  className="lg:hidden"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   aria-label="Toggle navigation menu"
                 >
@@ -1150,9 +1152,9 @@
               </div>
             </header>
 
-            {/* Mobile Navigation Menu */}
+            {/* Mobile Navigation Menu (for iPad and smaller) */}
             {mobileNavOpen && (
-              <nav className="bg-teal-600 text-white md:hidden">
+              <nav className="bg-teal-600 text-white lg:hidden">
                 <ul className="flex flex-col">
                   <li>
                     <button
