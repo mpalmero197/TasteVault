@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TasteVault Enhanced</title>
     <!-- Precompiled Tailwind CSS for better compatibility with older browsers (iOS 12) -->
-    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link
+      href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
     <style>
       /* Basic transitions for modals with vendor prefixes for iOS 12 compatibility */
       .modal-enter {
@@ -67,7 +70,8 @@
         body * {
           visibility: hidden;
         }
-        .printable, .printable * {
+        .printable,
+        .printable * {
           visibility: visible;
         }
         .printable {
@@ -484,6 +488,7 @@
         const [temperatureValue, setTemperatureValue] = useState("");
         const [temperatureScale, setTemperatureScale] = useState("F");
         const [rating, setRating] = useState(0);
+        const [notes, setNotes] = useState("");
         const [newImage, setNewImage] = useState(null);
         const [newImagePreview, setNewImagePreview] = useState("");
         const [directions, setDirections] = useState("");
@@ -492,6 +497,7 @@
         const [recipe, setRecipe] = useState(null);
         const [activeTab, setActiveTab] = useState("categories");
         const [showModal, setShowModal] = useState(false);
+        const [modalTab, setModalTab] = useState("General");
         const [loading, setLoading] = useState(false);
         const [cookbookToDelete, setCookbookToDelete] = useState("");
         const [showCookbookDeleteModal, setShowCookbookDeleteModal] = useState(false);
@@ -533,7 +539,10 @@
 
         // Ingredient handlers
         const addIngredientRow = () => {
-          setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "" }]);
+          setIngredients((prev) => [
+            ...prev,
+            { name: "", quantity: "", unit: "" },
+          ]);
         };
         const handleIngredientChange = (index, field, value) => {
           const updated = [...ingredients];
@@ -596,7 +605,9 @@
             }
           } catch (error) {
             console.error("Error fetching recipe", error);
-            alert("An error occurred while fetching the recipe. Please try again.");
+            alert(
+              "An error occurred while fetching the recipe. Please try again."
+            );
           } finally {
             setLoading(false);
           }
@@ -613,6 +624,7 @@
             cookTime,
             directions,
             rating,
+            notes,
             temperature: { value: temperatureValue, scale: temperatureScale },
             ingredients,
             image: newImagePreview,
@@ -640,12 +652,14 @@
           setCookTime("");
           setDirections("");
           setRating(0);
+          setNotes("");
           setTemperatureValue("");
           setTemperatureScale("F");
           setIngredients([]);
           setNewImage(null);
           setNewImagePreview("");
           setEditingIndex(null);
+          setModalTab("General");
         };
 
         // Delete a single recipe
@@ -664,6 +678,7 @@
           setCookTime(recipeData.cookTime || "");
           setDirections(recipeData.directions || "");
           setRating(recipeData.rating || 0);
+          setNotes(recipeData.notes || "");
           setTemperatureValue(recipeData.temperature?.value || "");
           setTemperatureScale(recipeData.temperature?.scale || "F");
           setIngredients(recipeData.ingredients || []);
@@ -719,7 +734,9 @@
             r.title.toLowerCase().includes(searchQuery.toLowerCase())
           );
           const printWindow = window.open("", "", "height=800,width=1200");
-          printWindow.document.write("<html><head><title>Print All Recipes</title>");
+          printWindow.document.write(
+            "<html><head><title>Print All Recipes</title>"
+          );
           printWindow.document.write(
             '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
           );
@@ -731,7 +748,9 @@
             );
             if (recipe.image) {
               printWindow.document.write(
-                '<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />'
+                '<img src="' +
+                  recipe.image +
+                  '" alt="Recipe Image" class="mb-4" />'
               );
             }
             printWindow.document.write(
@@ -802,7 +821,7 @@
           printWindow.print();
         };
 
-        // Modal for adding/editing a recipe
+        // Modal for adding/editing a recipe with tabs and a square layout
         const renderAddRecipeModal = () => {
           if (!showModal) return null;
           return (
@@ -813,262 +832,376 @@
               aria-label="Add or Edit Recipe Modal"
             >
               <div
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto"
-                tabIndex="-1"
-                ref={modalRef}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-auto"
+                style={{
+                  width: "90vw",
+                  height: "90vw",
+                  maxWidth: "500px",
+                  maxHeight: "500px",
+                }}
               >
-                <button
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
-                  className="absolute top-2 right-2 text-gray-600 dark:text-white hover:text-gray-800 text-2xl"
-                  aria-label="Close add recipe modal"
-                >
-                  &times;
-                </button>
-                <h2 className="text-2xl font-bold mb-4">
-                  {editingIndex !== null ? "Edit Recipe" : "Add a Recipe"}
-                </h2>
-                <fieldset className="mb-4">
-                  <legend className="sr-only">Recipe Entry Method</legend>
-                  <label className="mr-4">
-                    <input
-                      type="radio"
-                      name="fetchMethod"
-                      value="url"
-                      checked={fetchMethod === "url"}
-                      onChange={() => setFetchMethod("url")}
-                      className="mr-2"
-                    />
-                    Fetch from URL
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="fetchMethod"
-                      value="manual"
-                      checked={fetchMethod === "manual"}
-                      onChange={() => setFetchMethod("manual")}
-                      className="mr-2"
-                    />
-                    Add Manually
-                  </label>
-                </fieldset>
-                {fetchMethod === "url" && (
-                  <div className="mb-4">
-                    <label className="sr-only" htmlFor="recipe-url">
-                      Recipe URL
-                    </label>
-                    <input
-                      id="recipe-url"
-                      type="text"
-                      placeholder="Enter recipe URL (type 'test' to simulate)"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      className="w-full mb-2 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                    />
-                    <button
-                      className="w-full bg-teal-500 hover:bg-teal-600 text-white p-2 rounded transition-colors duration-300"
-                      onClick={handleFetchRecipe}
-                      disabled={loading}
-                    >
-                      {loading ? "Fetching..." : "Fetch Recipe"}
-                    </button>
-                  </div>
-                )}
-                <div className="mb-4">
-                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="recipe-title">
-                    Title
-                  </label>
-                  <input
-                    id="recipe-title"
-                    type="text"
-                    placeholder="Recipe Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                  />
-                </div>
-                <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
-                  <div className="w-full">
-                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="dish-type">
-                      Dish Type
-                    </label>
-                    <select
-                      id="dish-type"
-                      value={selectedDishType}
-                      onChange={(e) => setSelectedDishType(e.target.value)}
-                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                    >
-                      <option value="">Select Dish Type</option>
-                      {dishTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="w-full">
-                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="meal-type">
-                      Meal Type
-                    </label>
-                    <select
-                      id="meal-type"
-                      value={selectedMealType}
-                      onChange={(e) => setSelectedMealType(e.target.value)}
-                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                    >
-                      <option value="">Select Meal Type</option>
-                      {mealTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="cookbook-name">
-                    Cookbook Name (Optional)
-                  </label>
-                  <input
-                    id="cookbook-name"
-                    type="text"
-                    placeholder="Cookbook"
-                    value={cookbook}
-                    onChange={(e) => setCookbook(e.target.value)}
-                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                  />
-                </div>
-                <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
-                  <div className="w-full">
-                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="prep-time">
-                      Prep Time
-                    </label>
-                    <input
-                      id="prep-time"
-                      type="text"
-                      placeholder="e.g. 10 minutes"
-                      value={prepTime}
-                      onChange={(e) => setPrepTime(e.target.value)}
-                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                    />
-                  </div>
-                  <div className="w-full">
-                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="cook-time">
-                      Cook Time
-                    </label>
-                    <input
-                      id="cook-time"
-                      type="text"
-                      placeholder="e.g. 30 minutes"
-                      value={cookTime}
-                      onChange={(e) => setCookTime(e.target.value)}
-                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
-                  <div className="w-full md:w-1/2">
-                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="temp-value">
-                      Temperature Value
-                    </label>
-                    <input
-                      id="temp-value"
-                      type="number"
-                      placeholder="e.g. 350"
-                      value={temperatureValue}
-                      onChange={(e) => setTemperatureValue(e.target.value)}
-                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                    />
-                  </div>
-                  <div className="w-full md:w-1/2">
-                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="temp-scale">
-                      Scale (C or F)
-                    </label>
-                    <select
-                      id="temp-scale"
-                      value={temperatureScale}
-                      onChange={(e) => setTemperatureScale(e.target.value)}
-                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                    >
-                      <option value="F">F</option>
-                      <option value="C">C</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="rating">
-                    Rating
-                  </label>
-                  <StarRating rating={rating} setRating={setRating} />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700 dark:text-white mb-2" htmlFor="recipe-image">
-                    Recipe Image
-                  </label>
-                  <div
-                    className="relative w-full mb-2"
-                    style={{ paddingTop: "60%" }}
-                  >
-                    {newImagePreview ? (
-                      <img
-                        src={newImagePreview}
-                        alt="Recipe"
-                        className="absolute top-0 left-0 w-full h-full object-cover rounded"
-                      />
-                    ) : (
-                      <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded">
-                        <span>Click to add image</span>
-                      </div>
-                    )}
-                    <input
-                      id="recipe-image"
-                      type="file"
-                      accept="image/*"
-                      className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-                      onChange={handleImageChange}
-                      aria-label="Upload recipe image"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="directions">
-                    Directions
-                  </label>
-                  <textarea
-                    id="directions"
-                    rows="4"
-                    placeholder="Step-by-step directions"
-                    value={directions}
-                    onChange={(e) => setDirections(e.target.value)}
-                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-                  />
-                </div>
-                <div className="mb-4">
-                  <p className="mb-2 text-gray-700 dark:text-white font-semibold">Ingredients</p>
-                  {ingredients.map((ingredient, index) => (
-                    <IngredientRow
-                      key={index}
-                      ingredient={ingredient}
-                      index={index}
-                      handleIngredientChange={handleIngredientChange}
-                      removeIngredientRow={removeIngredientRow}
-                    />
-                  ))}
+                <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
+                  <h2 className="text-2xl font-bold">
+                    {editingIndex !== null ? "Edit Recipe" : "Add a Recipe"}
+                  </h2>
                   <button
-                    type="button"
-                    onClick={addIngredientRow}
-                    className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
+                    onClick={() => {
+                      setShowModal(false);
+                      resetForm();
+                    }}
+                    className="text-gray-600 dark:text-white hover:text-gray-800 text-2xl"
+                    aria-label="Close add recipe modal"
                   >
-                    + Add Ingredient
+                    &times;
                   </button>
                 </div>
-                <div className="flex justify-end">
+                <div className="flex border-b dark:border-gray-700">
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors duration-300"
+                    onClick={() => setModalTab("General")}
+                    className={`flex-1 p-2 text-center ${
+                      modalTab === "General"
+                        ? "border-b-2 border-teal-500 font-bold"
+                        : ""
+                    }`}
+                  >
+                    General
+                  </button>
+                  <button
+                    onClick={() => setModalTab("Ingredients")}
+                    className={`flex-1 p-2 text-center ${
+                      modalTab === "Ingredients"
+                        ? "border-b-2 border-teal-500 font-bold"
+                        : ""
+                    }`}
+                  >
+                    Ingredients
+                  </button>
+                  <button
+                    onClick={() => setModalTab("Directions")}
+                    className={`flex-1 p-2 text-center ${
+                      modalTab === "Directions"
+                        ? "border-b-2 border-teal-500 font-bold"
+                        : ""
+                    }`}
+                  >
+                    Directions
+                  </button>
+                  <button
+                    onClick={() => setModalTab("Grocery")}
+                    className={`flex-1 p-2 text-center ${
+                      modalTab === "Grocery"
+                        ? "border-b-2 border-teal-500 font-bold"
+                        : ""
+                    }`}
+                  >
+                    Grocery List
+                  </button>
+                  <button
+                    onClick={() => setModalTab("Notes")}
+                    className={`flex-1 p-2 text-center ${
+                      modalTab === "Notes"
+                        ? "border-b-2 border-teal-500 font-bold"
+                        : ""
+                    }`}
+                  >
+                    Notes &amp; Rating
+                  </button>
+                </div>
+                <div className="p-4">
+                  {modalTab === "General" && (
+                    <div className="space-y-4">
+                      {fetchMethod === "url" && (
+                        <div>
+                          <input
+                            id="recipe-url"
+                            type="text"
+                            placeholder="Enter recipe URL (type 'test' to simulate)"
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                          />
+                          <button
+                            onClick={handleFetchRecipe}
+                            disabled={loading}
+                            className="w-full bg-teal-500 hover:bg-teal-600 text-white p-2 rounded mt-2"
+                          >
+                            {loading ? "Fetching..." : "Fetch Recipe"}
+                          </button>
+                        </div>
+                      )}
+                      <div>
+                        <label
+                          htmlFor="recipe-title"
+                          className="block mb-1 text-gray-700 dark:text-white"
+                        >
+                          Title
+                        </label>
+                        <input
+                          id="recipe-title"
+                          type="text"
+                          placeholder="Recipe Title"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                        />
+                      </div>
+                      <div className="flex space-x-4">
+                        <div className="w-1/2">
+                          <label
+                            htmlFor="dish-type"
+                            className="block mb-1 text-gray-700 dark:text-white"
+                          >
+                            Dish Type
+                          </label>
+                          <select
+                            id="dish-type"
+                            value={selectedDishType}
+                            onChange={(e) => setSelectedDishType(e.target.value)}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                          >
+                            <option value="">Select Dish Type</option>
+                            {dishTypes.map((type) => (
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="w-1/2">
+                          <label
+                            htmlFor="meal-type"
+                            className="block mb-1 text-gray-700 dark:text-white"
+                          >
+                            Meal Type
+                          </label>
+                          <select
+                            id="meal-type"
+                            value={selectedMealType}
+                            onChange={(e) => setSelectedMealType(e.target.value)}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                          >
+                            <option value="">Select Meal Type</option>
+                            {mealTypes.map((type) => (
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="cookbook-name"
+                          className="block mb-1 text-gray-700 dark:text-white"
+                        >
+                          Cookbook Name (Optional)
+                        </label>
+                        <input
+                          id="cookbook-name"
+                          type="text"
+                          placeholder="Cookbook"
+                          value={cookbook}
+                          onChange={(e) => setCookbook(e.target.value)}
+                          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                        />
+                      </div>
+                      <div className="flex space-x-4">
+                        <div className="w-1/2">
+                          <label
+                            htmlFor="prep-time"
+                            className="block mb-1 text-gray-700 dark:text-white"
+                          >
+                            Prep Time
+                          </label>
+                          <input
+                            id="prep-time"
+                            type="text"
+                            placeholder="e.g. 10 minutes"
+                            value={prepTime}
+                            onChange={(e) => setPrepTime(e.target.value)}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                          />
+                        </div>
+                        <div className="w-1/2">
+                          <label
+                            htmlFor="cook-time"
+                            className="block mb-1 text-gray-700 dark:text-white"
+                          >
+                            Cook Time
+                          </label>
+                          <input
+                            id="cook-time"
+                            type="text"
+                            placeholder="e.g. 30 minutes"
+                            value={cookTime}
+                            onChange={(e) => setCookTime(e.target.value)}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex space-x-4">
+                        <div className="w-1/2">
+                          <label
+                            htmlFor="temp-value"
+                            className="block mb-1 text-gray-700 dark:text-white"
+                          >
+                            Temperature Value
+                          </label>
+                          <input
+                            id="temp-value"
+                            type="number"
+                            placeholder="e.g. 350"
+                            value={temperatureValue}
+                            onChange={(e) => setTemperatureValue(e.target.value)}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                          />
+                        </div>
+                        <div className="w-1/2">
+                          <label
+                            htmlFor="temp-scale"
+                            className="block mb-1 text-gray-700 dark:text-white"
+                          >
+                            Scale (C or F)
+                          </label>
+                          <select
+                            id="temp-scale"
+                            value={temperatureScale}
+                            onChange={(e) => setTemperatureScale(e.target.value)}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                          >
+                            <option value="F">F</option>
+                            <option value="C">C</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="recipe-image"
+                          className="block text-gray-700 dark:text-white mb-2"
+                        >
+                          Recipe Image
+                        </label>
+                        <div className="relative w-full" style={{ paddingTop: "60%" }}>
+                          {newImagePreview ? (
+                            <img
+                              src={newImagePreview}
+                              alt="Recipe"
+                              className="absolute top-0 left-0 w-full h-full object-cover rounded"
+                            />
+                          ) : (
+                            <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded">
+                              <span>Click to add image</span>
+                            </div>
+                          )}
+                          <input
+                            id="recipe-image"
+                            type="file"
+                            accept="image/*"
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                            onChange={handleImageChange}
+                            aria-label="Upload recipe image"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {modalTab === "Ingredients" && (
+                    <div>
+                      <p className="mb-2 text-gray-700 dark:text-white font-semibold">
+                        Ingredients
+                      </p>
+                      {ingredients.map((ingredient, index) => (
+                        <IngredientRow
+                          key={index}
+                          ingredient={ingredient}
+                          index={index}
+                          handleIngredientChange={handleIngredientChange}
+                          removeIngredientRow={removeIngredientRow}
+                        />
+                      ))}
+                      <button
+                        type="button"
+                        onClick={addIngredientRow}
+                        className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
+                      >
+                        + Add Ingredient
+                      </button>
+                    </div>
+                  )}
+                  {modalTab === "Directions" && (
+                    <div>
+                      <label
+                        htmlFor="directions"
+                        className="block mb-1 text-gray-700 dark:text-white"
+                      >
+                        Directions
+                      </label>
+                      <textarea
+                        id="directions"
+                        rows="6"
+                        placeholder="Step-by-step directions"
+                        value={directions}
+                        onChange={(e) => setDirections(e.target.value)}
+                        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                      />
+                    </div>
+                  )}
+                  {modalTab === "Grocery" && (
+                    <div>
+                      <p className="mb-2 text-gray-700 dark:text-white font-semibold">
+                        Grocery List
+                      </p>
+                      {ingredients.length === 0 ? (
+                        <p className="text-gray-600 dark:text-white">
+                          No ingredients added.
+                        </p>
+                      ) : (
+                        <ul className="list-disc list-inside">
+                          {ingredients.map((ing, index) => (
+                            <li key={index}>
+                              {(ing.quantity ? ing.quantity + " " : "") +
+                                (ing.unit ? ing.unit + " " : "") +
+                                ing.name}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                  {modalTab === "Notes" && (
+                    <div className="space-y-4">
+                      <div>
+                        <label
+                          htmlFor="rating"
+                          className="block mb-1 text-gray-700 dark:text-white"
+                        >
+                          Rating
+                        </label>
+                        <StarRating rating={rating} setRating={setRating} />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="notes"
+                          className="block mb-1 text-gray-700 dark:text-white"
+                        >
+                          Notes
+                        </label>
+                        <textarea
+                          id="notes"
+                          rows="4"
+                          placeholder="Additional notes"
+                          value={notes}
+                          onChange={(e) => setNotes(e.target.value)}
+                          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 border-t dark:border-gray-700 flex justify-end">
+                  <button
                     onClick={handleAddRecipe}
+                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors duration-300"
                   >
                     {editingIndex !== null ? "Update Recipe" : "Save Recipe"}
                   </button>
@@ -1076,282 +1209,6 @@
               </div>
             </div>
           );
-        };
-
-        // Render main content based on active tab
-        const renderContent = () => {
-          if (activeTab === "recipes") {
-            const filteredRecipes = recipes.filter((r) =>
-              r.title.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            return (
-              <div id="main-content">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center transition-transform duration-300 transform hover:scale-105"
-                  >
-                    <span className="mr-2 text-xl">+</span> Add Recipe
-                  </button>
-                  <button
-                    onClick={printAllRecipes}
-                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
-                  >
-                    Print All Recipes
-                  </button>
-                </div>
-                {filteredRecipes.length === 0 ? (
-                  <p className="text-gray-600 dark:text-white">No recipes available.</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {filteredRecipes.map((r, index) => (
-                      <RecipeCard
-                        key={index}
-                        index={index}
-                        recipe={r}
-                        onDeleteRecipe={handleDeleteRecipe}
-                        onEditRecipe={handleEditRecipe}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          } else if (activeTab === "categories") {
-            return (
-              <div id="main-content">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {dishTypes.map((cat, index) => {
-                    const catRecipes = recipes.filter(
-                      (r) => r.dishType === cat
-                    );
-                    const image =
-                      categoryImages[cat] ||
-                      (catRecipes.find((r) => r.image) || {}).image ||
-                      "";
-                    return (
-                      <div
-                        key={index}
-                        className="border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
-                      >
-                        <div
-                          className="relative w-full"
-                          style={{ paddingTop: "75%" }}
-                        >
-                          {image ? (
-                            <img
-                              src={image}
-                              alt={`${cat} category`}
-                              className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
-                            />
-                          ) : (
-                            <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
-                              <span>Add Image</span>
-                            </div>
-                          )}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-                            onChange={(e) => {
-                              const file = e.target.files[0];
-                              if (file) {
-                                const imageURL = URL.createObjectURL(file);
-                                setCategoryImages((prev) => ({
-                                  ...prev,
-                                  [cat]: imageURL,
-                                }));
-                              }
-                            }}
-                            aria-label={`Upload an image for category ${cat}`}
-                          />
-                        </div>
-                        <div className="mt-4">
-                          <h3 className="text-xl font-bold">{cat}</h3>
-                          <p className="text-gray-600 dark:text-white">
-                            {catRecipes.length} recipes
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          } else if (activeTab === "cookbooks") {
-            if (selectedCookbook) {
-              const cookbookRecipes = recipes.filter(
-                (r) => r.cookbook === selectedCookbook
-              );
-              return (
-                <div id="main-content">
-                  <button
-                    onClick={() => setSelectedCookbook(null)}
-                    className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-                  >
-                    &larr; Back to Cookbooks
-                  </button>
-                  <h2 className="text-2xl font-bold mb-4">{selectedCookbook}</h2>
-                  {cookbookRecipes.length === 0 ? (
-                    <p className="text-gray-600 dark:text-white">No recipes in this cookbook.</p>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {cookbookRecipes.map((r, index) => (
-                        <RecipeCard
-                          key={index}
-                          index={index}
-                          recipe={r}
-                          onDeleteRecipe={handleDeleteRecipe}
-                          onEditRecipe={handleEditRecipe}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            } else {
-              const cookbookSet = new Set();
-              recipes.forEach((r) => {
-                if (r.cookbook && r.cookbook !== "N/A" && r.cookbook !== "")
-                  cookbookSet.add(r.cookbook);
-              });
-              const cookbookList = Array.from(cookbookSet);
-              if (cookbookList.length === 0) {
-                return <p className="text-gray-600 dark:text-white">No cookbooks available.</p>;
-              }
-              return (
-                <div id="main-content">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {cookbookList.map((cb, index) => {
-                      const cbRecipes = recipes.filter((r) => r.cookbook === cb);
-                      const image =
-                        (cbRecipes.find((r) => r.image) || {}).image || "";
-                      return (
-                        <div
-                          key={index}
-                          onClick={() => setSelectedCookbook(cb)}
-                          className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
-                        >
-                          <div
-                            className="relative w-full"
-                            style={{ paddingTop: "75%" }}
-                          >
-                            {image ? (
-                              <img
-                                src={image}
-                                alt={`${cb} cookbook`}
-                                className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
-                              />
-                            ) : (
-                              <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
-                                <span>Add Image</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-xl font-bold">{cb}</h3>
-                            <p className="text-gray-600 dark:text-white">{cbRecipes.length} recipes</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            }
-          } else if (activeTab === "mealTimes") {
-            if (selectedMealTime) {
-              const mealTimeRecipes = recipes.filter(
-                (r) => r.mealType === selectedMealTime
-              );
-              return (
-                <div id="main-content">
-                  <button
-                    onClick={() => setSelectedMealTime(null)}
-                    className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-                  >
-                    &larr; Back to Meal Times
-                  </button>
-                  <h2 className="text-2xl font-bold mb-4">{selectedMealTime}</h2>
-                  {mealTimeRecipes.length === 0 ? (
-                    <p className="text-gray-600 dark:text-white">No recipes for this meal time.</p>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {mealTimeRecipes.map((r, index) => (
-                        <RecipeCard
-                          key={index}
-                          index={index}
-                          recipe={r}
-                          onDeleteRecipe={handleDeleteRecipe}
-                          onEditRecipe={handleEditRecipe}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            } else {
-              return (
-                <div id="main-content">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {mealTypes.map((meal, index) => {
-                      const mealRecipes = recipes.filter(
-                        (r) => r.mealType === meal
-                      );
-                      const image =
-                        mealTimeImages[meal] ||
-                        (mealRecipes.find((r) => r.image) || {}).image ||
-                        "";
-                      return (
-                        <div
-                          key={index}
-                          onClick={() => setSelectedMealTime(meal)}
-                          className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
-                        >
-                          <div
-                            className="relative w-full"
-                            style={{ paddingTop: "75%" }}
-                          >
-                            {image ? (
-                              <img
-                                src={image}
-                                alt={`${meal} meal time`}
-                                className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
-                              />
-                            ) : (
-                              <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
-                                <span>Add Image</span>
-                              </div>
-                            )}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-                              onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) {
-                                  const imageURL = URL.createObjectURL(file);
-                                  setMealTimeImages((prev) => ({
-                                    ...prev,
-                                    [meal]: imageURL,
-                                  }));
-                                }
-                              }}
-                              aria-label={`Upload an image for meal time ${meal}`}
-                            />
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-xl font-bold">{meal}</h3>
-                            <p className="text-gray-600 dark:text-white">{mealRecipes.length} recipes</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            }
-          }
         };
 
         return (
@@ -1362,7 +1219,10 @@
               role="navigation"
               aria-label="Main"
             >
-              <div className="p-4 bg-teal-600 flex items-center justify-center" role="banner">
+              <div
+                className="p-4 bg-teal-600 flex items-center justify-center"
+                role="banner"
+              >
                 <h1 className="text-xl font-bold">TasteVault</h1>
               </div>
               <nav className="flex-1 p-2 space-y-1" role="tablist">
@@ -1480,7 +1340,285 @@
                 id="main-content"
                 tabIndex="0"
               >
-                {renderContent()}
+                {activeTab === "recipes" ? (
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <button
+                        onClick={() => setShowModal(true)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center transition-transform duration-300 transform hover:scale-105"
+                      >
+                        <span className="mr-2 text-xl">+</span> Add Recipe
+                      </button>
+                      <button
+                        onClick={printAllRecipes}
+                        className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
+                      >
+                        Print All Recipes
+                      </button>
+                    </div>
+                    {recipes.filter((r) =>
+                      r.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).length === 0 ? (
+                      <p className="text-gray-600 dark:text-white">
+                        No recipes available.
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {recipes
+                          .filter((r) =>
+                            r.title.toLowerCase().includes(searchQuery.toLowerCase())
+                          )
+                          .map((r, index) => (
+                            <RecipeCard
+                              key={index}
+                              index={index}
+                              recipe={r}
+                              onDeleteRecipe={handleDeleteRecipe}
+                              onEditRecipe={handleEditRecipe}
+                            />
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                ) : activeTab === "categories" ? (
+                  <div id="main-content">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {dishTypes.map((cat, index) => {
+                        const catRecipes = recipes.filter(
+                          (r) => r.dishType === cat
+                        );
+                        const image =
+                          categoryImages[cat] ||
+                          (catRecipes.find((r) => r.image) || {}).image ||
+                          "";
+                        return (
+                          <div
+                            key={index}
+                            className="border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                          >
+                            <div
+                              className="relative w-full"
+                              style={{ paddingTop: "75%" }}
+                            >
+                              {image ? (
+                                <img
+                                  src={image}
+                                  alt={`${cat} category`}
+                                  className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                />
+                              ) : (
+                                <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                  <span>Add Image</span>
+                                </div>
+                              )}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                                onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    const imageURL = URL.createObjectURL(file);
+                                    setCategoryImages((prev) => ({
+                                      ...prev,
+                                      [cat]: imageURL,
+                                    }));
+                                  }
+                                }}
+                                aria-label={`Upload an image for category ${cat}`}
+                              />
+                            </div>
+                            <div className="mt-4">
+                              <h3 className="text-xl font-bold">{cat}</h3>
+                              <p className="text-gray-600 dark:text-white">
+                                {catRecipes.length} recipes
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : activeTab === "cookbooks" ? (
+                  selectedCookbook ? (
+                    <div id="main-content">
+                      <button
+                        onClick={() => setSelectedCookbook(null)}
+                        className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                      >
+                        &larr; Back to Cookbooks
+                      </button>
+                      <h2 className="text-2xl font-bold mb-4">
+                        {selectedCookbook}
+                      </h2>
+                      {recipes.filter((r) => r.cookbook === selectedCookbook)
+                        .length === 0 ? (
+                        <p className="text-gray-600 dark:text-white">
+                          No recipes in this cookbook.
+                        </p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {recipes
+                            .filter((r) => r.cookbook === selectedCookbook)
+                            .map((r, index) => (
+                              <RecipeCard
+                                key={index}
+                                index={index}
+                                recipe={r}
+                                onDeleteRecipe={handleDeleteRecipe}
+                                onEditRecipe={handleEditRecipe}
+                              />
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div id="main-content">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {Array.from(
+                          new Set(
+                            recipes
+                              .filter(
+                                (r) =>
+                                  r.cookbook &&
+                                  r.cookbook !== "N/A" &&
+                                  r.cookbook !== ""
+                              )
+                              .map((r) => r.cookbook)
+                          )
+                        ).map((cb, index) => {
+                          const cbRecipes = recipes.filter((r) => r.cookbook === cb);
+                          const image =
+                            (cbRecipes.find((r) => r.image) || {}).image || "";
+                          return (
+                            <div
+                              key={index}
+                              onClick={() => setSelectedCookbook(cb)}
+                              className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                            >
+                              <div
+                                className="relative w-full"
+                                style={{ paddingTop: "75%" }}
+                              >
+                                {image ? (
+                                  <img
+                                    src={image}
+                                    alt={`${cb} cookbook`}
+                                    className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                  />
+                                ) : (
+                                  <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                    <span>Add Image</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="mt-4">
+                                <h3 className="text-xl font-bold">{cb}</h3>
+                                <p className="text-gray-600 dark:text-white">
+                                  {cbRecipes.length} recipes
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )
+                ) : activeTab === "mealTimes" ? (
+                  selectedMealTime ? (
+                    <div id="main-content">
+                      <button
+                        onClick={() => setSelectedMealTime(null)}
+                        className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                      >
+                        &larr; Back to Meal Times
+                      </button>
+                      <h2 className="text-2xl font-bold mb-4">
+                        {selectedMealTime}
+                      </h2>
+                      {recipes.filter((r) => r.mealType === selectedMealTime)
+                        .length === 0 ? (
+                        <p className="text-gray-600 dark:text-white">
+                          No recipes for this meal time.
+                        </p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {recipes
+                            .filter((r) => r.mealType === selectedMealTime)
+                            .map((r, index) => (
+                              <RecipeCard
+                                key={index}
+                                index={index}
+                                recipe={r}
+                                onDeleteRecipe={handleDeleteRecipe}
+                                onEditRecipe={handleEditRecipe}
+                              />
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div id="main-content">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {mealTypes.map((meal, index) => {
+                          const mealRecipes = recipes.filter(
+                            (r) => r.mealType === meal
+                          );
+                          const image =
+                            mealTimeImages[meal] ||
+                            (mealRecipes.find((r) => r.image) || {}).image ||
+                            "";
+                          return (
+                            <div
+                              key={index}
+                              onClick={() => setSelectedMealTime(meal)}
+                              className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                            >
+                              <div
+                                className="relative w-full"
+                                style={{ paddingTop: "75%" }}
+                              >
+                                {image ? (
+                                  <img
+                                    src={image}
+                                    alt={`${meal} meal time`}
+                                    className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                  />
+                                ) : (
+                                  <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                    <span>Add Image</span>
+                                  </div>
+                                )}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      const imageURL = URL.createObjectURL(file);
+                                      setMealTimeImages((prev) => ({
+                                        ...prev,
+                                        [meal]: imageURL,
+                                      }));
+                                    }
+                                  }}
+                                  aria-label={`Upload an image for meal time ${meal}`}
+                                />
+                              </div>
+                              <div className="mt-4">
+                                <h3 className="text-xl font-bold">{meal}</h3>
+                                <p className="text-gray-600 dark:text-white">
+                                  {mealRecipes.length} recipes
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )
+                ) : null}
               </main>
 
               {/* Footer */}
@@ -1492,7 +1630,7 @@
               </footer>
             </div>
 
-            {/* Add/Edit Recipe Modal */}
+            {/* Add/Edit Recipe Modal with Tabs */}
             {renderAddRecipeModal()}
 
             {/* Delete Cookbook Modal */}
