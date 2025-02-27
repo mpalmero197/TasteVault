@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TasteVault Enhanced</title>
+    <!-- Latest Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Basic transitions for modals */
+      .modal-enter {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      .modal-enter-active {
+        opacity: 1;
+        transform: scale(1);
+        transition: opacity 300ms, transform 300ms;
+      }
+      .modal-exit {
+        opacity: 1;
+        transform: scale(1);
+      }
+      .modal-exit-active {
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 300ms, transform 300ms;
+      }
+      /* High contrast improvements */
+      .high-contrast-text {
+        color: #ffffff;
+      }
+      /* Visually hidden class for screen readers */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      /* Styles for skip-link */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #1d4ed8;
+        color: #fff;
+        padding: 8px;
+        z-index: 100;
+        transition: top 0.3s;
+      }
+      .skip-link:focus {
+        top: 0;
+      }
+      /* Print media query */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .printable, .printable * {
+          visibility: visible;
+        }
+        .printable {
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900">
+    <!-- Skip to Content link for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to Content</a>
+
+    <!-- Check for Modern Browser Features & Load Polyfills If Necessary -->
+    <script>
+      (function checkBrowserCompatibility() {
+        if (
+          typeof window.Promise === "undefined" ||
+          typeof window.fetch === "undefined"
+        ) {
+          document.write(
+            '<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"><\\/script>'
+          );
+          document.write(
+            '<script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.2/dist/fetch.umd.js"><\\/script>'
+          );
+        }
+      })();
+    </script>
+
+    <div id="root"></div>
+
+    <!-- React 18 and dependencies -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Main React Code -->
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+
+      // StarRating component for selecting 1-5 stars with ARIA labels
+      function StarRating({ rating, setRating }) {
+        const handleClick = (newRating) => {
+          setRating(newRating);
+        };
+
+        return (
+          <div
+            className="flex items-center"
+            role="radiogroup"
+            aria-label="Star Rating"
+          >
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => handleClick(star)}
+                className="text-2xl focus:outline-none"
+                role="radio"
+                aria-checked={star === rating}
+                aria-label={`${star} star${star !== 1 ? "s" : ""}`}
+              >
+                {star <= rating ? "★" : "☆"}
+              </button>
+            ))}
+          </div>
+        );
+      }
+
+      // IngredientRow component
+      function IngredientRow({
+        ingredient,
+        index,
+        handleIngredientChange,
+        removeIngredientRow,
+      }) {
+        const units = [
+          "tsp",
+          "tbsp",
+          "cup",
+          "oz",
+          "lb",
+          "ml",
+          "l",
+          "g",
+          "kg",
+        ];
+
+        return (
+          <div className="flex flex-col md:flex-row md:space-x-2 mb-2">
+            <label className="sr-only" htmlFor={`ingredient-name-${index}`}>
+              Ingredient Name
+            </label>
+            <input
+              id={`ingredient-name-${index}`}
+              type="text"
+              placeholder="Ingredient Name"
+              value={ingredient.name}
+              onChange={(e) =>
+                handleIngredientChange(index, "name", e.target.value)
+              }
+              className="w-full md:w-1/3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
+            />
+            <label className="sr-only" htmlFor={`ingredient-qty-${index}`}>
+              Quantity
+            </label>
+            <input
+              id={`ingredient-qty-${index}`}
+              type="number"
+              step="any"
+              placeholder="Quantity"
+              value={ingredient.quantity}
+              onChange={(e) =>
+                handleIngredientChange(index, "quantity", e.target.value)
+              }
+              className="w-full md:w-1/4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
+            />
+            <label className="sr-only" htmlFor={`ingredient-unit-${index}`}>
+              Unit
+            </label>
+            <select
+              id={`ingredient-unit-${index}`}
+              value={ingredient.unit}
+              onChange={(e) =>
+                handleIngredientChange(index, "unit", e.target.value)
+              }
+              className="w-full md:w-1/4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
+            >
+              <option value="">Unit</option>
+              {units.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => removeIngredientRow(index)}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+              aria-label={`Remove ingredient row ${index + 1}`}
+            >
+              X
+            </button>
+          </div>
+        );
+      }
+
+      // RecipeCard component with Edit and Print functionality
+      function RecipeCard({ recipe, index, onDeleteRecipe, onEditRecipe }) {
+        const handleDelete = () => {
+          if (
+            confirm(
+              `Are you sure you want to delete the recipe "${recipe.title}"?`
+            )
+          ) {
+            onDeleteRecipe(recipe);
+          }
+        };
+
+        const handlePrint = () => {
+          const printWindow = window.open("", "", "height=600,width=800");
+          printWindow.document.write("<html><head><title>Print Recipe</title>");
+          printWindow.document.write(
+            '<style>@media print { body { margin: 20px; } } body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; } img { max-width: 100%; height: auto; }</style>'
+          );
+          printWindow.document.write("</head><body>");
+          printWindow.document.write('<div class="card printable">');
+          printWindow.document.write(
+            "<h1>" + (recipe.title || "Untitled Recipe") + "</h1>"
+          );
+          if (recipe.image) {
+            printWindow.document.write(
+              '<img src="' +
+                recipe.image +
+                '" alt="Recipe Image" class="mb-4" />'
+            );
+          }
+          printWindow.document.write(
+            "<p><strong>Dish Type:</strong> " + (recipe.dishType || "N/A") + "</p>"
+          );
+          printWindow.document.write(
+            "<p><strong>Meal Type:</strong> " + (recipe.mealType || "N/A") + "</p>"
+          );
+          printWindow.document.write(
+            "<p><strong>Cookbook:</strong> " + (recipe.cookbook || "N/A") + "</p>"
+          );
+          printWindow.document.write(
+            "<p><strong>Prep Time:</strong> " + (recipe.prepTime || "N/A") + "</p>"
+          );
+          printWindow.document.write(
+            "<p><strong>Cook Time:</strong> " + (recipe.cookTime || "N/A") + "</p>"
+          );
+          if (recipe.temperature && recipe.temperature.value) {
+            printWindow.document.write(
+              "<p><strong>Temp:</strong> " +
+                recipe.temperature.value +
+                "°" +
+                recipe.temperature.scale +
+                "</p>"
+            );
+          }
+          printWindow.document.write(
+            "<p><strong>Rating:</strong> " +
+              "★".repeat(recipe.rating) +
+              "☆".repeat(5 - recipe.rating) +
+              "</p>"
+          );
+          if (recipe.ingredients && recipe.ingredients.length > 0) {
+            printWindow.document.write("<h3>Ingredients</h3><ul>");
+            recipe.ingredients.forEach((ing) => {
+              printWindow.document.write(
+                "<li>" +
+                  (ing.quantity ? ing.quantity + " " : "") +
+                  (ing.unit ? ing.unit + " " : "") +
+                  ing.name +
+                  "</li>"
+              );
+            });
+            printWindow.document.write("</ul>");
+          }
+          if (recipe.directions) {
+            printWindow.document.write(
+              "<h3>Directions</h3><p>" +
+                recipe.directions.replace(/\n/g, "<br>") +
+                "</p>"
+            );
+          }
+          printWindow.document.write("</div></body></html>");
+          printWindow.document.close();
+          printWindow.focus();
+          printWindow.print();
+        };
+
+        return (
+          <div
+            className="border rounded-lg p-4 shadow-md bg-white dark:bg-gray-800 dark:text-white hover:shadow-lg transition-shadow duration-300"
+            role="article"
+            aria-label={`Recipe: ${recipe.title || "Untitled"}`}
+          >
+            <div
+              className="relative w-full mb-4"
+              style={{ paddingTop: "60%", overflow: "hidden" }}
+            >
+              {recipe.image ? (
+                <img
+                  src={recipe.image}
+                  alt={recipe.title || "Recipe Image"}
+                  className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                />
+              ) : (
+                <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                  <span>No Image</span>
+                </div>
+              )}
+            </div>
+            <h3 className="text-xl font-bold mb-2" tabIndex="0">
+              {recipe.title || "Untitled Recipe"}
+            </h3>
+            <p className="mb-1">
+              <strong>Dish Type:</strong> {recipe.dishType || "N/A"}
+            </p>
+            <p className="mb-1">
+              <strong>Meal Type:</strong> {recipe.mealType || "N/A"}
+            </p>
+            <p className="mb-1">
+              <strong>Cookbook:</strong> {recipe.cookbook || "N/A"}
+            </p>
+            <p className="mb-1">
+              <strong>Prep Time:</strong> {recipe.prepTime || "N/A"}
+            </p>
+            <p className="mb-1">
+              <strong>Cook Time:</strong> {recipe.cookTime || "N/A"}
+            </p>
+            {recipe.temperature && recipe.temperature.value && (
+              <p className="mb-1">
+                <strong>Temp:</strong> {recipe.temperature.value}°
+                {recipe.temperature.scale}
+              </p>
+            )}
+            {recipe.rating > 0 && (
+              <p className="mb-1" aria-label={`Recipe rating: ${recipe.rating}`}>
+                <strong>Rating:</strong>{" "}
+                {"★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating)}
+              </p>
+            )}
+            {recipe.ingredients && recipe.ingredients.length > 0 && (
+              <div className="mt-2">
+                <strong>Ingredients:</strong>
+                <ul className="list-disc list-inside mt-1">
+                  {recipe.ingredients.map((ing, i) => (
+                    <li key={i}>
+                      {(ing.quantity ? ing.quantity + " " : "") +
+                        (ing.unit ? ing.unit + " " : "") +
+                        ing.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {recipe.directions && (
+              <div className="mt-2">
+                <strong>Directions:</strong>
+                <p className="whitespace-pre-wrap mt-1">
+                  {recipe.directions}
+                </p>
+              </div>
+            )}
+            <div className="flex justify-end mt-4 space-x-2">
+              <button
+                onClick={() => onEditRecipe(index, recipe)}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                aria-label={`Edit recipe ${recipe.title}`}
+              >
+                Edit
+              </button>
+              <button
+                onClick={handlePrint}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded"
+                aria-label={`Print recipe ${recipe.title}`}
+              >
+                Print
+              </button>
+              <button
+                onClick={handleDelete}
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                aria-label={`Delete recipe ${recipe.title}`}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      // Modal for deleting a cookbook
+      function DeleteCookbookModal({
+        cookbookName,
+        onClose,
+        onDeleteAllRecipes,
+        onKeepRecipes,
+      }) {
+        const modalRef = useRef(null);
+        useEffect(() => {
+          const handleKey = (e) => {
+            if (e.key === "Escape") {
+              onClose();
+            }
+          };
+          document.addEventListener("keydown", handleKey);
+          return () => document.removeEventListener("keydown", handleKey);
+        }, [onClose]);
+
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Delete Cookbook Modal"
+          >
+            <div
+              ref={modalRef}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative"
+              tabIndex="-1"
+            >
+              <button
+                onClick={onClose}
+                className="absolute top-2 right-2 text-gray-600 dark:text-white hover:text-gray-800 text-2xl"
+                aria-label="Close delete cookbook dialog"
+              >
+                &times;
+              </button>
+              <h2 className="text-2xl font-bold mb-4">Delete Cookbook</h2>
+              <p className="mb-4">
+                How would you like to delete the cookbook{" "}
+                <strong>{cookbookName}</strong>?
+              </p>
+              <div className="space-y-2">
+                <button
+                  onClick={onDeleteAllRecipes}
+                  className="block w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded"
+                  aria-label="Delete all recipes for this cookbook"
+                >
+                  Delete Cookbook and All Recipes
+                </button>
+                <button
+                  onClick={onKeepRecipes}
+                  className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded"
+                  aria-label="Delete the cookbook but keep the recipes"
+                >
+                  Delete Cookbook Only (Keep Recipes)
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Main application component
+      function RecipeSaver() {
+        // Permanently set dark mode to true.
+        const [darkMode] = useState(true);
+        const [url, setUrl] = useState("");
+        const [fetchMethod, setFetchMethod] = useState("url"); // 'url' or 'manual'
+        const [title, setTitle] = useState("");
+        const [selectedDishType, setSelectedDishType] = useState("");
+        const [selectedMealType, setSelectedMealType] = useState("");
+        const [cookbook, setCookbook] = useState("");
+        const [prepTime, setPrepTime] = useState("");
+        const [cookTime, setCookTime] = useState("");
+        const [temperatureValue, setTemperatureValue] = useState("");
+        const [temperatureScale, setTemperatureScale] = useState("F");
+        const [rating, setRating] = useState(0);
+        const [newImage, setNewImage] = useState(null);
+        const [newImagePreview, setNewImagePreview] = useState("");
+        const [directions, setDirections] = useState("");
+        const [ingredients, setIngredients] = useState([]);
+        const [recipes, setRecipes] = useState([]);
+        const [recipe, setRecipe] = useState(null);
+        const [activeTab, setActiveTab] = useState("categories");
+        const [showModal, setShowModal] = useState(false);
+        const [loading, setLoading] = useState(false);
+        const [cookbookToDelete, setCookbookToDelete] = useState("");
+        const [showCookbookDeleteModal, setShowCookbookDeleteModal] = useState(false);
+        const [categoryImages, setCategoryImages] = useState({});
+        const [mealTimeImages, setMealTimeImages] = useState({});
+        const [searchQuery, setSearchQuery] = useState("");
+        const [editingIndex, setEditingIndex] = useState(null);
+        const [selectedCookbook, setSelectedCookbook] = useState(null);
+        const [selectedMealTime, setSelectedMealTime] = useState(null);
+
+        const dishTypes = [
+          "Pasta",
+          "Bread",
+          "Soup",
+          "Salad",
+          "Dessert",
+          "Meat",
+          "Seafood",
+          "Vegetarian",
+          "Vegan",
+        ];
+        const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack", "Party"];
+
+        useEffect(() => {
+          // Always add dark class to the HTML element.
+          document.documentElement.classList.add("dark");
+        }, []);
+
+        // Grouping utility
+        const groupBy = (array, key) =>
+          array.reduce((result, item) => {
+            const groupKey = item[key] || "N/A";
+            if (!result[groupKey]) {
+              result[groupKey] = [];
+            }
+            result[groupKey].push(item);
+            return result;
+          }, {});
+
+        // Ingredient handlers
+        const addIngredientRow = () => {
+          setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "" }]);
+        };
+        const handleIngredientChange = (index, field, value) => {
+          const updated = [...ingredients];
+          updated[index][field] = value;
+          setIngredients(updated);
+        };
+        const removeIngredientRow = (index) => {
+          const updated = ingredients.filter((_, i) => i !== index);
+          setIngredients(updated);
+        };
+
+        // Image handler
+        const handleImageChange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            setNewImage(file);
+            setNewImagePreview(URL.createObjectURL(file));
+          }
+        };
+
+        // Fetch recipe from URL (or simulate)
+        const handleFetchRecipe = async () => {
+          setLoading(true);
+          try {
+            let fetchedRecipe;
+            if (url.trim().toLowerCase() === "test") {
+              fetchedRecipe = {
+                title: "Test Recipe",
+                dishType: "Pasta",
+                mealType: "Dinner",
+                cookbook: "Test Cookbook",
+                ingredients: [
+                  { name: "Ingredient 1", quantity: "2", unit: "cup" },
+                  { name: "Ingredient 2", quantity: "1", unit: "tbsp" },
+                ],
+                prepTime: "10 minutes",
+                cookTime: "20 minutes",
+                directions: "1. Do something.\n2. Do next step.",
+                rating: 3,
+                temperature: { value: "350", scale: "F" },
+                image: "",
+              };
+            } else {
+              const response = await axios.post("/api/fetch-recipe", { url });
+              fetchedRecipe = response.data;
+            }
+            setTitle(fetchedRecipe.title || "");
+            setSelectedDishType(fetchedRecipe.dishType || "");
+            setSelectedMealType(fetchedRecipe.mealType || "");
+            setCookbook(fetchedRecipe.cookbook || "");
+            setIngredients(fetchedRecipe.ingredients || []);
+            setPrepTime(fetchedRecipe.prepTime || "");
+            setCookTime(fetchedRecipe.cookTime || "");
+            setDirections(fetchedRecipe.directions || "");
+            setRating(fetchedRecipe.rating || 0);
+            setTemperatureValue(fetchedRecipe.temperature?.value || "");
+            setTemperatureScale(fetchedRecipe.temperature?.scale || "F");
+            if (!newImagePreview && fetchedRecipe.image) {
+              setNewImagePreview(fetchedRecipe.image);
+            }
+          } catch (error) {
+            console.error("Error fetching recipe", error);
+            alert("An error occurred while fetching the recipe. Please try again.");
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        // Add or update recipe
+        const handleAddRecipe = () => {
+          const newRecipe = {
+            title,
+            dishType: selectedDishType,
+            mealType: selectedMealType,
+            cookbook,
+            prepTime,
+            cookTime,
+            directions,
+            rating,
+            temperature: { value: temperatureValue, scale: temperatureScale },
+            ingredients,
+            image: newImagePreview,
+          };
+
+          if (editingIndex !== null) {
+            setRecipes((prev) =>
+              prev.map((r, i) => (i === editingIndex ? newRecipe : r))
+            );
+          } else {
+            setRecipes((prev) => [...prev, newRecipe]);
+          }
+          setRecipe(newRecipe);
+          resetForm();
+        };
+
+        // Reset form and editing state
+        const resetForm = () => {
+          setUrl("");
+          setTitle("");
+          setSelectedDishType("");
+          setSelectedMealType("");
+          setCookbook("");
+          setPrepTime("");
+          setCookTime("");
+          setDirections("");
+          setRating(0);
+          setTemperatureValue("");
+          setTemperatureScale("F");
+          setIngredients([]);
+          setNewImage(null);
+          setNewImagePreview("");
+          setEditingIndex(null);
+        };
+
+        // Delete a single recipe
+        const handleDeleteRecipe = (recipeToDelete) => {
+          setRecipes((prev) => prev.filter((r) => r !== recipeToDelete));
+        };
+
+        // Open edit modal with recipe data
+        const handleEditRecipe = (index, recipeData) => {
+          setEditingIndex(index);
+          setTitle(recipeData.title || "");
+          setSelectedDishType(recipeData.dishType || "");
+          setSelectedMealType(recipeData.mealType || "");
+          setCookbook(recipeData.cookbook || "");
+          setPrepTime(recipeData.prepTime || "");
+          setCookTime(recipeData.cookTime || "");
+          setDirections(recipeData.directions || "");
+          setRating(recipeData.rating || 0);
+          setTemperatureValue(recipeData.temperature?.value || "");
+          setTemperatureScale(recipeData.temperature?.scale || "F");
+          setIngredients(recipeData.ingredients || []);
+          setNewImagePreview(recipeData.image || "");
+          setShowModal(true);
+        };
+
+        // Show modal to delete a cookbook
+        const openCookbookDeleteModal = (cookbookName) => {
+          setCookbookToDelete(cookbookName);
+          setShowCookbookDeleteModal(true);
+        };
+
+        // Delete cookbook and keep recipes
+        const handleDeleteCookbookKeepRecipes = () => {
+          setRecipes((prevRecipes) =>
+            prevRecipes.map((r) => {
+              if (r.cookbook === cookbookToDelete) {
+                return { ...r, cookbook: "" };
+              }
+              return r;
+            })
+          );
+          setShowCookbookDeleteModal(false);
+          setCookbookToDelete("");
+        };
+
+        // Delete cookbook and all related recipes
+        const handleDeleteCookbookAndRecipes = () => {
+          setRecipes((prevRecipes) =>
+            prevRecipes.filter((r) => r.cookbook !== cookbookToDelete)
+          );
+          setShowCookbookDeleteModal(false);
+          setCookbookToDelete("");
+        };
+
+        // Close modal on ESC
+        const modalRef = useRef(null);
+        useEffect(() => {
+          const handleKey = (e) => {
+            if (e.key === "Escape") {
+              setShowModal(false);
+              resetForm();
+            }
+          };
+          document.addEventListener("keydown", handleKey);
+          return () => document.removeEventListener("keydown", handleKey);
+        }, []);
+
+        // Print all recipes (filtered by search)
+        const printAllRecipes = () => {
+          const filteredRecipes = recipes.filter((r) =>
+            r.title.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+          const printWindow = window.open("", "", "height=800,width=1200");
+          printWindow.document.write("<html><head><title>Print All Recipes</title>");
+          printWindow.document.write(
+            '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
+          );
+          printWindow.document.write("</head><body>");
+          filteredRecipes.forEach((recipe) => {
+            printWindow.document.write('<div class="card printable">');
+            printWindow.document.write(
+              "<h1>" + (recipe.title || "Untitled Recipe") + "</h1>"
+            );
+            if (recipe.image) {
+              printWindow.document.write(
+                '<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />'
+              );
+            }
+            printWindow.document.write(
+              "<p><strong>Dish Type:</strong> " +
+                (recipe.dishType || "N/A") +
+                "</p>"
+            );
+            printWindow.document.write(
+              "<p><strong>Meal Type:</strong> " +
+                (recipe.mealType || "N/A") +
+                "</p>"
+            );
+            printWindow.document.write(
+              "<p><strong>Cookbook:</strong> " +
+                (recipe.cookbook || "N/A") +
+                "</p>"
+            );
+            printWindow.document.write(
+              "<p><strong>Prep Time:</strong> " +
+                (recipe.prepTime || "N/A") +
+                "</p>"
+            );
+            printWindow.document.write(
+              "<p><strong>Cook Time:</strong> " +
+                (recipe.cookTime || "N/A") +
+                "</p>"
+            );
+            if (recipe.temperature && recipe.temperature.value) {
+              printWindow.document.write(
+                "<p><strong>Temp:</strong> " +
+                  recipe.temperature.value +
+                  "°" +
+                  recipe.temperature.scale +
+                  "</p>"
+              );
+            }
+            printWindow.document.write(
+              "<p><strong>Rating:</strong> " +
+                "★".repeat(recipe.rating) +
+                "☆".repeat(5 - recipe.rating) +
+                "</p>"
+            );
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+              printWindow.document.write("<h3>Ingredients</h3><ul>");
+              recipe.ingredients.forEach((ing) => {
+                printWindow.document.write(
+                  "<li>" +
+                    (ing.quantity ? ing.quantity + " " : "") +
+                    (ing.unit ? ing.unit + " " : "") +
+                    ing.name +
+                    "</li>"
+                );
+              });
+              printWindow.document.write("</ul>");
+            }
+            if (recipe.directions) {
+              printWindow.document.write(
+                "<h3>Directions</h3><p>" +
+                  recipe.directions.replace(/\n/g, "<br>") +
+                  "</p>"
+              );
+            }
+            printWindow.document.write("</div>");
+          });
+          printWindow.document.write("</body></html>");
+          printWindow.document.close();
+          printWindow.focus();
+          printWindow.print();
+        };
+
+        // Modal for adding/editing a recipe
+        const renderAddRecipeModal = () => {
+          if (!showModal) return null;
+          return (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Add or Edit Recipe Modal"
+            >
+              <div
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto"
+                tabIndex="-1"
+                ref={modalRef}
+              >
+                <button
+                  onClick={() => {
+                    setShowModal(false);
+                    resetForm();
+                  }}
+                  className="absolute top-2 right-2 text-gray-600 dark:text-white hover:text-gray-800 text-2xl"
+                  aria-label="Close add recipe modal"
+                >
+                  &times;
+                </button>
+                <h2 className="text-2xl font-bold mb-4">
+                  {editingIndex !== null ? "Edit Recipe" : "Add a Recipe"}
+                </h2>
+                <fieldset className="mb-4">
+                  <legend className="sr-only">Recipe Entry Method</legend>
+                  <label className="mr-4">
+                    <input
+                      type="radio"
+                      name="fetchMethod"
+                      value="url"
+                      checked={fetchMethod === "url"}
+                      onChange={() => setFetchMethod("url")}
+                      className="mr-2"
+                    />
+                    Fetch from URL
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="fetchMethod"
+                      value="manual"
+                      checked={fetchMethod === "manual"}
+                      onChange={() => setFetchMethod("manual")}
+                      className="mr-2"
+                    />
+                    Add Manually
+                  </label>
+                </fieldset>
+                {fetchMethod === "url" && (
+                  <div className="mb-4">
+                    <label className="sr-only" htmlFor="recipe-url">
+                      Recipe URL
+                    </label>
+                    <input
+                      id="recipe-url"
+                      type="text"
+                      placeholder="Enter recipe URL (type 'test' to simulate)"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="w-full mb-2 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    />
+                    <button
+                      className="w-full bg-teal-500 hover:bg-teal-600 text-white p-2 rounded transition-colors duration-300"
+                      onClick={handleFetchRecipe}
+                      disabled={loading}
+                    >
+                      {loading ? "Fetching..." : "Fetch Recipe"}
+                    </button>
+                  </div>
+                )}
+                <div className="mb-4">
+                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="recipe-title">
+                    Title
+                  </label>
+                  <input
+                    id="recipe-title"
+                    type="text"
+                    placeholder="Recipe Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  />
+                </div>
+                <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
+                  <div className="w-full">
+                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="dish-type">
+                      Dish Type
+                    </label>
+                    <select
+                      id="dish-type"
+                      value={selectedDishType}
+                      onChange={(e) => setSelectedDishType(e.target.value)}
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    >
+                      <option value="">Select Dish Type</option>
+                      {dishTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-full">
+                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="meal-type">
+                      Meal Type
+                    </label>
+                    <select
+                      id="meal-type"
+                      value={selectedMealType}
+                      onChange={(e) => setSelectedMealType(e.target.value)}
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    >
+                      <option value="">Select Meal Type</option>
+                      {mealTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="cookbook-name">
+                    Cookbook Name (Optional)
+                  </label>
+                  <input
+                    id="cookbook-name"
+                    type="text"
+                    placeholder="Cookbook"
+                    value={cookbook}
+                    onChange={(e) => setCookbook(e.target.value)}
+                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  />
+                </div>
+                <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
+                  <div className="w-full">
+                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="prep-time">
+                      Prep Time
+                    </label>
+                    <input
+                      id="prep-time"
+                      type="text"
+                      placeholder="e.g. 10 minutes"
+                      value={prepTime}
+                      onChange={(e) => setPrepTime(e.target.value)}
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="cook-time">
+                      Cook Time
+                    </label>
+                    <input
+                      id="cook-time"
+                      type="text"
+                      placeholder="e.g. 30 minutes"
+                      value={cookTime}
+                      onChange={(e) => setCookTime(e.target.value)}
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
+                  <div className="w-full md:w-1/2">
+                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="temp-value">
+                      Temperature Value
+                    </label>
+                    <input
+                      id="temp-value"
+                      type="number"
+                      placeholder="e.g. 350"
+                      value={temperatureValue}
+                      onChange={(e) => setTemperatureValue(e.target.value)}
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    />
+                  </div>
+                  <div className="w-full md:w-1/2">
+                    <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="temp-scale">
+                      Scale (C or F)
+                    </label>
+                    <select
+                      id="temp-scale"
+                      value={temperatureScale}
+                      onChange={(e) => setTemperatureScale(e.target.value)}
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    >
+                      <option value="F">F</option>
+                      <option value="C">C</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="rating">
+                    Rating
+                  </label>
+                  <StarRating rating={rating} setRating={setRating} />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-white mb-2" htmlFor="recipe-image">
+                    Recipe Image
+                  </label>
+                  <div
+                    className="relative w-full mb-2"
+                    style={{ paddingTop: "60%" }}
+                  >
+                    {newImagePreview ? (
+                      <img
+                        src={newImagePreview}
+                        alt="Recipe"
+                        className="absolute top-0 left-0 w-full h-full object-cover rounded"
+                      />
+                    ) : (
+                      <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded">
+                        <span>Click to add image</span>
+                      </div>
+                    )}
+                    <input
+                      id="recipe-image"
+                      type="file"
+                      accept="image/*"
+                      className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                      onChange={handleImageChange}
+                      aria-label="Upload recipe image"
+                    />
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1 text-gray-700 dark:text-white" htmlFor="directions">
+                    Directions
+                  </label>
+                  <textarea
+                    id="directions"
+                    rows="4"
+                    placeholder="Step-by-step directions"
+                    value={directions}
+                    onChange={(e) => setDirections(e.target.value)}
+                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  />
+                </div>
+                <div className="mb-4">
+                  <p className="mb-2 text-gray-700 dark:text-white font-semibold">Ingredients</p>
+                  {ingredients.map((ingredient, index) => (
+                    <IngredientRow
+                      key={index}
+                      ingredient={ingredient}
+                      index={index}
+                      handleIngredientChange={handleIngredientChange}
+                      removeIngredientRow={removeIngredientRow}
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addIngredientRow}
+                    className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
+                  >
+                    + Add Ingredient
+                  </button>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors duration-300"
+                    onClick={handleAddRecipe}
+                  >
+                    {editingIndex !== null ? "Update Recipe" : "Save Recipe"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // Render main content based on active tab
+        const renderContent = () => {
+          if (activeTab === "recipes") {
+            const filteredRecipes = recipes.filter((r) =>
+              r.title.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            return (
+              <div id="main-content">
+                <div className="flex justify-between items-center mb-4">
+                  <button
+                    onClick={() => setShowModal(true)}
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center transition-transform duration-300 transform hover:scale-105"
+                  >
+                    <span className="mr-2 text-xl">+</span> Add Recipe
+                  </button>
+                  <button
+                    onClick={printAllRecipes}
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
+                  >
+                    Print All Recipes
+                  </button>
+                </div>
+                {filteredRecipes.length === 0 ? (
+                  <p className="text-gray-600 dark:text-white">No recipes available.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {filteredRecipes.map((r, index) => (
+                      <RecipeCard
+                        key={index}
+                        index={index}
+                        recipe={r}
+                        onDeleteRecipe={handleDeleteRecipe}
+                        onEditRecipe={handleEditRecipe}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          } else if (activeTab === "categories") {
+            return (
+              <div id="main-content">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {dishTypes.map((cat, index) => {
+                    const catRecipes = recipes.filter(
+                      (r) => r.dishType === cat
+                    );
+                    const image =
+                      categoryImages[cat] ||
+                      (catRecipes.find((r) => r.image) || {}).image ||
+                      "";
+                    return (
+                      <div
+                        key={index}
+                        className="border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                      >
+                        <div
+                          className="relative w-full"
+                          style={{ paddingTop: "75%" }}
+                        >
+                          {image ? (
+                            <img
+                              src={image}
+                              alt={`${cat} category`}
+                              className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                            />
+                          ) : (
+                            <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                              <span>Add Image</span>
+                            </div>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                const imageURL = URL.createObjectURL(file);
+                                setCategoryImages((prev) => ({
+                                  ...prev,
+                                  [cat]: imageURL,
+                                }));
+                              }
+                            }}
+                            aria-label={`Upload an image for category ${cat}`}
+                          />
+                        </div>
+                        <div className="mt-4">
+                          <h3 className="text-xl font-bold">{cat}</h3>
+                          <p className="text-gray-600 dark:text-white">
+                            {catRecipes.length} recipes
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          } else if (activeTab === "cookbooks") {
+            if (selectedCookbook) {
+              const cookbookRecipes = recipes.filter(
+                (r) => r.cookbook === selectedCookbook
+              );
+              return (
+                <div id="main-content">
+                  <button
+                    onClick={() => setSelectedCookbook(null)}
+                    className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                  >
+                    &larr; Back to Cookbooks
+                  </button>
+                  <h2 className="text-2xl font-bold mb-4">{selectedCookbook}</h2>
+                  {cookbookRecipes.length === 0 ? (
+                    <p className="text-gray-600 dark:text-white">No recipes in this cookbook.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {cookbookRecipes.map((r, index) => (
+                        <RecipeCard
+                          key={index}
+                          index={index}
+                          recipe={r}
+                          onDeleteRecipe={handleDeleteRecipe}
+                          onEditRecipe={handleEditRecipe}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            } else {
+              const cookbookSet = new Set();
+              recipes.forEach((r) => {
+                if (r.cookbook && r.cookbook !== "N/A" && r.cookbook !== "")
+                  cookbookSet.add(r.cookbook);
+              });
+              const cookbookList = Array.from(cookbookSet);
+              if (cookbookList.length === 0) {
+                return <p className="text-gray-600 dark:text-white">No cookbooks available.</p>;
+              }
+              return (
+                <div id="main-content">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {cookbookList.map((cb, index) => {
+                      const cbRecipes = recipes.filter((r) => r.cookbook === cb);
+                      const image =
+                        (cbRecipes.find((r) => r.image) || {}).image || "";
+                      return (
+                        <div
+                          key={index}
+                          onClick={() => setSelectedCookbook(cb)}
+                          className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                        >
+                          <div
+                            className="relative w-full"
+                            style={{ paddingTop: "75%" }}
+                          >
+                            {image ? (
+                              <img
+                                src={image}
+                                alt={`${cb} cookbook`}
+                                className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                              />
+                            ) : (
+                              <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                <span>Add Image</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-xl font-bold">{cb}</h3>
+                            <p className="text-gray-600 dark:text-white">{cbRecipes.length} recipes</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+          } else if (activeTab === "mealTimes") {
+            if (selectedMealTime) {
+              const mealTimeRecipes = recipes.filter(
+                (r) => r.mealType === selectedMealTime
+              );
+              return (
+                <div id="main-content">
+                  <button
+                    onClick={() => setSelectedMealTime(null)}
+                    className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                  >
+                    &larr; Back to Meal Times
+                  </button>
+                  <h2 className="text-2xl font-bold mb-4">{selectedMealTime}</h2>
+                  {mealTimeRecipes.length === 0 ? (
+                    <p className="text-gray-600 dark:text-white">No recipes for this meal time.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {mealTimeRecipes.map((r, index) => (
+                        <RecipeCard
+                          key={index}
+                          index={index}
+                          recipe={r}
+                          onDeleteRecipe={handleDeleteRecipe}
+                          onEditRecipe={handleEditRecipe}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            } else {
+              return (
+                <div id="main-content">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {mealTypes.map((meal, index) => {
+                      const mealRecipes = recipes.filter(
+                        (r) => r.mealType === meal
+                      );
+                      const image =
+                        mealTimeImages[meal] ||
+                        (mealRecipes.find((r) => r.image) || {}).image ||
+                        "";
+                      return (
+                        <div
+                          key={index}
+                          onClick={() => setSelectedMealTime(meal)}
+                          className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                        >
+                          <div
+                            className="relative w-full"
+                            style={{ paddingTop: "75%" }}
+                          >
+                            {image ? (
+                              <img
+                                src={image}
+                                alt={`${meal} meal time`}
+                                className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                              />
+                            ) : (
+                              <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                <span>Add Image</span>
+                              </div>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  const imageURL = URL.createObjectURL(file);
+                                  setMealTimeImages((prev) => ({
+                                    ...prev,
+                                    [meal]: imageURL,
+                                  }));
+                                }
+                              }}
+                              aria-label={`Upload an image for meal time ${meal}`}
+                            />
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-xl font-bold">{meal}</h3>
+                            <p className="text-gray-600 dark:text-white">{mealRecipes.length} recipes</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+          }
+        };
+
+        return (
+          <div className="flex min-h-screen" role="document">
+            {/* Sidebar Navigation */}
+            <aside
+              className="bg-gray-800 text-white w-64 flex-shrink-0 hidden md:flex flex-col"
+              role="navigation"
+              aria-label="Main"
+            >
+              <div className="p-4 bg-teal-600 flex items-center justify-center" role="banner">
+                <h1 className="text-xl font-bold">TasteVault</h1>
+              </div>
+              <nav className="flex-1 p-2 space-y-1" role="tablist">
+                <button
+                  onClick={() => {
+                    setActiveTab("categories");
+                    setSelectedCookbook(null);
+                    setSelectedMealTime(null);
+                  }}
+                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
+                    activeTab === "categories" ? "bg-gray-700" : ""
+                  }`}
+                  role="tab"
+                  aria-selected={activeTab === "categories"}
+                >
+                  Categories
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab("recipes");
+                    setSelectedCookbook(null);
+                    setSelectedMealTime(null);
+                  }}
+                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
+                    activeTab === "recipes" ? "bg-gray-700" : ""
+                  }`}
+                  role="tab"
+                  aria-selected={activeTab === "recipes"}
+                >
+                  Recipes
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab("cookbooks");
+                    setSelectedCookbook(null);
+                    setSelectedMealTime(null);
+                  }}
+                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
+                    activeTab === "cookbooks" ? "bg-gray-700" : ""
+                  }`}
+                  role="tab"
+                  aria-selected={activeTab === "cookbooks"}
+                >
+                  Cookbooks
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab("mealTimes");
+                    setSelectedCookbook(null);
+                    setSelectedMealTime(null);
+                  }}
+                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
+                    activeTab === "mealTimes" ? "bg-gray-700" : ""
+                  }`}
+                  role="tab"
+                  aria-selected={activeTab === "mealTimes"}
+                >
+                  Meal Times
+                </button>
+              </nav>
+            </aside>
+
+            {/* Mobile Top Navigation */}
+            <header
+              className="bg-teal-600 text-white md:hidden flex items-center justify-between p-4"
+              role="banner"
+            >
+              <h1 className="text-xl font-bold">TasteVault</h1>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-white text-teal-600 px-3 py-2 rounded"
+                  aria-label="Add a new recipe"
+                >
+                  + Add Recipe
+                </button>
+              </div>
+            </header>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col">
+              {/* Top Bar */}
+              <div
+                className="hidden md:flex items-center justify-between bg-white dark:bg-gray-800 p-4 shadow-sm"
+                role="search"
+              >
+                <div className="flex items-center space-x-2 w-2/3">
+                  <label className="sr-only" htmlFor="search-input">
+                    Search recipes
+                  </label>
+                  <input
+                    id="search-input"
+                    type="text"
+                    placeholder="Search recipes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400 dark:bg-gray-700 dark:text-white"
+                    aria-label="Search recipes"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={printAllRecipes}
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
+                    aria-label="Print all recipes"
+                  >
+                    Print All Recipes
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Content (tab panel) */}
+              <main
+                className="p-4 md:p-8 flex-1 overflow-auto"
+                id="main-content"
+                tabIndex="0"
+              >
+                {renderContent()}
+              </main>
+
+              {/* Footer */}
+              <footer
+                className="bg-white dark:bg-gray-800 text-center text-gray-600 dark:text-white p-4 border-t"
+                role="contentinfo"
+              >
+                &copy; {new Date().getFullYear()} TasteVault
+              </footer>
+            </div>
+
+            {/* Add/Edit Recipe Modal */}
+            {renderAddRecipeModal()}
+
+            {/* Delete Cookbook Modal */}
+            {showCookbookDeleteModal && (
+              <DeleteCookbookModal
+                cookbookName={cookbookToDelete}
+                onClose={() => {
+                  setShowCookbookDeleteModal(false);
+                  setCookbookToDelete("");
+                }}
+                onDeleteAllRecipes={handleDeleteCookbookAndRecipes}
+                onKeepRecipes={handleDeleteCookbookKeepRecipes}
+              />
+            )}
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<RecipeSaver />);
+    </script>
+  </body>
+</html>
