@@ -1047,98 +1047,99 @@
         };
 
         return (
-          <div className="flex min-h-screen" role="document">
-            {/* Sidebar Navigation for Desktop */}
-            <aside
-              className="bg-gray-800 text-white w-64 flex-shrink-0 hidden md:flex flex-col"
-              role="navigation"
-              aria-label="Main"
-            >
-              <div className="p-4 bg-teal-600 flex items-center justify-center" role="banner">
-                <h1 className="text-xl font-bold">TasteVault</h1>
-              </div>
-              <nav className="flex-1 p-2 space-y-1" role="tablist">
-                <button
-                  onClick={() => {
-                    setActiveTab("categories");
-                    setSelectedCookbook(null);
-                    setSelectedMealTime(null);
-                  }}
-                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
-                    activeTab === "categories" ? "bg-gray-700" : ""
-                  }`}
-                  role="tab"
-                  aria-selected={activeTab === "categories"}
-                >
-                  Categories
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab("recipes");
-                    setSelectedCookbook(null);
-                    setSelectedMealTime(null);
-                  }}
-                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
-                    activeTab === "recipes" ? "bg-gray-700" : ""
-                  }`}
-                  role="tab"
-                  aria-selected={activeTab === "recipes"}
-                >
-                  Recipes
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab("cookbooks");
-                    setSelectedCookbook(null);
-                    setSelectedMealTime(null);
-                  }}
-                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
-                    activeTab === "cookbooks" ? "bg-gray-700" : ""
-                  }`}
-                  role="tab"
-                  aria-selected={activeTab === "cookbooks"}
-                >
-                  Cookbooks
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab("mealTimes");
-                    setSelectedCookbook(null);
-                    setSelectedMealTime(null);
-                  }}
-                  className={`block w-full text-left px-4 py-2 rounded-md hover:bg-gray-700 ${
-                    activeTab === "mealTimes" ? "bg-gray-700" : ""
-                  }`}
-                  role="tab"
-                  aria-selected={activeTab === "mealTimes"}
-                >
-                  Meal Times
-                </button>
-              </nav>
-            </aside>
-
-            {/* Mobile Header with Hamburger Menu */}
-            <header
-              className="bg-teal-600 text-white md:hidden flex items-center justify-between p-4"
-              role="banner"
-            >
+          <div className="min-h-screen flex flex-col" role="document">
+            {/* Top Navigation Header */}
+            <header className="bg-teal-600 text-white flex items-center justify-between p-4" role="banner">
               <div className="flex items-center">
+                <h1 className="text-xl font-bold mr-8">TasteVault</h1>
+                <nav className="hidden md:flex space-x-4">
+                  <button
+                    onClick={() => {
+                      setActiveTab("categories");
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "categories" ? "bg-teal-800" : ""}`}
+                    role="tab"
+                    aria-selected={activeTab === "categories"}
+                  >
+                    Categories
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab("recipes");
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "recipes" ? "bg-teal-800" : ""}`}
+                    role="tab"
+                    aria-selected={activeTab === "recipes"}
+                  >
+                    Recipes
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab("cookbooks");
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "cookbooks" ? "bg-teal-800" : ""}`}
+                    role="tab"
+                    aria-selected={activeTab === "cookbooks"}
+                  >
+                    Cookbooks
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab("mealTimes");
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "mealTimes" ? "bg-teal-800" : ""}`}
+                    role="tab"
+                    aria-selected={activeTab === "mealTimes"}
+                  >
+                    Meal Times
+                  </button>
+                </nav>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div>
+                  <input
+                    id="search-input"
+                    type="text"
+                    placeholder="Search recipes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400 text-black"
+                    aria-label="Search recipes"
+                  />
+                </div>
                 <button
+                  onClick={printAllRecipes}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
+                  aria-label="Print all recipes"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9V2h12v7M6 18h12v-5H6v5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 14h12" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded"
+                  aria-label="Add a new recipe"
+                >
+                  <span className="text-xl">+</span>
+                </button>
+                <button
+                  className="md:hidden"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   aria-label="Toggle navigation menu"
-                  className="text-white text-2xl mr-4"
                 >
                   ☰
                 </button>
-                <h1 className="text-xl font-bold">TasteVault</h1>
               </div>
-              <button
-                onClick={() => setShowModal(true)}
-                className="bg-white text-teal-600 px-3 py-2 rounded"
-                aria-label="Add a new recipe"
-              >
-                + Add Recipe
-              </button>
             </header>
 
             {/* Mobile Navigation Menu */}
@@ -1203,54 +1204,9 @@
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col">
-              {/* Top Bar for Desktop */}
-              <div
-                className="hidden md:flex items-center justify-between bg-white dark:bg-gray-800 p-4 shadow-sm"
-                role="search"
-              >
-                <div className="flex items-center space-x-2 w-2/3">
-                  <label className="sr-only" htmlFor="search-input">
-                    Search recipes
-                  </label>
-                  <input
-                    id="search-input"
-                    type="text"
-                    placeholder="Search recipes..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400 dark:bg-gray-700 dark:text-white"
-                    aria-label="Search recipes"
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={printAllRecipes}
-                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
-                    aria-label="Print all recipes"
-                  >
-                    Print All Recipes
-                  </button>
-                </div>
-              </div>
-
-              {/* Main Content (tab panel) */}
               <main className="p-4 md:p-8 flex-1 overflow-auto" id="main-content" tabIndex="0">
                 {activeTab === "recipes" ? (
                   <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <button
-                        onClick={() => setShowModal(true)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center transition-transform duration-300 transform hover:scale-105"
-                      >
-                        <span className="mr-2 text-xl">+</span> Add Recipe
-                      </button>
-                      <button
-                        onClick={printAllRecipes}
-                        className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
-                      >
-                        Print All Recipes
-                      </button>
-                    </div>
                     {recipes.filter((r) =>
                       r.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).length === 0 ? (
@@ -1472,12 +1428,12 @@
                   )
                 ) : null}
               </main>
-
-              {/* Footer */}
-              <footer className="bg-white dark:bg-gray-800 text-center text-gray-600 dark:text-white p-4 border-t" role="contentinfo">
-                &copy; {new Date().getFullYear()} TasteVault
-              </footer>
             </div>
+
+            {/* Footer */}
+            <footer className="bg-white dark:bg-gray-800 text-center text-gray-600 dark:text-white p-4 border-t" role="contentinfo">
+              &copy; {new Date().getFullYear()} TasteVault
+            </footer>
 
             {/* Add/Edit Recipe Modal with Tabs */}
             {renderAddRecipeModal()}
