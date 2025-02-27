@@ -80,6 +80,21 @@
           top: 0;
         }
       }
+      /* Default modal container styling */
+      .modal-container {
+        width: 90vw;
+        height: 90vw;
+        max-width: 500px;
+        max-height: 500px;
+      }
+      /* Custom styles for Android portrait mode */
+      @media only screen and (max-width: 480px) and (orientation: portrait) {
+        .modal-container {
+          width: 95vw;
+          height: auto;
+          max-height: 90vh;
+        }
+      }
     </style>
   </head>
   <body class="bg-gray-900">
@@ -831,15 +846,7 @@
               aria-modal="true"
               aria-label="Add or Edit Recipe Modal"
             >
-              <div
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-auto"
-                style={{
-                  width: "90vw",
-                  height: "90vw",
-                  maxWidth: "500px",
-                  maxHeight: "500px",
-                }}
-              >
+              <div className="modal-container bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-auto">
                 <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
                   <h2 className="text-2xl font-bold">
                     {editingIndex !== null ? "Edit Recipe" : "Add a Recipe"}
