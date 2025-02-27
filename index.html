@@ -138,11 +138,7 @@
         };
 
         return (
-          <div
-            className="flex items-center"
-            role="radiogroup"
-            aria-label="Star Rating"
-          >
+          <div className="flex items-center" role="radiogroup" aria-label="Star Rating">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -161,23 +157,8 @@
       }
 
       // IngredientRow component
-      function IngredientRow({
-        ingredient,
-        index,
-        handleIngredientChange,
-        removeIngredientRow,
-      }) {
-        const units = [
-          "tsp",
-          "tbsp",
-          "cup",
-          "oz",
-          "lb",
-          "ml",
-          "l",
-          "g",
-          "kg",
-        ];
+      function IngredientRow({ ingredient, index, handleIngredientChange, removeIngredientRow }) {
+        const units = ["tsp", "tbsp", "cup", "oz", "lb", "ml", "l", "g", "kg"];
 
         return (
           <div className="flex flex-col md:flex-row md:space-x-2 mb-2">
@@ -189,9 +170,7 @@
               type="text"
               placeholder="Ingredient Name"
               value={ingredient.name}
-              onChange={(e) =>
-                handleIngredientChange(index, "name", e.target.value)
-              }
+              onChange={(e) => handleIngredientChange(index, "name", e.target.value)}
               className="w-full md:w-1/3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             />
             <label className="sr-only" htmlFor={`ingredient-qty-${index}`}>
@@ -203,9 +182,7 @@
               step="any"
               placeholder="Quantity"
               value={ingredient.quantity}
-              onChange={(e) =>
-                handleIngredientChange(index, "quantity", e.target.value)
-              }
+              onChange={(e) => handleIngredientChange(index, "quantity", e.target.value)}
               className="w-full md:w-1/4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             />
             <label className="sr-only" htmlFor={`ingredient-unit-${index}`}>
@@ -214,9 +191,7 @@
             <select
               id={`ingredient-unit-${index}`}
               value={ingredient.unit}
-              onChange={(e) =>
-                handleIngredientChange(index, "unit", e.target.value)
-              }
+              onChange={(e) => handleIngredientChange(index, "unit", e.target.value)}
               className="w-full md:w-1/4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             >
               <option value="">Unit</option>
@@ -241,11 +216,7 @@
       // RecipeCard component with Edit and Print functionality
       function RecipeCard({ recipe, index, onDeleteRecipe, onEditRecipe }) {
         const handleDelete = () => {
-          if (
-            confirm(
-              `Are you sure you want to delete the recipe "${recipe.title}"?`
-            )
-          ) {
+          if (confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`)) {
             onDeleteRecipe(recipe);
           }
         };
@@ -258,64 +229,35 @@
           );
           printWindow.document.write("</head><body>");
           printWindow.document.write('<div class="card printable">');
-          printWindow.document.write(
-            "<h1>" + (recipe.title || "Untitled Recipe") + "</h1>"
-          );
+          printWindow.document.write("<h1>" + (recipe.title || "Untitled Recipe") + "</h1>");
           if (recipe.image) {
-            printWindow.document.write(
-              '<img src="' +
-                recipe.image +
-                '" alt="Recipe Image" class="mb-4" />'
-            );
+            printWindow.document.write('<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />');
           }
-          printWindow.document.write(
-            "<p><strong>Dish Type:</strong> " + (recipe.dishType || "N/A") + "</p>"
-          );
-          printWindow.document.write(
-            "<p><strong>Meal Type:</strong> " + (recipe.mealType || "N/A") + "</p>"
-          );
-          printWindow.document.write(
-            "<p><strong>Cookbook:</strong> " + (recipe.cookbook || "N/A") + "</p>"
-          );
-          printWindow.document.write(
-            "<p><strong>Prep Time:</strong> " + (recipe.prepTime || "N/A") + "</p>"
-          );
-          printWindow.document.write(
-            "<p><strong>Cook Time:</strong> " + (recipe.cookTime || "N/A") + "</p>"
-          );
+          printWindow.document.write("<p><strong>Dish Type:</strong> " + (recipe.dishType || "N/A") + "</p>");
+          printWindow.document.write("<p><strong>Meal Type:</strong> " + (recipe.mealType || "N/A") + "</p>");
+          printWindow.document.write("<p><strong>Cookbook:</strong> " + (recipe.cookbook || "N/A") + "</p>");
+          printWindow.document.write("<p><strong>Prep Time:</strong> " + (recipe.prepTime || "N/A") + "</p>");
+          printWindow.document.write("<p><strong>Cook Time:</strong> " + (recipe.cookTime || "N/A") + "</p>");
           if (recipe.temperature && recipe.temperature.value) {
             printWindow.document.write(
-              "<p><strong>Temp:</strong> " +
-                recipe.temperature.value +
-                "°" +
-                recipe.temperature.scale +
-                "</p>"
+              "<p><strong>Temp:</strong> " + recipe.temperature.value + "°" + recipe.temperature.scale + "</p>"
             );
           }
           printWindow.document.write(
-            "<p><strong>Rating:</strong> " +
-              "★".repeat(recipe.rating) +
-              "☆".repeat(5 - recipe.rating) +
-              "</p>"
+            "<p><strong>Rating:</strong> " + "★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating) + "</p>"
           );
           if (recipe.ingredients && recipe.ingredients.length > 0) {
             printWindow.document.write("<h3>Ingredients</h3><ul>");
             recipe.ingredients.forEach((ing) => {
               printWindow.document.write(
-                "<li>" +
-                  (ing.quantity ? ing.quantity + " " : "") +
-                  (ing.unit ? ing.unit + " " : "") +
-                  ing.name +
-                  "</li>"
+                "<li>" + (ing.quantity ? ing.quantity + " " : "") + (ing.unit ? ing.unit + " " : "") + ing.name + "</li>"
               );
             });
             printWindow.document.write("</ul>");
           }
           if (recipe.directions) {
             printWindow.document.write(
-              "<h3>Directions</h3><p>" +
-                recipe.directions.replace(/\n/g, "<br>") +
-                "</p>"
+              "<h3>Directions</h3><p>" + recipe.directions.replace(/\n/g, "<br>") + "</p>"
             );
           }
           printWindow.document.write("</div></body></html>");
@@ -330,10 +272,7 @@
             role="article"
             aria-label={`Recipe: ${recipe.title || "Untitled"}`}
           >
-            <div
-              className="relative w-full mb-4"
-              style={{ paddingTop: "60%", overflow: "hidden" }}
-            >
+            <div className="relative w-full mb-4" style={{ paddingTop: "60%", overflow: "hidden" }}>
               {recipe.image ? (
                 <img
                   src={recipe.image}
@@ -366,14 +305,12 @@
             </p>
             {recipe.temperature && recipe.temperature.value && (
               <p className="mb-1">
-                <strong>Temp:</strong> {recipe.temperature.value}°
-                {recipe.temperature.scale}
+                <strong>Temp:</strong> {recipe.temperature.value}°{recipe.temperature.scale}
               </p>
             )}
             {recipe.rating > 0 && (
               <p className="mb-1" aria-label={`Recipe rating: ${recipe.rating}`}>
-                <strong>Rating:</strong>{" "}
-                {"★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating)}
+                <strong>Rating:</strong> {"★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating)}
               </p>
             )}
             {recipe.ingredients && recipe.ingredients.length > 0 && (
@@ -393,9 +330,7 @@
             {recipe.directions && (
               <div className="mt-2">
                 <strong>Directions:</strong>
-                <p className="whitespace-pre-wrap mt-1">
-                  {recipe.directions}
-                </p>
+                <p className="whitespace-pre-wrap mt-1">{recipe.directions}</p>
               </div>
             )}
             <div className="flex justify-end mt-4 space-x-2">
@@ -426,12 +361,7 @@
       }
 
       // Modal for deleting a cookbook
-      function DeleteCookbookModal({
-        cookbookName,
-        onClose,
-        onDeleteAllRecipes,
-        onKeepRecipes,
-      }) {
+      function DeleteCookbookModal({ cookbookName, onClose, onDeleteAllRecipes, onKeepRecipes }) {
         const modalRef = useRef(null);
         useEffect(() => {
           const handleKey = (e) => {
@@ -464,8 +394,7 @@
               </button>
               <h2 className="text-2xl font-bold mb-4">Delete Cookbook</h2>
               <p className="mb-4">
-                How would you like to delete the cookbook{" "}
-                <strong>{cookbookName}</strong>?
+                How would you like to delete the cookbook <strong>{cookbookName}</strong>?
               </p>
               <div className="space-y-2">
                 <button
@@ -522,6 +451,7 @@
         const [editingIndex, setEditingIndex] = useState(null);
         const [selectedCookbook, setSelectedCookbook] = useState(null);
         const [selectedMealTime, setSelectedMealTime] = useState(null);
+        const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
         const dishTypes = [
           "Pasta",
@@ -554,10 +484,7 @@
 
         // Ingredient handlers
         const addIngredientRow = () => {
-          setIngredients((prev) => [
-            ...prev,
-            { name: "", quantity: "", unit: "" },
-          ]);
+          setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "" }]);
         };
         const handleIngredientChange = (index, field, value) => {
           const updated = [...ingredients];
@@ -620,9 +547,7 @@
             }
           } catch (error) {
             console.error("Error fetching recipe", error);
-            alert(
-              "An error occurred while fetching the recipe. Please try again."
-            );
+            alert("An error occurred while fetching the recipe. Please try again.");
           } finally {
             setLoading(false);
           }
@@ -646,9 +571,7 @@
           };
 
           if (editingIndex !== null) {
-            setRecipes((prev) =>
-              prev.map((r, i) => (i === editingIndex ? newRecipe : r))
-            );
+            setRecipes((prev) => prev.map((r, i) => (i === editingIndex ? newRecipe : r)));
           } else {
             setRecipes((prev) => [...prev, newRecipe]);
           }
@@ -723,9 +646,7 @@
 
         // Delete cookbook and all related recipes
         const handleDeleteCookbookAndRecipes = () => {
-          setRecipes((prevRecipes) =>
-            prevRecipes.filter((r) => r.cookbook !== cookbookToDelete)
-          );
+          setRecipes((prevRecipes) => prevRecipes.filter((r) => r.cookbook !== cookbookToDelete));
           setShowCookbookDeleteModal(false);
           setCookbookToDelete("");
         };
@@ -749,64 +670,29 @@
             r.title.toLowerCase().includes(searchQuery.toLowerCase())
           );
           const printWindow = window.open("", "", "height=800,width=1200");
-          printWindow.document.write(
-            "<html><head><title>Print All Recipes</title>"
-          );
+          printWindow.document.write("<html><head><title>Print All Recipes</title>");
           printWindow.document.write(
             '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
           );
           printWindow.document.write("</head><body>");
           filteredRecipes.forEach((recipe) => {
             printWindow.document.write('<div class="card printable">');
-            printWindow.document.write(
-              "<h1>" + (recipe.title || "Untitled Recipe") + "</h1>"
-            );
+            printWindow.document.write("<h1>" + (recipe.title || "Untitled Recipe") + "</h1>");
             if (recipe.image) {
-              printWindow.document.write(
-                '<img src="' +
-                  recipe.image +
-                  '" alt="Recipe Image" class="mb-4" />'
-              );
+              printWindow.document.write('<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />');
             }
-            printWindow.document.write(
-              "<p><strong>Dish Type:</strong> " +
-                (recipe.dishType || "N/A") +
-                "</p>"
-            );
-            printWindow.document.write(
-              "<p><strong>Meal Type:</strong> " +
-                (recipe.mealType || "N/A") +
-                "</p>"
-            );
-            printWindow.document.write(
-              "<p><strong>Cookbook:</strong> " +
-                (recipe.cookbook || "N/A") +
-                "</p>"
-            );
-            printWindow.document.write(
-              "<p><strong>Prep Time:</strong> " +
-                (recipe.prepTime || "N/A") +
-                "</p>"
-            );
-            printWindow.document.write(
-              "<p><strong>Cook Time:</strong> " +
-                (recipe.cookTime || "N/A") +
-                "</p>"
-            );
+            printWindow.document.write("<p><strong>Dish Type:</strong> " + (recipe.dishType || "N/A") + "</p>");
+            printWindow.document.write("<p><strong>Meal Type:</strong> " + (recipe.mealType || "N/A") + "</p>");
+            printWindow.document.write("<p><strong>Cookbook:</strong> " + (recipe.cookbook || "N/A") + "</p>");
+            printWindow.document.write("<p><strong>Prep Time:</strong> " + (recipe.prepTime || "N/A") + "</p>");
+            printWindow.document.write("<p><strong>Cook Time:</strong> " + (recipe.cookTime || "N/A") + "</p>");
             if (recipe.temperature && recipe.temperature.value) {
               printWindow.document.write(
-                "<p><strong>Temp:</strong> " +
-                  recipe.temperature.value +
-                  "°" +
-                  recipe.temperature.scale +
-                  "</p>"
+                "<p><strong>Temp:</strong> " + recipe.temperature.value + "°" + recipe.temperature.scale + "</p>"
               );
             }
             printWindow.document.write(
-              "<p><strong>Rating:</strong> " +
-                "★".repeat(recipe.rating) +
-                "☆".repeat(5 - recipe.rating) +
-                "</p>"
+              "<p><strong>Rating:</strong> " + "★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating) + "</p>"
             );
             if (recipe.ingredients && recipe.ingredients.length > 0) {
               printWindow.document.write("<h3>Ingredients</h3><ul>");
@@ -865,51 +751,31 @@
                 <div className="flex border-b dark:border-gray-700">
                   <button
                     onClick={() => setModalTab("General")}
-                    className={`flex-1 p-2 text-center ${
-                      modalTab === "General"
-                        ? "border-b-2 border-teal-500 font-bold"
-                        : ""
-                    }`}
+                    className={`flex-1 p-2 text-center ${modalTab === "General" ? "border-b-2 border-teal-500 font-bold" : ""}`}
                   >
                     General
                   </button>
                   <button
                     onClick={() => setModalTab("Ingredients")}
-                    className={`flex-1 p-2 text-center ${
-                      modalTab === "Ingredients"
-                        ? "border-b-2 border-teal-500 font-bold"
-                        : ""
-                    }`}
+                    className={`flex-1 p-2 text-center ${modalTab === "Ingredients" ? "border-b-2 border-teal-500 font-bold" : ""}`}
                   >
                     Ingredients
                   </button>
                   <button
                     onClick={() => setModalTab("Directions")}
-                    className={`flex-1 p-2 text-center ${
-                      modalTab === "Directions"
-                        ? "border-b-2 border-teal-500 font-bold"
-                        : ""
-                    }`}
+                    className={`flex-1 p-2 text-center ${modalTab === "Directions" ? "border-b-2 border-teal-500 font-bold" : ""}`}
                   >
                     Directions
                   </button>
                   <button
                     onClick={() => setModalTab("Grocery")}
-                    className={`flex-1 p-2 text-center ${
-                      modalTab === "Grocery"
-                        ? "border-b-2 border-teal-500 font-bold"
-                        : ""
-                    }`}
+                    className={`flex-1 p-2 text-center ${modalTab === "Grocery" ? "border-b-2 border-teal-500 font-bold" : ""}`}
                   >
                     Grocery List
                   </button>
                   <button
                     onClick={() => setModalTab("Notes")}
-                    className={`flex-1 p-2 text-center ${
-                      modalTab === "Notes"
-                        ? "border-b-2 border-teal-500 font-bold"
-                        : ""
-                    }`}
+                    className={`flex-1 p-2 text-center ${modalTab === "Notes" ? "border-b-2 border-teal-500 font-bold" : ""}`}
                   >
                     Notes &amp; Rating
                   </button>
@@ -937,10 +803,7 @@
                         </div>
                       )}
                       <div>
-                        <label
-                          htmlFor="recipe-title"
-                          className="block mb-1 text-gray-700 dark:text-white"
-                        >
+                        <label htmlFor="recipe-title" className="block mb-1 text-gray-700 dark:text-white">
                           Title
                         </label>
                         <input
@@ -954,10 +817,7 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label
-                            htmlFor="dish-type"
-                            className="block mb-1 text-gray-700 dark:text-white"
-                          >
+                          <label htmlFor="dish-type" className="block mb-1 text-gray-700 dark:text-white">
                             Dish Type
                           </label>
                           <select
@@ -975,10 +835,7 @@
                           </select>
                         </div>
                         <div className="w-1/2">
-                          <label
-                            htmlFor="meal-type"
-                            className="block mb-1 text-gray-700 dark:text-white"
-                          >
+                          <label htmlFor="meal-type" className="block mb-1 text-gray-700 dark:text-white">
                             Meal Type
                           </label>
                           <select
@@ -997,10 +854,7 @@
                         </div>
                       </div>
                       <div>
-                        <label
-                          htmlFor="cookbook-name"
-                          className="block mb-1 text-gray-700 dark:text-white"
-                        >
+                        <label htmlFor="cookbook-name" className="block mb-1 text-gray-700 dark:text-white">
                           Cookbook Name (Optional)
                         </label>
                         <input
@@ -1014,10 +868,7 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label
-                            htmlFor="prep-time"
-                            className="block mb-1 text-gray-700 dark:text-white"
-                          >
+                          <label htmlFor="prep-time" className="block mb-1 text-gray-700 dark:text-white">
                             Prep Time
                           </label>
                           <input
@@ -1030,10 +881,7 @@
                           />
                         </div>
                         <div className="w-1/2">
-                          <label
-                            htmlFor="cook-time"
-                            className="block mb-1 text-gray-700 dark:text-white"
-                          >
+                          <label htmlFor="cook-time" className="block mb-1 text-gray-700 dark:text-white">
                             Cook Time
                           </label>
                           <input
@@ -1048,10 +896,7 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label
-                            htmlFor="temp-value"
-                            className="block mb-1 text-gray-700 dark:text-white"
-                          >
+                          <label htmlFor="temp-value" className="block mb-1 text-gray-700 dark:text-white">
                             Temperature Value
                           </label>
                           <input
@@ -1064,10 +909,7 @@
                           />
                         </div>
                         <div className="w-1/2">
-                          <label
-                            htmlFor="temp-scale"
-                            className="block mb-1 text-gray-700 dark:text-white"
-                          >
+                          <label htmlFor="temp-scale" className="block mb-1 text-gray-700 dark:text-white">
                             Scale (C or F)
                           </label>
                           <select
@@ -1082,10 +924,7 @@
                         </div>
                       </div>
                       <div>
-                        <label
-                          htmlFor="recipe-image"
-                          className="block text-gray-700 dark:text-white mb-2"
-                        >
+                        <label htmlFor="recipe-image" className="block text-gray-700 dark:text-white mb-2">
                           Recipe Image
                         </label>
                         <div className="relative w-full" style={{ paddingTop: "60%" }}>
@@ -1137,10 +976,7 @@
                   )}
                   {modalTab === "Directions" && (
                     <div>
-                      <label
-                        htmlFor="directions"
-                        className="block mb-1 text-gray-700 dark:text-white"
-                      >
+                      <label htmlFor="directions" className="block mb-1 text-gray-700 dark:text-white">
                         Directions
                       </label>
                       <textarea
@@ -1159,9 +995,7 @@
                         Grocery List
                       </p>
                       {ingredients.length === 0 ? (
-                        <p className="text-gray-600 dark:text-white">
-                          No ingredients added.
-                        </p>
+                        <p className="text-gray-600 dark:text-white">No ingredients added.</p>
                       ) : (
                         <ul className="list-disc list-inside">
                           {ingredients.map((ing, index) => (
@@ -1178,19 +1012,13 @@
                   {modalTab === "Notes" && (
                     <div className="space-y-4">
                       <div>
-                        <label
-                          htmlFor="rating"
-                          className="block mb-1 text-gray-700 dark:text-white"
-                        >
+                        <label htmlFor="rating" className="block mb-1 text-gray-700 dark:text-white">
                           Rating
                         </label>
                         <StarRating rating={rating} setRating={setRating} />
                       </div>
                       <div>
-                        <label
-                          htmlFor="notes"
-                          className="block mb-1 text-gray-700 dark:text-white"
-                        >
+                        <label htmlFor="notes" className="block mb-1 text-gray-700 dark:text-white">
                           Notes
                         </label>
                         <textarea
@@ -1220,16 +1048,13 @@
 
         return (
           <div className="flex min-h-screen" role="document">
-            {/* Sidebar Navigation */}
+            {/* Sidebar Navigation for Desktop */}
             <aside
               className="bg-gray-800 text-white w-64 flex-shrink-0 hidden md:flex flex-col"
               role="navigation"
               aria-label="Main"
             >
-              <div
-                className="p-4 bg-teal-600 flex items-center justify-center"
-                role="banner"
-              >
+              <div className="p-4 bg-teal-600 flex items-center justify-center" role="banner">
                 <h1 className="text-xl font-bold">TasteVault</h1>
               </div>
               <nav className="flex-1 p-2 space-y-1" role="tablist">
@@ -1292,26 +1117,93 @@
               </nav>
             </aside>
 
-            {/* Mobile Top Navigation */}
+            {/* Mobile Header with Hamburger Menu */}
             <header
               className="bg-teal-600 text-white md:hidden flex items-center justify-between p-4"
               role="banner"
             >
-              <h1 className="text-xl font-bold">TasteVault</h1>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center">
                 <button
-                  onClick={() => setShowModal(true)}
-                  className="bg-white text-teal-600 px-3 py-2 rounded"
-                  aria-label="Add a new recipe"
+                  onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                  aria-label="Toggle navigation menu"
+                  className="text-white text-2xl mr-4"
                 >
-                  + Add Recipe
+                  ☰
                 </button>
+                <h1 className="text-xl font-bold">TasteVault</h1>
               </div>
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-white text-teal-600 px-3 py-2 rounded"
+                aria-label="Add a new recipe"
+              >
+                + Add Recipe
+              </button>
             </header>
+
+            {/* Mobile Navigation Menu */}
+            {mobileNavOpen && (
+              <nav className="bg-teal-600 text-white md:hidden">
+                <ul className="flex flex-col">
+                  <li>
+                    <button
+                      onClick={() => {
+                        setActiveTab("categories");
+                        setMobileNavOpen(false);
+                        setSelectedCookbook(null);
+                        setSelectedMealTime(null);
+                      }}
+                      className="block w-full text-left px-4 py-2 border-b border-teal-700"
+                    >
+                      Categories
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setActiveTab("recipes");
+                        setMobileNavOpen(false);
+                        setSelectedCookbook(null);
+                        setSelectedMealTime(null);
+                      }}
+                      className="block w-full text-left px-4 py-2 border-b border-teal-700"
+                    >
+                      Recipes
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setActiveTab("cookbooks");
+                        setMobileNavOpen(false);
+                        setSelectedCookbook(null);
+                        setSelectedMealTime(null);
+                      }}
+                      className="block w-full text-left px-4 py-2 border-b border-teal-700"
+                    >
+                      Cookbooks
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setActiveTab("mealTimes");
+                        setMobileNavOpen(false);
+                        setSelectedCookbook(null);
+                        setSelectedMealTime(null);
+                      }}
+                      className="block w-full text-left px-4 py-2"
+                    >
+                      Meal Times
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col">
-              {/* Top Bar */}
+              {/* Top Bar for Desktop */}
               <div
                 className="hidden md:flex items-center justify-between bg-white dark:bg-gray-800 p-4 shadow-sm"
                 role="search"
@@ -1342,11 +1234,7 @@
               </div>
 
               {/* Main Content (tab panel) */}
-              <main
-                className="p-4 md:p-8 flex-1 overflow-auto"
-                id="main-content"
-                tabIndex="0"
-              >
+              <main className="p-4 md:p-8 flex-1 overflow-auto" id="main-content" tabIndex="0">
                 {activeTab === "recipes" ? (
                   <div>
                     <div className="flex justify-between items-center mb-4">
@@ -1366,9 +1254,7 @@
                     {recipes.filter((r) =>
                       r.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).length === 0 ? (
-                      <p className="text-gray-600 dark:text-white">
-                        No recipes available.
-                      </p>
+                      <p className="text-gray-600 dark:text-white">No recipes available.</p>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {recipes
@@ -1391,9 +1277,7 @@
                   <div id="main-content">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {dishTypes.map((cat, index) => {
-                        const catRecipes = recipes.filter(
-                          (r) => r.dishType === cat
-                        );
+                        const catRecipes = recipes.filter((r) => r.dishType === cat);
                         const image =
                           categoryImages[cat] ||
                           (catRecipes.find((r) => r.image) || {}).image ||
@@ -1403,10 +1287,7 @@
                             key={index}
                             className="border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
                           >
-                            <div
-                              className="relative w-full"
-                              style={{ paddingTop: "75%" }}
-                            >
+                            <div className="relative w-full" style={{ paddingTop: "75%" }}>
                               {image ? (
                                 <img
                                   src={image}
@@ -1426,10 +1307,7 @@
                                   const file = e.target.files[0];
                                   if (file) {
                                     const imageURL = URL.createObjectURL(file);
-                                    setCategoryImages((prev) => ({
-                                      ...prev,
-                                      [cat]: imageURL,
-                                    }));
+                                    setCategoryImages((prev) => ({ ...prev, [cat]: imageURL }));
                                   }
                                 }}
                                 aria-label={`Upload an image for category ${cat}`}
@@ -1437,9 +1315,7 @@
                             </div>
                             <div className="mt-4">
                               <h3 className="text-xl font-bold">{cat}</h3>
-                              <p className="text-gray-600 dark:text-white">
-                                {catRecipes.length} recipes
-                              </p>
+                              <p className="text-gray-600 dark:text-white">{catRecipes.length} recipes</p>
                             </div>
                           </div>
                         );
@@ -1455,14 +1331,9 @@
                       >
                         &larr; Back to Cookbooks
                       </button>
-                      <h2 className="text-2xl font-bold mb-4">
-                        {selectedCookbook}
-                      </h2>
-                      {recipes.filter((r) => r.cookbook === selectedCookbook)
-                        .length === 0 ? (
-                        <p className="text-gray-600 dark:text-white">
-                          No recipes in this cookbook.
-                        </p>
+                      <h2 className="text-2xl font-bold mb-4">{selectedCookbook}</h2>
+                      {recipes.filter((r) => r.cookbook === selectedCookbook).length === 0 ? (
+                        <p className="text-gray-600 dark:text-white">No recipes in this cookbook.</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {recipes
@@ -1485,28 +1356,19 @@
                         {Array.from(
                           new Set(
                             recipes
-                              .filter(
-                                (r) =>
-                                  r.cookbook &&
-                                  r.cookbook !== "N/A" &&
-                                  r.cookbook !== ""
-                              )
+                              .filter((r) => r.cookbook && r.cookbook !== "N/A" && r.cookbook !== "")
                               .map((r) => r.cookbook)
                           )
                         ).map((cb, index) => {
                           const cbRecipes = recipes.filter((r) => r.cookbook === cb);
-                          const image =
-                            (cbRecipes.find((r) => r.image) || {}).image || "";
+                          const image = (cbRecipes.find((r) => r.image) || {}).image || "";
                           return (
                             <div
                               key={index}
                               onClick={() => setSelectedCookbook(cb)}
                               className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
                             >
-                              <div
-                                className="relative w-full"
-                                style={{ paddingTop: "75%" }}
-                              >
+                              <div className="relative w-full" style={{ paddingTop: "75%" }}>
                                 {image ? (
                                   <img
                                     src={image}
@@ -1521,9 +1383,7 @@
                               </div>
                               <div className="mt-4">
                                 <h3 className="text-xl font-bold">{cb}</h3>
-                                <p className="text-gray-600 dark:text-white">
-                                  {cbRecipes.length} recipes
-                                </p>
+                                <p className="text-gray-600 dark:text-white">{cbRecipes.length} recipes</p>
                               </div>
                             </div>
                           );
@@ -1540,14 +1400,9 @@
                       >
                         &larr; Back to Meal Times
                       </button>
-                      <h2 className="text-2xl font-bold mb-4">
-                        {selectedMealTime}
-                      </h2>
-                      {recipes.filter((r) => r.mealType === selectedMealTime)
-                        .length === 0 ? (
-                        <p className="text-gray-600 dark:text-white">
-                          No recipes for this meal time.
-                        </p>
+                      <h2 className="text-2xl font-bold mb-4">{selectedMealTime}</h2>
+                      {recipes.filter((r) => r.mealType === selectedMealTime).length === 0 ? (
+                        <p className="text-gray-600 dark:text-white">No recipes for this meal time.</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {recipes
@@ -1568,9 +1423,7 @@
                     <div id="main-content">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {mealTypes.map((meal, index) => {
-                          const mealRecipes = recipes.filter(
-                            (r) => r.mealType === meal
-                          );
+                          const mealRecipes = recipes.filter((r) => r.mealType === meal);
                           const image =
                             mealTimeImages[meal] ||
                             (mealRecipes.find((r) => r.image) || {}).image ||
@@ -1581,10 +1434,7 @@
                               onClick={() => setSelectedMealTime(meal)}
                               className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
                             >
-                              <div
-                                className="relative w-full"
-                                style={{ paddingTop: "75%" }}
-                              >
+                              <div className="relative w-full" style={{ paddingTop: "75%" }}>
                                 {image ? (
                                   <img
                                     src={image}
@@ -1604,10 +1454,7 @@
                                     const file = e.target.files[0];
                                     if (file) {
                                       const imageURL = URL.createObjectURL(file);
-                                      setMealTimeImages((prev) => ({
-                                        ...prev,
-                                        [meal]: imageURL,
-                                      }));
+                                      setMealTimeImages((prev) => ({ ...prev, [meal]: imageURL }));
                                     }
                                   }}
                                   aria-label={`Upload an image for meal time ${meal}`}
@@ -1615,9 +1462,7 @@
                               </div>
                               <div className="mt-4">
                                 <h3 className="text-xl font-bold">{meal}</h3>
-                                <p className="text-gray-600 dark:text-white">
-                                  {mealRecipes.length} recipes
-                                </p>
+                                <p className="text-gray-600 dark:text-white">{mealRecipes.length} recipes</p>
                               </div>
                             </div>
                           );
@@ -1629,10 +1474,7 @@
               </main>
 
               {/* Footer */}
-              <footer
-                className="bg-white dark:bg-gray-800 text-center text-gray-600 dark:text-white p-4 border-t"
-                role="contentinfo"
-              >
+              <footer className="bg-white dark:bg-gray-800 text-center text-gray-600 dark:text-white p-4 border-t" role="contentinfo">
                 &copy; {new Date().getFullYear()} TasteVault
               </footer>
             </div>
