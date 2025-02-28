@@ -1065,7 +1065,8 @@
             <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-between p-4 shadow-lg" role="banner">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-8">TasteVault</h1>
-                <nav className="hidden md:flex space-x-4">
+                {/* Full Navigation displayed on lg screens and above */}
+                <nav className="hidden lg:flex space-x-4">
                   <button
                     onClick={() => {
                       setActiveTab("categories");
@@ -1117,7 +1118,7 @@
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
-                <div className="hidden md:block">
+                <div className="hidden lg:block">
                   <input
                     id="search-input"
                     type="text"
@@ -1145,9 +1146,9 @@
                 >
                   <span className="text-xl">+</span>
                 </button>
-                {/* Hamburger Menu Button for Mobile */}
+                {/* Hamburger Menu Button for Mobile (shows on screens smaller than lg) */}
                 <button
-                  className="md:hidden p-2"
+                  className="lg:hidden p-2"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   aria-label="Toggle navigation menu"
                 >
@@ -1158,9 +1159,9 @@
               </div>
             </header>
 
-            {/* Mobile Navigation Menu */}
+            {/* Mobile Navigation Menu (visible on screens smaller than lg) */}
             {mobileNavOpen && (
-              <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white md:hidden">
+              <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white lg:hidden">
                 <ul className="flex flex-col">
                   <li>
                     <button
