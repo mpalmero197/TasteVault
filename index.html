@@ -193,12 +193,15 @@
         );
       }
 
-      // RecipeCard component with Edit and Print functionality
+      // RecipeCard component with vertical ellipsis dropdown for options (ellipses now at bottom right)
       function RecipeCard({ recipe, index, onDeleteRecipe, onEditRecipe }) {
+        const [menuOpen, setMenuOpen] = useState(false);
+
         const handleDelete = () => {
           if (confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`))
             onDeleteRecipe(recipe);
         };
+
         const handlePrint = () => {
           const printWindow = window.open("", "", "height=600,width=800");
           printWindow.document.write("<html><head><title>Print Recipe</title>");
@@ -234,7 +237,7 @@
         };
 
         return (
-          <div className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300" role="article" aria-label={`Recipe: ${recipe.title || "Untitled"}`}>
+          <div className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300 relative" role="article" aria-label={`Recipe: ${recipe.title || "Untitled"}`}>
             <div className="relative w-full mb-4" style={{ paddingTop: "60%", overflow: "hidden" }}>
               {recipe.image ? (
                 <img src={recipe.image} alt={recipe.title || "Recipe Image"} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
@@ -276,129 +279,44 @@
                 <p className="whitespace-pre-wrap mt-1 text-white">{recipe.directions}</p>
               </div>
             )}
-            <div className="flex justify-end mt-4 space-x-2">
-              <button onClick={() => onEditRecipe(index, recipe)} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded" aria-label={`Edit recipe ${recipe.title}`}>
-                Edit
-              </button>
-              <button onClick={handlePrint} className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded" aria-label={`Print recipe ${recipe.title}`}>
-                Print
-              </button>
-              <button onClick={handleDelete} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded" aria-label={`Delete recipe ${recipe.title}`}>
-                Delete
-              </button>
-            </div>
-          </div>
-        );
-      }
 
-      // CreateCookbookModal component (for creating new cookbooks)
-      function CreateCookbookModal({ onCreate, onClose }) {
-        const [newName, setNewName] = useState("");
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true" aria-label="Create Cookbook Modal">
-            <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-6">
-              <h2 className="text-2xl font-bold mb-4 text-white">Create Cookbook</h2>
-              <input
-                type="text"
-                placeholder="Cookbook name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="w-full p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-              />
-              <div className="flex justify-end mt-4 space-x-2">
-                <button onClick={onClose} className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded">
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    onCreate(newName);
-                    setNewName("");
-                  }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
-                >
-                  Create
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      }
-
-      // EditCookbookModal component for enhanced cookbook editing
-      function EditCookbookModal({ cookbook, onUpdate, onClose }) {
-        const [title, setTitle] = useState(cookbook.title);
-        const [tags, setTags] = useState(cookbook.tags || "");
-        const [image, setImage] = useState(cookbook.image || "");
-        const [imagePreview, setImagePreview] = useState(cookbook.image || "");
-        const cookbookImageRef = useRef(null);
-      
-        const handleImageChange = (e) => {
-          const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setImage(reader.result);
-              setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-      
-        const handleSubmit = () => {
-          onUpdate({ title, tags, image });
-        };
-      
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true" aria-label="Edit Cookbook Modal">
-            <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-6">
-              <h2 className="text-2xl font-bold mb-4 text-white">Edit Cookbook</h2>
-              <div className="mb-4">
-                <label className="block mb-1">Title</label>
-                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2 border rounded bg-gray-700 text-white" />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Tags (comma separated)</label>
-                <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full p-2 border rounded bg-gray-700 text-white" />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Cookbook Image</label>
-                <div className="relative w-full" style={{ paddingTop: "60%" }}>
-                  {imagePreview ? (
-                    <img src={imagePreview} alt="Cookbook" className="absolute top-0 left-0 w-full h-full object-cover rounded" />
-                  ) : (
-                    <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-white rounded">
-                      <span>Add Image</span>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    ref={cookbookImageRef}
-                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-                    aria-label="Upload cookbook image"
-                  />
-                </div>
-                {imagePreview && (
+            {/* Vertical Ellipsis Dropdown Menu (positioned in the bottom right) */}
+            <div className="absolute bottom-2 right-2">
+              <button onClick={() => setMenuOpen(!menuOpen)} className="text-white focus:outline-none" aria-label="Options">
+                ⋮
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 bottom-full mb-2 w-32 bg-gray-800 border border-gray-700 rounded shadow-lg z-10">
                   <button
-                    onClick={() => cookbookImageRef.current.click()}
-                    className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                    onClick={() => { setMenuOpen(false); onEditRecipe(index, recipe); }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    aria-label={`Edit recipe ${recipe.title}`}
                   >
-                    Change Image
+                    Edit
                   </button>
-                )}
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button onClick={onClose} className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded">Cancel</button>
-                <button onClick={handleSubmit} className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Save</button>
-              </div>
+                  <button
+                    onClick={() => { setMenuOpen(false); handlePrint(); }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    aria-label={`Print recipe ${recipe.title}`}
+                  >
+                    Print
+                  </button>
+                  <button
+                    onClick={() => { setMenuOpen(false); handleDelete(); }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    aria-label={`Delete recipe ${recipe.title}`}
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         );
       }
 
-      // MealPlanMealSelector with autocomplete functionality
-      function MealPlanMealSelector({ day, mealType, value, onChange, recipes }) {
+      // MealPlanMealSelector with autocomplete functionality and optional hidden label
+      function MealPlanMealSelector({ day, mealType, value, onChange, recipes, hideLabel }) {
         const [searchQuery, setSearchQuery] = useState("");
         const [isFocused, setIsFocused] = useState(false);
         const selectedRecipe = value !== "" && recipes[value] ? recipes[value] : null;
@@ -409,11 +327,11 @@
             recipe.title.toLowerCase().startsWith(inputValue.toLowerCase())
         );
         return (
-          <div className="relative mb-4">
-            <label className="block text-white mb-1">{mealType}</label>
+          <div className="relative">
+            {!hideLabel && <label className="block text-white mb-1">{mealType}</label>}
             <input
               type="text"
-              placeholder={`Search ${mealType} meals...`}
+              placeholder={hideLabel ? `Search ${mealType}...` : `Search ${mealType} meals...`}
               value={inputValue}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -443,21 +361,134 @@
         );
       }
 
-      // MealPlanCard component with improved styling
-      function MealPlanCard({ day, mealPlanForDay, recipes, mealTypes, onUpdateMealPlan }) {
+      // AutocompleteSearch component for header search with updated filtering and active tab switch
+      function AutocompleteSearch({ searchQuery, setSearchQuery, recipes, onFocus }) {
+        const [isFocused, setIsFocused] = useState(false);
+        const suggestions = recipes.filter(recipe =>
+          recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
         return (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-lg">
-            <h3 className="text-2xl font-bold text-white mb-4">{day}</h3>
-            {mealTypes.map((mealType, i) => (
-              <MealPlanMealSelector
-                key={i}
-                day={day}
-                mealType={mealType}
-                value={mealPlanForDay[mealType]}
-                onChange={(newValue) => onUpdateMealPlan(day, mealType, newValue)}
-                recipes={recipes}
+          <div className="relative">
+            <input 
+              type="text"
+              placeholder="Search recipes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => { setIsFocused(true); onFocus && onFocus(); }}
+              onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+              className="border p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+              aria-label="Search recipes"
+            />
+            {isFocused && searchQuery !== "" && suggestions.length > 0 && (
+              <ul className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto">
+                {suggestions.map((recipe, index) => (
+                  <li 
+                    key={index}
+                    onMouseDown={() => setSearchQuery(recipe.title)}
+                    className="p-2 hover:bg-teal-500 cursor-pointer text-white"
+                  >
+                    {recipe.title}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      }
+
+      // CreateCookbookModal component
+      function CreateCookbookModal({ onCreate, onClose }) {
+        const [newName, setNewName] = useState("");
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-gray-800 p-4 rounded">
+              <h2 className="text-white text-xl mb-4">Create Cookbook</h2>
+              <input 
+                type="text" 
+                placeholder="Cookbook Name" 
+                value={newName} 
+                onChange={(e) => setNewName(e.target.value)}
+                className="p-2 border rounded bg-gray-700 text-white" 
               />
-            ))}
+              <div className="mt-4 flex justify-end">
+                <button onClick={() => { onCreate(newName); setNewName(""); }} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2">
+                  Create
+                </button>
+                <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // EditCookbookModal component
+      function EditCookbookModal({ cookbook, onUpdate, onClose }) {
+        const [newTitle, setNewTitle] = useState(cookbook.title);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-gray-800 p-4 rounded">
+              <h2 className="text-white text-xl mb-4">Edit Cookbook</h2>
+              <input 
+                type="text" 
+                value={newTitle} 
+                onChange={(e) => setNewTitle(e.target.value)}
+                className="p-2 border rounded bg-gray-700 text-white" 
+              />
+              <div className="mt-4 flex justify-end">
+                <button onClick={() => { onUpdate({ ...cookbook, title: newTitle }); }} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2">
+                  Update
+                </button>
+                <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // MealPlanCalendar component displaying the meal plan in a calendar layout with current day highlight
+      function MealPlanCalendar({ mealPlan, recipes, mealTypes, updateMealPlan }) {
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        const currentDay = new Date().toLocaleString("en-US", { weekday: "long" });
+        return (
+          <div className="overflow-auto">
+            <table className="min-w-full text-white">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 border border-gray-600 bg-gray-800">Meal Type / Day</th>
+                  {days.map((day) => (
+                    <th
+                      key={day}
+                      className={`px-4 py-2 border border-gray-600 ${day === currentDay ? "bg-gray-600" : "bg-gray-800"}`}
+                    >
+                      {day}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {mealTypes.map((mealType) => (
+                  <tr key={mealType}>
+                    <td className="px-4 py-2 border border-gray-600 bg-gray-700 font-bold">{mealType}</td>
+                    {days.map((day) => (
+                      <td key={day} className={`px-4 py-2 border border-gray-600 ${day === currentDay ? "bg-gray-600" : ""}`}>
+                        <MealPlanMealSelector 
+                           day={day} 
+                           mealType={mealType} 
+                           value={mealPlan[day][mealType]} 
+                           onChange={(newValue) => updateMealPlan(day, mealType, newValue)} 
+                           recipes={recipes}
+                           hideLabel={true}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         );
       }
@@ -536,12 +567,15 @@
           if (savedCookbooks) setCookbooks(JSON.parse(savedCookbooks));
           const savedCategoryImages = localStorage.getItem("categoryImages");
           if (savedCategoryImages) setCategoryImages(JSON.parse(savedCategoryImages));
+          const savedMealPlan = localStorage.getItem("mealPlan");
+          if (savedMealPlan) setMealPlan(JSON.parse(savedMealPlan));
           document.documentElement.classList.add("dark");
         }, []);
 
         useEffect(() => { localStorage.setItem("recipes", JSON.stringify(recipes)); }, [recipes]);
         useEffect(() => { localStorage.setItem("cookbooks", JSON.stringify(cookbooks)); }, [cookbooks]);
         useEffect(() => { localStorage.setItem("categoryImages", JSON.stringify(categoryImages)); }, [categoryImages]);
+        useEffect(() => { localStorage.setItem("mealPlan", JSON.stringify(mealPlan)); }, [mealPlan]);
 
         // Ingredient handlers
         const addIngredientRow = () => setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "" }]);
@@ -766,7 +800,7 @@
           }
         };
 
-        // Print all recipes with enhanced filtering
+        // Print all recipes with enhanced filtering using "includes"
         const printAllRecipes = () => {
           const filteredRecipes = recipes.filter((r) =>
             r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -1136,7 +1170,12 @@
               </div>
               <div className="flex items-center space-x-4">
                 <div className="hidden lg:block">
-                  <input id="search-input" type="text" placeholder="Search recipes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="border p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400" aria-label="Search recipes" />
+                  <AutocompleteSearch 
+                    searchQuery={searchQuery} 
+                    setSearchQuery={setSearchQuery} 
+                    recipes={recipes} 
+                    onFocus={() => setActiveTab("recipes")}
+                  />
                 </div>
                 <button onClick={printAllRecipes} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105" aria-label="Print all recipes">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1353,19 +1392,8 @@
                   )
                 ) : activeTab === "mealPlan" ? (
                   <div id="main-content">
-                    <h2 className="text-2xl font-bold mb-4 text-white">Meal Plan</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
-                        <MealPlanCard
-                          key={day}
-                          day={day}
-                          mealPlanForDay={mealPlan[day]}
-                          recipes={recipes}
-                          mealTypes={mealTypes}
-                          onUpdateMealPlan={updateMealPlan}
-                        />
-                      ))}
-                    </div>
+                    <h2 className="text-2xl font-bold mb-4 text-white">Meal Plan Calendar</h2>
+                    <MealPlanCalendar mealPlan={mealPlan} recipes={recipes} mealTypes={mealTypes} updateMealPlan={updateMealPlan} />
                   </div>
                 ) : activeTab === "shoppingList" ? (
                   <div id="main-content">
