@@ -95,14 +95,6 @@
           max-height: 90vh;
         }
       }
-      /* Optimization for iPad devices */
-      @media only screen and (min-width: 481px) and (max-width: 1024px) {
-        .modal-container {
-          width: 80vw;
-          height: auto;
-          max-height: 80vh;
-        }
-      }
     </style>
   </head>
   <body class="bg-gray-900">
@@ -276,7 +268,7 @@
 
         return (
           <div
-            className="border rounded-lg p-4 shadow-md bg-white dark:bg-gray-800 dark:text-white hover:shadow-lg transition-shadow duration-300"
+            className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300"
             role="article"
             aria-label={`Recipe: ${recipe.title || "Untitled"}`}
           >
@@ -288,7 +280,7 @@
                   className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
                 />
               ) : (
-                <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-gray-400 rounded-t-lg">
                   <span>No Image</span>
                 </div>
               )}
@@ -390,12 +382,12 @@
           >
             <div
               ref={modalRef}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative"
+              className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-6 relative"
               tabIndex="-1"
             >
               <button
                 onClick={onClose}
-                className="absolute top-2 right-2 text-gray-600 dark:text-white hover:text-gray-800 text-2xl"
+                className="absolute top-2 right-2 text-white hover:text-gray-300 text-2xl"
                 aria-label="Close delete cookbook dialog"
               >
                 &times;
@@ -478,6 +470,19 @@
           // Always add dark class to the HTML element.
           document.documentElement.classList.add("dark");
         }, []);
+
+        // Load recipes from local storage on mount
+        useEffect(() => {
+          const savedRecipes = localStorage.getItem("recipes");
+          if (savedRecipes) {
+            setRecipes(JSON.parse(savedRecipes));
+          }
+        }, []);
+
+        // Save recipes to local storage whenever they change
+        useEffect(() => {
+          localStorage.setItem("recipes", JSON.stringify(recipes));
+        }, [recipes]);
 
         // Grouping utility
         const groupBy = (array, key) =>
@@ -740,8 +745,8 @@
               aria-modal="true"
               aria-label="Add or Edit Recipe Modal"
             >
-              <div className="modal-container bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-auto">
-                <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
+              <div className="modal-container bg-gray-800 text-white rounded-lg shadow-lg overflow-auto">
+                <div className="flex justify-between items-center p-4 border-b border-gray-700">
                   <h2 className="text-2xl font-bold">
                     {editingIndex !== null ? "Edit Recipe" : "Add a Recipe"}
                   </h2>
@@ -750,13 +755,13 @@
                       setShowModal(false);
                       resetForm();
                     }}
-                    className="text-gray-600 dark:text-white hover:text-gray-800 text-2xl"
+                    className="text-white hover:text-gray-300 text-2xl"
                     aria-label="Close add recipe modal"
                   >
                     &times;
                   </button>
                 </div>
-                <div className="flex border-b dark:border-gray-700">
+                <div className="flex border-b border-gray-700">
                   <button
                     onClick={() => setModalTab("General")}
                     className={`flex-1 p-2 text-center ${modalTab === "General" ? "border-b-2 border-teal-500 font-bold" : ""}`}
@@ -811,7 +816,7 @@
                         </div>
                       )}
                       <div>
-                        <label htmlFor="recipe-title" className="block mb-1 text-gray-700 dark:text-white">
+                        <label htmlFor="recipe-title" className="block mb-1 text-gray-300">
                           Title
                         </label>
                         <input
@@ -825,7 +830,7 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label htmlFor="dish-type" className="block mb-1 text-gray-700 dark:text-white">
+                          <label htmlFor="dish-type" className="block mb-1 text-gray-300">
                             Dish Type
                           </label>
                           <select
@@ -843,7 +848,7 @@
                           </select>
                         </div>
                         <div className="w-1/2">
-                          <label htmlFor="meal-type" className="block mb-1 text-gray-700 dark:text-white">
+                          <label htmlFor="meal-type" className="block mb-1 text-gray-300">
                             Meal Type
                           </label>
                           <select
@@ -862,7 +867,7 @@
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="cookbook-name" className="block mb-1 text-gray-700 dark:text-white">
+                        <label htmlFor="cookbook-name" className="block mb-1 text-gray-300">
                           Cookbook Name (Optional)
                         </label>
                         <input
@@ -876,7 +881,7 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label htmlFor="prep-time" className="block mb-1 text-gray-700 dark:text-white">
+                          <label htmlFor="prep-time" className="block mb-1 text-gray-300">
                             Prep Time
                           </label>
                           <input
@@ -889,7 +894,7 @@
                           />
                         </div>
                         <div className="w-1/2">
-                          <label htmlFor="cook-time" className="block mb-1 text-gray-700 dark:text-white">
+                          <label htmlFor="cook-time" className="block mb-1 text-gray-300">
                             Cook Time
                           </label>
                           <input
@@ -904,7 +909,7 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label htmlFor="temp-value" className="block mb-1 text-gray-700 dark:text-white">
+                          <label htmlFor="temp-value" className="block mb-1 text-gray-300">
                             Temperature Value
                           </label>
                           <input
@@ -917,7 +922,7 @@
                           />
                         </div>
                         <div className="w-1/2">
-                          <label htmlFor="temp-scale" className="block mb-1 text-gray-700 dark:text-white">
+                          <label htmlFor="temp-scale" className="block mb-1 text-gray-300">
                             Scale (C or F)
                           </label>
                           <select
@@ -932,7 +937,7 @@
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="recipe-image" className="block text-gray-700 dark:text-white mb-2">
+                        <label htmlFor="recipe-image" className="block text-gray-300 mb-2">
                           Recipe Image
                         </label>
                         <div className="relative w-full" style={{ paddingTop: "60%" }}>
@@ -943,7 +948,7 @@
                               className="absolute top-0 left-0 w-full h-full object-cover rounded"
                             />
                           ) : (
-                            <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded">
+                            <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-gray-400 rounded">
                               <span>Click to add image</span>
                             </div>
                           )}
@@ -961,7 +966,7 @@
                   )}
                   {modalTab === "Ingredients" && (
                     <div>
-                      <p className="mb-2 text-gray-700 dark:text-white font-semibold">
+                      <p className="mb-2 text-gray-300 font-semibold">
                         Ingredients
                       </p>
                       {ingredients.map((ingredient, index) => (
@@ -976,7 +981,7 @@
                       <button
                         type="button"
                         onClick={addIngredientRow}
-                        className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
+                        className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2"
                       >
                         + Add Ingredient
                       </button>
@@ -984,7 +989,7 @@
                   )}
                   {modalTab === "Directions" && (
                     <div>
-                      <label htmlFor="directions" className="block mb-1 text-gray-700 dark:text-white">
+                      <label htmlFor="directions" className="block mb-1 text-gray-300">
                         Directions
                       </label>
                       <textarea
@@ -999,11 +1004,11 @@
                   )}
                   {modalTab === "Grocery" && (
                     <div>
-                      <p className="mb-2 text-gray-700 dark:text-white font-semibold">
+                      <p className="mb-2 text-gray-300 font-semibold">
                         Grocery List
                       </p>
                       {ingredients.length === 0 ? (
-                        <p className="text-gray-600 dark:text-white">No ingredients added.</p>
+                        <p className="text-gray-400">No ingredients added.</p>
                       ) : (
                         <ul className="list-disc list-inside">
                           {ingredients.map((ing, index) => (
@@ -1020,13 +1025,13 @@
                   {modalTab === "Notes" && (
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="rating" className="block mb-1 text-gray-700 dark:text-white">
+                        <label htmlFor="rating" className="block mb-1 text-gray-300">
                           Rating
                         </label>
                         <StarRating rating={rating} setRating={setRating} />
                       </div>
                       <div>
-                        <label htmlFor="notes" className="block mb-1 text-gray-700 dark:text-white">
+                        <label htmlFor="notes" className="block mb-1 text-gray-300">
                           Notes
                         </label>
                         <textarea
@@ -1041,7 +1046,7 @@
                     </div>
                   )}
                 </div>
-                <div className="p-4 border-t dark:border-gray-700 flex justify-end">
+                <div className="p-4 border-t border-gray-700 flex justify-end">
                   <button
                     onClick={handleAddRecipe}
                     className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors duration-300"
@@ -1057,18 +1062,17 @@
         return (
           <div className="min-h-screen flex flex-col" role="document">
             {/* Top Navigation Header */}
-            <header className="bg-teal-600 text-white flex items-center justify-between p-4" role="banner">
+            <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-between p-4 shadow-lg" role="banner">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-8">TasteVault</h1>
-                {/* Horizontal nav shown only on large screens */}
-                <nav className="hidden lg:flex space-x-4">
+                <nav className="hidden md:flex space-x-4">
                   <button
                     onClick={() => {
                       setActiveTab("categories");
                       setSelectedCookbook(null);
                       setSelectedMealTime(null);
                     }}
-                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "categories" ? "bg-teal-800" : ""}`}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "categories" ? "bg-gray-800" : ""}`}
                     role="tab"
                     aria-selected={activeTab === "categories"}
                   >
@@ -1080,7 +1084,7 @@
                       setSelectedCookbook(null);
                       setSelectedMealTime(null);
                     }}
-                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "recipes" ? "bg-teal-800" : ""}`}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "recipes" ? "bg-gray-800" : ""}`}
                     role="tab"
                     aria-selected={activeTab === "recipes"}
                   >
@@ -1092,7 +1096,7 @@
                       setSelectedCookbook(null);
                       setSelectedMealTime(null);
                     }}
-                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "cookbooks" ? "bg-teal-800" : ""}`}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "cookbooks" ? "bg-gray-800" : ""}`}
                     role="tab"
                     aria-selected={activeTab === "cookbooks"}
                   >
@@ -1104,7 +1108,7 @@
                       setSelectedCookbook(null);
                       setSelectedMealTime(null);
                     }}
-                    className={`px-4 py-2 rounded hover:bg-teal-700 ${activeTab === "mealTimes" ? "bg-teal-800" : ""}`}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "mealTimes" ? "bg-gray-800" : ""}`}
                     role="tab"
                     aria-selected={activeTab === "mealTimes"}
                   >
@@ -1113,14 +1117,14 @@
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
-                <div>
+                <div className="hidden md:block">
                   <input
                     id="search-input"
                     type="text"
                     placeholder="Search recipes..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400 dark:bg-gray-700 dark:text-white text-black"
+                    className="border p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
                     aria-label="Search recipes"
                   />
                 </div>
@@ -1141,9 +1145,8 @@
                 >
                   <span className="text-xl">+</span>
                 </button>
-                {/* Hamburger shown on screens smaller than lg (including iPad) */}
                 <button
-                  className="lg:hidden"
+                  className="md:hidden"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   aria-label="Toggle navigation menu"
                 >
@@ -1152,9 +1155,9 @@
               </div>
             </header>
 
-            {/* Mobile Navigation Menu (for iPad and smaller) */}
+            {/* Mobile Navigation Menu */}
             {mobileNavOpen && (
-              <nav className="bg-teal-600 text-white lg:hidden">
+              <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white md:hidden">
                 <ul className="flex flex-col">
                   <li>
                     <button
@@ -1164,7 +1167,7 @@
                         setSelectedCookbook(null);
                         setSelectedMealTime(null);
                       }}
-                      className="block w-full text-left px-4 py-2 border-b border-teal-700"
+                      className="block w-full text-left px-4 py-2 border-b border-gray-600"
                     >
                       Categories
                     </button>
@@ -1177,7 +1180,7 @@
                         setSelectedCookbook(null);
                         setSelectedMealTime(null);
                       }}
-                      className="block w-full text-left px-4 py-2 border-b border-teal-700"
+                      className="block w-full text-left px-4 py-2 border-b border-gray-600"
                     >
                       Recipes
                     </button>
@@ -1190,7 +1193,7 @@
                         setSelectedCookbook(null);
                         setSelectedMealTime(null);
                       }}
-                      className="block w-full text-left px-4 py-2 border-b border-teal-700"
+                      className="block w-full text-left px-4 py-2 border-b border-gray-600"
                     >
                       Cookbooks
                     </button>
@@ -1220,7 +1223,7 @@
                     {recipes.filter((r) =>
                       r.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).length === 0 ? (
-                      <p className="text-gray-600 dark:text-white">No recipes available.</p>
+                      <p className="text-gray-400">No recipes available.</p>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {recipes
@@ -1251,7 +1254,7 @@
                         return (
                           <div
                             key={index}
-                            className="border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                            className="border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
                           >
                             <div className="relative w-full" style={{ paddingTop: "75%" }}>
                               {image ? (
@@ -1261,7 +1264,7 @@
                                   className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
                                 />
                               ) : (
-                                <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-gray-400 rounded-t-lg">
                                   <span>Add Image</span>
                                 </div>
                               )}
@@ -1281,7 +1284,7 @@
                             </div>
                             <div className="mt-4">
                               <h3 className="text-xl font-bold">{cat}</h3>
-                              <p className="text-gray-600 dark:text-white">{catRecipes.length} recipes</p>
+                              <p className="text-gray-400">{catRecipes.length} recipes</p>
                             </div>
                           </div>
                         );
@@ -1293,13 +1296,13 @@
                     <div id="main-content">
                       <button
                         onClick={() => setSelectedCookbook(null)}
-                        className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                        className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
                       >
                         &larr; Back to Cookbooks
                       </button>
                       <h2 className="text-2xl font-bold mb-4">{selectedCookbook}</h2>
                       {recipes.filter((r) => r.cookbook === selectedCookbook).length === 0 ? (
-                        <p className="text-gray-600 dark:text-white">No recipes in this cookbook.</p>
+                        <p className="text-gray-400">No recipes in this cookbook.</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {recipes
@@ -1332,7 +1335,7 @@
                             <div
                               key={index}
                               onClick={() => setSelectedCookbook(cb)}
-                              className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                              className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
                             >
                               <div className="relative w-full" style={{ paddingTop: "75%" }}>
                                 {image ? (
@@ -1342,14 +1345,14 @@
                                     className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
                                   />
                                 ) : (
-                                  <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                  <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-gray-400 rounded-t-lg">
                                     <span>Add Image</span>
                                   </div>
                                 )}
                               </div>
                               <div className="mt-4">
                                 <h3 className="text-xl font-bold">{cb}</h3>
-                                <p className="text-gray-600 dark:text-white">{cbRecipes.length} recipes</p>
+                                <p className="text-gray-400">{cbRecipes.length} recipes</p>
                               </div>
                             </div>
                           );
@@ -1362,13 +1365,13 @@
                     <div id="main-content">
                       <button
                         onClick={() => setSelectedMealTime(null)}
-                        className="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                        className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
                       >
                         &larr; Back to Meal Times
                       </button>
                       <h2 className="text-2xl font-bold mb-4">{selectedMealTime}</h2>
                       {recipes.filter((r) => r.mealType === selectedMealTime).length === 0 ? (
-                        <p className="text-gray-600 dark:text-white">No recipes for this meal time.</p>
+                        <p className="text-gray-400">No recipes for this meal time.</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {recipes
@@ -1398,7 +1401,7 @@
                             <div
                               key={index}
                               onClick={() => setSelectedMealTime(meal)}
-                              className="cursor-pointer border rounded-lg shadow bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-shadow duration-300"
+                              className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
                             >
                               <div className="relative w-full" style={{ paddingTop: "75%" }}>
                                 {image ? (
@@ -1408,7 +1411,7 @@
                                     className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
                                   />
                                 ) : (
-                                  <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-white rounded-t-lg">
+                                  <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-gray-400 rounded-t-lg">
                                     <span>Add Image</span>
                                   </div>
                                 )}
@@ -1428,7 +1431,7 @@
                               </div>
                               <div className="mt-4">
                                 <h3 className="text-xl font-bold">{meal}</h3>
-                                <p className="text-gray-600 dark:text-white">{mealRecipes.length} recipes</p>
+                                <p className="text-gray-400">{mealRecipes.length} recipes</p>
                               </div>
                             </div>
                           );
@@ -1441,7 +1444,7 @@
             </div>
 
             {/* Footer */}
-            <footer className="bg-white dark:bg-gray-800 text-center text-gray-600 dark:text-white p-4 border-t" role="contentinfo">
+            <footer className="bg-gray-800 text-center text-gray-400 p-4 border-t" role="contentinfo">
               &copy; {new Date().getFullYear()} TasteVault
             </footer>
 
