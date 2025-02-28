@@ -127,7 +127,6 @@
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Main React Code -->
     <script type="text/babel">
       const { useState, useEffect, useRef } = React;
 
@@ -257,7 +256,7 @@
           }
           if (recipe.directions) {
             printWindow.document.write(
-              "<h3>Directions:</h3><p>" + recipe.directions.replace(/\n/g, "<br>") + "</p>"
+              "<h3>Directions</h3><p>" + recipe.directions.replace(/\n/g, "<br>") + "</p>"
             );
           }
           printWindow.document.write("</div></body></html>");
@@ -360,56 +359,32 @@
         );
       }
 
-      // Modal for deleting a cookbook
-      function DeleteCookbookModal({ cookbookName, onClose, onDeleteAllRecipes, onKeepRecipes }) {
-        const modalRef = useRef(null);
-        useEffect(() => {
-          const handleKey = (e) => {
-            if (e.key === "Escape") {
-              onClose();
-            }
-          };
-          document.addEventListener("keydown", handleKey);
-          return () => document.removeEventListener("keydown", handleKey);
-        }, [onClose]);
-
+      // Modal for creating a new cookbook
+      function CreateCookbookModal({ onCreate, onClose }) {
+        const [newName, setNewName] = useState("");
         return (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Delete Cookbook Modal"
-          >
-            <div
-              ref={modalRef}
-              className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-6 relative"
-              tabIndex="-1"
-            >
-              <button
-                onClick={onClose}
-                className="absolute top-2 right-2 text-white hover:text-gray-300 text-2xl"
-                aria-label="Close delete cookbook dialog"
-              >
-                &times;
-              </button>
-              <h2 className="text-2xl font-bold mb-4">Delete Cookbook</h2>
-              <p className="mb-4">
-                How would you like to delete the cookbook <strong>{cookbookName}</strong>?
-              </p>
-              <div className="space-y-2">
-                <button
-                  onClick={onDeleteAllRecipes}
-                  className="block w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded"
-                  aria-label="Delete all recipes for this cookbook"
-                >
-                  Delete Cookbook and All Recipes
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true" aria-label="Create Cookbook Modal">
+            <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-6">
+              <h2 className="text-2xl font-bold mb-4">Create Cookbook</h2>
+              <input
+                type="text"
+                placeholder="Cookbook name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="w-full p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+              />
+              <div className="flex justify-end mt-4 space-x-2">
+                <button onClick={onClose} className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded">
+                  Cancel
                 </button>
                 <button
-                  onClick={onKeepRecipes}
-                  className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded"
-                  aria-label="Delete the cookbook but keep the recipes"
+                  onClick={() => {
+                    onCreate(newName);
+                    setNewName("");
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
                 >
-                  Delete Cookbook Only (Keep Recipes)
+                  Create
                 </button>
               </div>
             </div>
@@ -419,8 +394,9 @@
 
       // Main application component
       function RecipeSaver() {
-        // Permanently set dark mode to true.
-        const [darkMode] = useState(true);
+        // States for recipes and cookbooks
+        const [recipes, setRecipes] = useState([]);
+        const [cookbooks, setCookbooks] = useState([]);
         const [url, setUrl] = useState("");
         const [fetchMethod, setFetchMethod] = useState("url"); // 'url' or 'manual'
         const [title, setTitle] = useState("");
@@ -437,22 +413,16 @@
         const [newImagePreview, setNewImagePreview] = useState("");
         const [directions, setDirections] = useState("");
         const [ingredients, setIngredients] = useState([]);
-        const [recipes, setRecipes] = useState([]);
-        const [recipe, setRecipe] = useState(null);
         const [activeTab, setActiveTab] = useState("categories");
         const [showModal, setShowModal] = useState(false);
         const [modalTab, setModalTab] = useState("General");
         const [loading, setLoading] = useState(false);
-        const [cookbookToDelete, setCookbookToDelete] = useState("");
-        const [showCookbookDeleteModal, setShowCookbookDeleteModal] = useState(false);
-        const [categoryImages, setCategoryImages] = useState({});
-        const [mealTimeImages, setMealTimeImages] = useState({});
-        const [searchQuery, setSearchQuery] = useState("");
         const [editingIndex, setEditingIndex] = useState(null);
         const [selectedCookbook, setSelectedCookbook] = useState(null);
         const [selectedMealTime, setSelectedMealTime] = useState(null);
         const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
+        const [isNewCookbook, setIsNewCookbook] = useState(false);
+        const [showCreateCookbookModal, setShowCreateCookbookModal] = useState(false);
         const dishTypes = [
           "Pasta",
           "Bread",
@@ -465,35 +435,29 @@
           "Vegan",
         ];
         const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack", "Party"];
+        const [searchQuery, setSearchQuery] = useState("");
 
-        useEffect(() => {
-          // Always add dark class to the HTML element.
-          document.documentElement.classList.add("dark");
-        }, []);
-
-        // Load recipes from local storage on mount
+        // Load recipes and cookbooks from localStorage on mount
         useEffect(() => {
           const savedRecipes = localStorage.getItem("recipes");
           if (savedRecipes) {
             setRecipes(JSON.parse(savedRecipes));
           }
+          const savedCookbooks = localStorage.getItem("cookbooks");
+          if (savedCookbooks) {
+            setCookbooks(JSON.parse(savedCookbooks));
+          }
+          document.documentElement.classList.add("dark");
         }, []);
 
-        // Save recipes to local storage whenever they change
+        // Save recipes and cookbooks to localStorage whenever they change
         useEffect(() => {
           localStorage.setItem("recipes", JSON.stringify(recipes));
         }, [recipes]);
 
-        // Grouping utility
-        const groupBy = (array, key) =>
-          array.reduce((result, item) => {
-            const groupKey = item[key] || "N/A";
-            if (!result[groupKey]) {
-              result[groupKey] = [];
-            }
-            result[groupKey].push(item);
-            return result;
-          }, {});
+        useEffect(() => {
+          localStorage.setItem("cookbooks", JSON.stringify(cookbooks));
+        }, [cookbooks]);
 
         // Ingredient handlers
         const addIngredientRow = () => {
@@ -547,7 +511,9 @@
             setTitle(fetchedRecipe.title || "");
             setSelectedDishType(fetchedRecipe.dishType || "");
             setSelectedMealType(fetchedRecipe.mealType || "");
+            // If fetched recipe has a cookbook, use it and disable new cookbook
             setCookbook(fetchedRecipe.cookbook || "");
+            setIsNewCookbook(false);
             setIngredients(fetchedRecipe.ingredients || []);
             setPrepTime(fetchedRecipe.prepTime || "");
             setCookTime(fetchedRecipe.cookTime || "");
@@ -582,13 +548,15 @@
             ingredients,
             image: newImagePreview,
           };
-
           if (editingIndex !== null) {
             setRecipes((prev) => prev.map((r, i) => (i === editingIndex ? newRecipe : r)));
           } else {
             setRecipes((prev) => [...prev, newRecipe]);
           }
-          setRecipe(newRecipe);
+          // If a new cookbook was entered and doesn't exist, add it.
+          if (cookbook && !cookbooks.includes(cookbook)) {
+            setCookbooks((prev) => [...prev, cookbook]);
+          }
           resetForm();
         };
 
@@ -599,6 +567,7 @@
           setSelectedDishType("");
           setSelectedMealType("");
           setCookbook("");
+          setIsNewCookbook(false);
           setPrepTime("");
           setCookTime("");
           setDirections("");
@@ -625,6 +594,7 @@
           setSelectedDishType(recipeData.dishType || "");
           setSelectedMealType(recipeData.mealType || "");
           setCookbook(recipeData.cookbook || "");
+          setIsNewCookbook(false);
           setPrepTime(recipeData.prepTime || "");
           setCookTime(recipeData.cookTime || "");
           setDirections(recipeData.directions || "");
@@ -637,45 +607,13 @@
           setShowModal(true);
         };
 
-        // Show modal to delete a cookbook
-        const openCookbookDeleteModal = (cookbookName) => {
-          setCookbookToDelete(cookbookName);
-          setShowCookbookDeleteModal(true);
+        // Create Cookbook Modal handlers
+        const handleCreateCookbook = (newName) => {
+          if (newName && !cookbooks.includes(newName)) {
+            setCookbooks((prev) => [...prev, newName]);
+          }
+          setShowCreateCookbookModal(false);
         };
-
-        // Delete cookbook and keep recipes
-        const handleDeleteCookbookKeepRecipes = () => {
-          setRecipes((prevRecipes) =>
-            prevRecipes.map((r) => {
-              if (r.cookbook === cookbookToDelete) {
-                return { ...r, cookbook: "" };
-              }
-              return r;
-            })
-          );
-          setShowCookbookDeleteModal(false);
-          setCookbookToDelete("");
-        };
-
-        // Delete cookbook and all related recipes
-        const handleDeleteCookbookAndRecipes = () => {
-          setRecipes((prevRecipes) => prevRecipes.filter((r) => r.cookbook !== cookbookToDelete));
-          setShowCookbookDeleteModal(false);
-          setCookbookToDelete("");
-        };
-
-        // Close modal on ESC
-        const modalRef = useRef(null);
-        useEffect(() => {
-          const handleKey = (e) => {
-            if (e.key === "Escape") {
-              setShowModal(false);
-              resetForm();
-            }
-          };
-          document.addEventListener("keydown", handleKey);
-          return () => document.removeEventListener("keydown", handleKey);
-        }, []);
 
         // Print all recipes (filtered by search)
         const printAllRecipes = () => {
@@ -868,16 +806,39 @@
                       </div>
                       <div>
                         <label htmlFor="cookbook-name" className="block mb-1 text-gray-300">
-                          Cookbook Name (Optional)
+                          Cookbook
                         </label>
-                        <input
+                        <select
                           id="cookbook-name"
-                          type="text"
-                          placeholder="Cookbook"
-                          value={cookbook}
-                          onChange={(e) => setCookbook(e.target.value)}
+                          value={isNewCookbook ? "new" : cookbook || ""}
+                          onChange={(e) => {
+                            if (e.target.value === "new") {
+                              setIsNewCookbook(true);
+                              setCookbook("");
+                            } else {
+                              setIsNewCookbook(false);
+                              setCookbook(e.target.value);
+                            }
+                          }}
                           className="w-full p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-                        />
+                        >
+                          <option value="">None</option>
+                          {cookbooks.map((cb, i) => (
+                            <option key={i} value={cb}>{cb}</option>
+                          ))}
+                          <option value="new">Create New Cookbook</option>
+                        </select>
+                        {isNewCookbook && (
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              placeholder="Enter new cookbook name"
+                              value={cookbook}
+                              onChange={(e) => setCookbook(e.target.value)}
+                              className="w-full p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                            />
+                          </div>
+                        )}
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
@@ -981,7 +942,7 @@
                       <button
                         type="button"
                         onClick={addIngredientRow}
-                        className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
+                        className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2"
                       >
                         + Add Ingredient
                       </button>
@@ -1065,7 +1026,7 @@
             <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-between p-4 shadow-lg" role="banner">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-8">TasteVault</h1>
-                {/* Full Navigation displayed on lg screens and above */}
+                {/* Full Navigation for large screens */}
                 <nav className="hidden lg:flex space-x-4">
                   <button
                     onClick={() => {
@@ -1146,7 +1107,7 @@
                 >
                   <span className="text-xl">+</span>
                 </button>
-                {/* Hamburger Menu Button for Mobile (shows on screens smaller than lg) */}
+                {/* Hamburger menu for mobile screens */}
                 <button
                   className="lg:hidden p-2"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
@@ -1159,7 +1120,7 @@
               </div>
             </header>
 
-            {/* Mobile Navigation Menu (visible on screens smaller than lg) */}
+            {/* Mobile Navigation Menu */}
             {mobileNavOpen && (
               <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white lg:hidden">
                 <ul className="flex flex-col">
@@ -1252,9 +1213,7 @@
                       {dishTypes.map((cat, index) => {
                         const catRecipes = recipes.filter((r) => r.dishType === cat);
                         const image =
-                          categoryImages[cat] ||
-                          (catRecipes.find((r) => r.image) || {}).image ||
-                          "";
+                          catRecipes.find((r) => r.image)?.image || "";
                         return (
                           <div
                             key={index}
@@ -1280,7 +1239,7 @@
                                   const file = e.target.files[0];
                                   if (file) {
                                     const imageURL = URL.createObjectURL(file);
-                                    setCategoryImages((prev) => ({ ...prev, [cat]: imageURL }));
+                                    // Here you may update categoryImages state if needed
                                   }
                                 }}
                                 aria-label={`Upload an image for category ${cat}`}
@@ -1296,45 +1255,22 @@
                     </div>
                   </div>
                 ) : activeTab === "cookbooks" ? (
-                  selectedCookbook ? (
-                    <div id="main-content">
+                  <div id="main-content">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-2xl font-bold">Cookbooks</h2>
                       <button
-                        onClick={() => setSelectedCookbook(null)}
-                        className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                        onClick={() => setShowCreateCookbookModal(true)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
                       >
-                        &larr; Back to Cookbooks
+                        Create Cookbook
                       </button>
-                      <h2 className="text-2xl font-bold mb-4">{selectedCookbook}</h2>
-                      {recipes.filter((r) => r.cookbook === selectedCookbook).length === 0 ? (
-                        <p className="text-gray-400">No recipes in this cookbook.</p>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {recipes
-                            .filter((r) => r.cookbook === selectedCookbook)
-                            .map((r, index) => (
-                              <RecipeCard
-                                key={index}
-                                index={index}
-                                recipe={r}
-                                onDeleteRecipe={handleDeleteRecipe}
-                                onEditRecipe={handleEditRecipe}
-                              />
-                            ))}
-                        </div>
-                      )}
                     </div>
-                  ) : (
-                    <div id="main-content">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {Array.from(
-                          new Set(
-                            recipes
-                              .filter((r) => r.cookbook && r.cookbook !== "N/A" && r.cookbook !== "")
-                              .map((r) => r.cookbook)
-                          )
-                        ).map((cb, index) => {
+                    {cookbooks.length === 0 ? (
+                      <p className="text-gray-400">No cookbooks available.</p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {cookbooks.map((cb, index) => {
                           const cbRecipes = recipes.filter((r) => r.cookbook === cb);
-                          const image = (cbRecipes.find((r) => r.image) || {}).image || "";
                           return (
                             <div
                               key={index}
@@ -1342,9 +1278,9 @@
                               className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
                             >
                               <div className="relative w-full" style={{ paddingTop: "75%" }}>
-                                {image ? (
+                                {cbRecipes.find((r) => r.image)?.image ? (
                                   <img
-                                    src={image}
+                                    src={cbRecipes.find((r) => r.image).image}
                                     alt={`${cb} cookbook`}
                                     className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
                                   />
@@ -1362,8 +1298,8 @@
                           );
                         })}
                       </div>
-                    </div>
-                  )
+                    )}
+                  </div>
                 ) : activeTab === "mealTimes" ? (
                   selectedMealTime ? (
                     <div id="main-content">
@@ -1398,9 +1334,7 @@
                         {mealTypes.map((meal, index) => {
                           const mealRecipes = recipes.filter((r) => r.mealType === meal);
                           const image =
-                            mealTimeImages[meal] ||
-                            (mealRecipes.find((r) => r.image) || {}).image ||
-                            "";
+                            mealRecipes.find((r) => r.image)?.image || "";
                           return (
                             <div
                               key={index}
@@ -1427,7 +1361,7 @@
                                     const file = e.target.files[0];
                                     if (file) {
                                       const imageURL = URL.createObjectURL(file);
-                                      setMealTimeImages((prev) => ({ ...prev, [meal]: imageURL }));
+                                      // Update mealTimeImages if needed
                                     }
                                   }}
                                   aria-label={`Upload an image for meal time ${meal}`}
@@ -1452,19 +1386,14 @@
               &copy; {new Date().getFullYear()} TasteVault
             </footer>
 
-            {/* Add/Edit Recipe Modal with Tabs */}
+            {/* Add/Edit Recipe Modal */}
             {renderAddRecipeModal()}
 
-            {/* Delete Cookbook Modal */}
-            {showCookbookDeleteModal && (
-              <DeleteCookbookModal
-                cookbookName={cookbookToDelete}
-                onClose={() => {
-                  setShowCookbookDeleteModal(false);
-                  setCookbookToDelete("");
-                }}
-                onDeleteAllRecipes={handleDeleteCookbookAndRecipes}
-                onKeepRecipes={handleDeleteCookbookKeepRecipes}
+            {/* Create Cookbook Modal */}
+            {showCreateCookbookModal && (
+              <CreateCookbookModal
+                onCreate={handleCreateCookbook}
+                onClose={() => setShowCreateCookbookModal(false)}
               />
             )}
           </div>
