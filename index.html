@@ -866,6 +866,84 @@
           return Object.values(agg);
         };
 
+        // New function: Print Shopping List
+        const printShoppingList = () => {
+          const shoppingItems = getShoppingList();
+          const printWindow = window.open("", "", "height=600,width=800");
+          printWindow.document.write("<html><head><title>Print Shopping List</title>");
+          printWindow.document.write(
+            '<style>body { font-family: Arial, sans-serif; } .printable { margin: 20px; } ul { list-style: disc; padding-left: 20px; } </style>'
+          );
+          printWindow.document.write("</head><body>");
+          printWindow.document.write('<div class="printable">');
+          printWindow.document.write("<h1>Shopping List</h1>");
+          if (shoppingItems.length > 0) {
+            printWindow.document.write("<ul>");
+            shoppingItems.forEach(item => {
+              printWindow.document.write("<li>" + item.quantity + " " + item.unit + " " + item.name + "</li>");
+            });
+            printWindow.document.write("</ul>");
+          } else {
+            printWindow.document.write("<p>No ingredients in the shopping list.</p>");
+          }
+          printWindow.document.write("</div></body></html>");
+          printWindow.document.close();
+          printWindow.focus();
+          printWindow.print();
+        };
+
+        // New function: Download Shopping List
+        const downloadShoppingList = () => {
+          const shoppingItems = getShoppingList();
+          let content = "Shopping List:\n\n";
+          if (shoppingItems.length > 0) {
+            shoppingItems.forEach(item => {
+              content += `${item.quantity} ${item.unit} ${item.name}\n`;
+            });
+          } else {
+            content += "No ingredients in the shopping list.\n";
+          }
+          const blob = new Blob([content], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "shopping_list.txt";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        };
+
+        // New function: Share Shopping List
+        const shareShoppingList = async () => {
+          const shoppingItems = getShoppingList();
+          let content = "Shopping List:\n\n";
+          if (shoppingItems.length > 0) {
+            shoppingItems.forEach(item => {
+              content += `${item.quantity} ${item.unit} ${item.name}\n`;
+            });
+          } else {
+            content += "No ingredients in the shopping list.\n";
+          }
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: "Shopping List",
+                text: content,
+              });
+            } catch (error) {
+              console.error("Error sharing", error);
+            }
+          } else {
+            try {
+              await navigator.clipboard.writeText(content);
+              alert("Shopping list copied to clipboard.");
+            } catch (error) {
+              console.error("Clipboard error", error);
+              alert("Unable to share shopping list.");
+            }
+          }
+        };
+
         // Update meal plan for a specific day and meal type
         const updateMealPlan = (day, mealType, newValue) => {
           setMealPlan((prev) => {
@@ -1398,6 +1476,11 @@
                 ) : activeTab === "shoppingList" ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Shopping List</h2>
+                    <div className="mb-4 flex space-x-4">
+                      <button onClick={printShoppingList} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Print</button>
+                      <button onClick={downloadShoppingList} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Download</button>
+                      <button onClick={shareShoppingList} className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">Share</button>
+                    </div>
                     {getShoppingList().length === 0 ? (
                       <p className="text-white">No ingredients in the shopping list.</p>
                     ) : (
