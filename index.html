@@ -899,12 +899,35 @@
           }
         };
 
-        const updateMealPlan = (day, mealType, newValue) => {
-          setMealPlan((prev) => {
-            const newPlan = { ...prev };
-            newPlan[day] = { ...prev[day], [mealType]: newValue };
-            return newPlan;
-          });
+        // Vault share function now works exactly like shareShoppingList,
+        // sharing the entire catalog of recipes.
+        const shareVaultContent = async () => {
+          let content = "Catalog:\n\n";
+          if (recipes.length > 0) {
+            recipes.forEach(recipe => {
+              content += `${recipe.title}\n`;
+            });
+          } else {
+            content += "No recipes in the catalog.\n";
+          }
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: "Catalog",
+                text: content,
+              });
+            } catch (error) {
+              console.error("Error sharing", error);
+            }
+          } else {
+            try {
+              await navigator.clipboard.writeText(content);
+              alert("Catalog copied to clipboard.");
+            } catch (error) {
+              console.error("Clipboard error", error);
+              alert("Unable to share catalog.");
+            }
+          }
         };
 
         // Generate markdown content for a recipe
@@ -1277,7 +1300,14 @@
                   </svg>
                 </button>
                 <button onClick={exportVault} className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105" aria-label="Export Markdown Vault">
-                  Export Vault
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 4v12m0 0l-4-4m4 4l4-4" />
+                  </svg>
+                </button>
+                <button onClick={shareVaultContent} className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105" aria-label="Share Vault Content">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12v1a2 2 0 002 2h12a2 2 0 002-2v-1m-9-5l-3 3m0 0l3 3m-3-3h12" />
+                  </svg>
                 </button>
                 <button onClick={() => setShowModal(true)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded" aria-label="Add a new recipe">
                   <span className="text-xl">+</span>
