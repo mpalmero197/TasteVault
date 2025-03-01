@@ -2,20 +2,30 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TasteVault with Imports</title>
+    <!-- Combined meta viewport -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no,
+               initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <title>TasteVault - Recipe Management & Meal Planner</title>
+
     <!-- Tailwind CSS (v2) -->
     <link
       href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+
     <!-- JSZip for zipping files and for .zip import -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <!-- For .xlsx import (SheetJS) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <!-- For CSV import (PapaParse) -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+
+    <!-- ORIGINAL + NEW STYLES MERGED -->
     <style>
+      /* First snippet’s modal transitions */
       .modal-enter {
         opacity: 0;
         transform: scale(0.95);
@@ -73,8 +83,403 @@
           max-height: 90vh;
         }
       }
+
+      /* Second snippet’s reset & base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      html, body {
+        background-color: #111;
+        color: #fff;
+        height: 100%;
+        overflow-x: hidden;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+      }
+      ul, li {
+        list-style: none;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        background: none;
+      }
+      input, select, textarea {
+        background-color: #222;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 0.5em;
+        border-radius: 4px;
+        font-size: 0.95em;
+      }
+      input:focus, select:focus, textarea:focus, button:focus {
+        outline: none;
+      }
+
+      /* Light mode overrides */
+      .light-mode {
+        background-color: #f5f5f5;
+        color: #111;
+      }
+      .light-mode header,
+      .light-mode .header-links,
+      .light-mode .mobile-nav {
+        background-color: #eaeaea;
+      }
+      .light-mode .site-title {
+        color: #111;
+      }
+      .light-mode .nine-dot-menu,
+      .light-mode .hamburger .bar {
+        background-color: #333 !important;
+      }
+      .light-mode .toggle-dark-mode {
+        background-color: #ccc;
+        color: #111;
+      }
+      .light-mode input,
+      .light-mode select,
+      .light-mode textarea {
+        background-color: #fff;
+        border: 1px solid #888;
+        color: #111;
+      }
+      .light-mode .section-container,
+      .light-mode .recipe-card,
+      .light-mode .meal-plan-section,
+      .light-mode .shopping-list-section {
+        background-color: #fff;
+        color: #111;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .light-mode nav a:hover,
+      .light-mode .dropdown-menu a:hover {
+        background-color: #ddd;
+        color: #111;
+      }
+
+      /* Second snippet’s example header & nav styles (optional) */
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #222;
+        padding: 0.5em 1em;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        border-bottom: 1px solid #333;
+      }
+      .site-title {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #ffcc66;
+        margin-right: 1em;
+      }
+      .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 2em;
+      }
+      .header-links {
+        display: flex;
+        gap: 1em;
+      }
+      .header-links a {
+        color: #ccc;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        padding: 0.4em 0.6em;
+        border-radius: 4px;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .header-links a:hover {
+        background-color: #333;
+        color: #fff;
+      }
+      .nine-dot-menu {
+        display: inline-block;
+        width: 2em;
+        height: 2em;
+        background-color: #333;
+        border-radius: 4px;
+        position: relative;
+        cursor: pointer;
+        margin-right: 1em;
+      }
+      .nine-dot-menu::before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 5px;
+        left: 8px;
+        width: 4px;
+        height: 4px;
+        background-color: #fff;
+        border-radius: 50%;
+        box-shadow:
+          10px 0 #fff,
+          0 10px #fff,
+          10px 10px #fff;
+      }
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 1em;
+        background-color: #222;
+        padding: 0.5em;
+        border: 1px solid #444;
+        border-radius: 4px;
+        margin-top: 2.7em;
+        z-index: 1000;
+      }
+      .dropdown-menu a {
+        display: block;
+        padding: 0.4em 0.6em;
+        color: #ccc;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        transition: background-color 0.3s;
+      }
+      .dropdown-menu a:hover {
+        background-color: #333;
+        color: #fff;
+      }
+      .toggle-dark-mode {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 0.4em 0.8em;
+        border-radius: 4px;
+        font-size: 0.8em;
+        margin-left: 0.5em;
+      }
+      .hamburger {
+        display: none;
+        width: 2em;
+        height: 2em;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        cursor: pointer;
+        margin-right: 1em;
+      }
+      .bar {
+        width: 100%;
+        height: 3px;
+        background-color: #fff;
+      }
+      .mobile-nav {
+        display: none;
+        background-color: #222;
+        position: absolute;
+        top: 3.5em;
+        right: 0;
+        left: 0;
+        padding: 1em;
+        border-top: 1px solid #333;
+      }
+      .mobile-nav a {
+        display: block;
+        margin-bottom: 1em;
+        color: #ccc;
+        text-transform: uppercase;
+        font-size: 0.95em;
+      }
+      .mobile-nav a:hover {
+        color: #fff;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1em;
+      }
+      .section-container {
+        background-color: #1c1c1c;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 1em 1.5em;
+        margin-bottom: 1.5em;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      }
+      .section-container h2 {
+        margin-bottom: 0.5em;
+        font-size: 1.2em;
+        border-bottom: 1px solid #333;
+        padding-bottom: 0.3em;
+        color: #ffcc66;
+      }
+      .section-container p {
+        margin-bottom: 1em;
+        color: #ccc;
+      }
+      .search-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1em;
+        margin-bottom: 1.5em;
+      }
+      .search-bar input,
+      .search-bar select {
+        flex: 1;
+        min-width: 200px;
+      }
+      .add-recipe-button {
+        display: none;
+        position: fixed;
+        bottom: 1.5em;
+        right: 1.5em;
+        width: 3em;
+        height: 3em;
+        background-color: #ff5722;
+        border-radius: 50%;
+        font-size: 2em;
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        z-index: 1000;
+      }
+      .recipe-card {
+        background-color: #222;
+        border: 1px solid #444;
+        border-radius: 4px;
+        padding: 1em;
+        margin-bottom: 1em;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+      .recipe-title {
+        font-size: 1.2em;
+        margin-bottom: 0.5em;
+        font-weight: bold;
+        color: #ffcc66;
+      }
+      .recipe-meta {
+        font-size: 0.9em;
+        margin-bottom: 0.5em;
+        color: #bbb;
+      }
+      .recipe-img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 0.5em;
+        display: none;
+        border-radius: 4px;
+        border: 1px solid #333;
+      }
+      .recipe-ingredients,
+      .recipe-directions {
+        margin-bottom: 0.5em;
+      }
+      .recipe-ingredients ul,
+      .recipe-directions ol {
+        margin-left: 1.2em;
+        margin-top: 0.3em;
+        padding-left: 1em;
+      }
+      .recipe-card button {
+        background-color: #333;
+        color: #fff;
+        padding: 0.3em 0.6em;
+        border-radius: 4px;
+        margin-right: 0.3em;
+        font-size: 0.8em;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .recipe-card button:hover {
+        background-color: #ffcc66;
+        color: #111;
+      }
+      .meal-plan-section {
+        background-color: #1c1c1c;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 1em;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+      .meal-plan-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1em;
+      }
+      .meal-plan-table th,
+      .meal-plan-table td {
+        border: 1px solid #444;
+        padding: 0.5em;
+        text-align: center;
+        color: #ccc;
+        font-size: 0.9em;
+      }
+      .meal-plan-day.highlight {
+        background-color: #ff5722;
+        color: #fff;
+      }
+      .shopping-list-section {
+        background-color: #1c1c1c;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 1em;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+      .shopping-list-items {
+        margin-bottom: 1em;
+      }
+      .shopping-list-items li {
+        margin: 0.3em 0;
+        cursor: pointer;
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      }
+      .shopping-list-items li:hover {
+        background-color: #333;
+      }
+      .shopping-list-section input[type="text"] {
+        width: 70%;
+        margin-right: 0.5em;
+      }
+      .shopping-list-section button {
+        background-color: #ff5722;
+        color: #fff;
+        padding: 0.4em 0.8em;
+        border-radius: 4px;
+        font-size: 0.9em;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .shopping-list-section button:hover {
+        background-color: #ffcc66;
+        color: #111;
+      }
+      @media (max-width: 992px) {
+        .header-nav {
+          gap: 1em;
+        }
+      }
+      @media (max-width: 768px) {
+        .header-links {
+          display: none;
+        }
+        .hamburger {
+          display: flex;
+        }
+        .add-recipe-button {
+          display: flex;
+        }
+        .section-container {
+          margin-left: 0.2em;
+          margin-right: 0.2em;
+        }
+      }
     </style>
   </head>
+
   <body class="bg-gray-900">
     <a href="#main-content" class="skip-link">Skip to Content</a>
     <script>
@@ -94,6 +499,7 @@
     </script>
 
     <div id="root"></div>
+
     <!-- React and ReactDOM (development builds) -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -1750,7 +2156,7 @@
                       </div>
                       <button
                         onClick={handleScaleRecipe}
-                        className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
+                        className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2"
                       >
                         Scale Recipe
                       </button>
@@ -1806,7 +2212,7 @@
                       <button
                         type="button"
                         onClick={addIngredientRow}
-                        className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2"
+                        className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
                       >
                         + Add Ingredient
                       </button>
@@ -1984,7 +2390,6 @@
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
-                {/* Search (hidden on mobile, shows on lg) */}
                 <div className="hidden lg:block">
                   <AutocompleteSearch
                     searchQuery={searchQuery}
@@ -1994,7 +2399,6 @@
                   />
                 </div>
 
-                {/* 9-dot menu with Import, Export, Share, Print */}
                 <div className="relative">
                   <button
                     onClick={() => setDotsMenuOpen(!dotsMenuOpen)}
@@ -2061,7 +2465,6 @@
                   )}
                 </div>
 
-                {/* Add Recipe Button */}
                 <button
                   onClick={() => setShowModal(true)}
                   className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded"
@@ -2070,7 +2473,6 @@
                   <span className="text-xl">+</span>
                 </button>
 
-                {/* Hamburger menu for mobile (visible in both portrait and landscape) */}
                 <button
                   className="lg:hidden p-2"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
@@ -2106,6 +2508,7 @@
                 </ul>
               </nav>
             )}
+
             <div className="flex-1 flex flex-col">
               <main className="p-4 md:p-8 flex-1 overflow-auto" id="main-content" tabIndex="0">
                 {activeTab === 'recipes' ? (
