@@ -3,14 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TasteVault Enhanced</title>
-    <!-- Precompiled Tailwind CSS for better compatibility with older browsers (iOS 12) -->
+    <title>TasteVault Enhanced with Markdown Export</title>
+    <!-- Precompiled Tailwind CSS for compatibility -->
     <link
       href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <!-- JSZip Library for zipping files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-      /* Basic modal transitions with vendor prefixes for iOS 12 compatibility */
       .modal-enter {
         opacity: 0;
         -webkit-transform: scale(0.95);
@@ -35,7 +36,6 @@
         -webkit-transition: opacity 300ms, -webkit-transform 300ms;
         transition: opacity 300ms, transform 300ms;
       }
-      /* Visually hidden class for screen readers */
       .sr-only {
         position: absolute;
         width: 1px;
@@ -47,7 +47,6 @@
         white-space: nowrap;
         border: 0;
       }
-      /* Styles for skip-link */
       .skip-link {
         position: absolute;
         top: -40px;
@@ -61,7 +60,6 @@
       .skip-link:focus {
         top: 0;
       }
-      /* Print media query */
       @media print {
         body * {
           visibility: hidden;
@@ -76,14 +74,12 @@
           top: 0;
         }
       }
-      /* Modal container styling */
       .modal-container {
         width: 90vw;
         height: 90vw;
         max-width: 500px;
         max-height: 500px;
       }
-      /* Custom styles for Android portrait mode */
       @media only screen and (max-width: 480px) and (orientation: portrait) {
         .modal-container {
           width: 95vw;
@@ -94,10 +90,7 @@
     </style>
   </head>
   <body class="bg-gray-900">
-    <!-- Skip to Content link for keyboard users -->
     <a href="#main-content" class="skip-link">Skip to Content</a>
-
-    <!-- Check for Modern Browser Features & Load Polyfills If Necessary -->
     <script>
       (function checkBrowserCompatibility() {
         if (typeof window.Promise === "undefined" || typeof window.fetch === "undefined") {
@@ -110,20 +103,16 @@
         }
       })();
     </script>
-
     <div id="root"></div>
-
     <!-- React and dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <script type="text/babel">
       const { useState, useEffect, useRef } = React;
 
-      // StarRating component with ARIA labels
       function StarRating({ rating, setRating }) {
         const handleClick = (newRating) => setRating(newRating);
         return (
@@ -145,7 +134,6 @@
         );
       }
 
-      // IngredientRow component
       function IngredientRow({ ingredient, index, handleIngredientChange, removeIngredientRow }) {
         const units = ["tsp", "tbsp", "cup", "oz", "lb", "ml", "l", "g", "kg"];
         return (
@@ -193,7 +181,6 @@
         );
       }
 
-      // RecipeCard component with vertical ellipsis dropdown for options (ellipses now at bottom right)
       function RecipeCard({ recipe, index, onDeleteRecipe, onEditRecipe }) {
         const [menuOpen, setMenuOpen] = useState(false);
 
@@ -279,8 +266,6 @@
                 <p className="whitespace-pre-wrap mt-1 text-white">{recipe.directions}</p>
               </div>
             )}
-
-            {/* Vertical Ellipsis Dropdown Menu (positioned in the bottom right) */}
             <div className="absolute bottom-2 right-2">
               <button onClick={() => setMenuOpen(!menuOpen)} className="text-white focus:outline-none" aria-label="Options">
                 ⋮
@@ -315,7 +300,6 @@
         );
       }
 
-      // MealPlanMealSelector with autocomplete functionality and optional hidden label
       function MealPlanMealSelector({ day, mealType, value, onChange, recipes, hideLabel }) {
         const [searchQuery, setSearchQuery] = useState("");
         const [isFocused, setIsFocused] = useState(false);
@@ -361,7 +345,6 @@
         );
       }
 
-      // AutocompleteSearch component for header search with updated filtering and active tab switch
       function AutocompleteSearch({ searchQuery, setSearchQuery, recipes, onFocus }) {
         const [isFocused, setIsFocused] = useState(false);
         const suggestions = recipes.filter(recipe =>
@@ -396,7 +379,6 @@
         );
       }
 
-      // CreateCookbookModal component
       function CreateCookbookModal({ onCreate, onClose }) {
         const [newName, setNewName] = useState("");
         return (
@@ -423,7 +405,6 @@
         );
       }
 
-      // EditCookbookModal component
       function EditCookbookModal({ cookbook, onUpdate, onClose }) {
         const [newTitle, setNewTitle] = useState(cookbook.title);
         return (
@@ -449,7 +430,6 @@
         );
       }
 
-      // MealPlanCalendar component displaying the meal plan in a calendar layout with current day highlight
       function MealPlanCalendar({ mealPlan, recipes, mealTypes, updateMealPlan }) {
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const currentDay = new Date().toLocaleString("en-US", { weekday: "long" });
@@ -493,7 +473,6 @@
         );
       }
 
-      // Main application component
       function RecipeSaver() {
         const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack", "Party"];
         const dishTypes = [
@@ -507,8 +486,6 @@
           "Vegetarian",
           "Vegan",
         ];
-
-        // State definitions (recipes, cookbooks, meal plan, category images, etc.)
         const [recipes, setRecipes] = useState([]);
         const [cookbooks, setCookbooks] = useState([]);
         const [mealPlan, setMealPlan] = useState(() => {
@@ -548,18 +525,13 @@
         const [isNewCookbook, setIsNewCookbook] = useState(false);
         const [showCreateCookbookModal, setShowCreateCookbookModal] = useState(false);
         const [editCookbook, setEditCookbook] = useState(null);
-        // Recipe scaling states
         const [baseServings, setBaseServings] = useState("");
         const [desiredServings, setDesiredServings] = useState("");
-        // Search filtering states
         const [searchQuery, setSearchQuery] = useState("");
         const [filterDish, setFilterDish] = useState("");
         const [filterMeal, setFilterMeal] = useState("");
-
-        // Ref for the recipe image input (in the Add/Edit Recipe Modal)
         const recipeImageInputRef = useRef(null);
 
-        // Load state from localStorage on mount
         useEffect(() => {
           const savedRecipes = localStorage.getItem("recipes");
           if (savedRecipes) setRecipes(JSON.parse(savedRecipes));
@@ -577,7 +549,6 @@
         useEffect(() => { localStorage.setItem("categoryImages", JSON.stringify(categoryImages)); }, [categoryImages]);
         useEffect(() => { localStorage.setItem("mealPlan", JSON.stringify(mealPlan)); }, [mealPlan]);
 
-        // Ingredient handlers
         const addIngredientRow = () => setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "" }]);
         const handleIngredientChange = (index, field, value) => {
           const updated = [...ingredients];
@@ -586,7 +557,6 @@
         };
         const removeIngredientRow = (index) => setIngredients(ingredients.filter((_, i) => i !== index));
 
-        // Updated image handler for recipes using FileReader (Base64 conversion)
         const handleImageChange = (e) => {
           const file = e.target.files[0];
           if (file) {
@@ -598,7 +568,6 @@
           }
         };
 
-        // Fetch recipe (simulate "test" URL)
         const handleFetchRecipe = async () => {
           setLoading(true);
           try {
@@ -646,7 +615,6 @@
           }
         };
 
-        // Recipe scaling handler
         const handleScaleRecipe = () => {
           const base = parseFloat(baseServings);
           const desired = parseFloat(desiredServings);
@@ -665,7 +633,6 @@
           }
         };
 
-        // Add or update recipe
         const handleAddRecipe = () => {
           const newRecipe = {
             title,
@@ -692,7 +659,6 @@
           resetForm();
         };
 
-        // Reset form and editing state
         const resetForm = () => {
           setUrl("");
           setTitle("");
@@ -716,11 +682,9 @@
           setDesiredServings("");
         };
 
-        // Delete a recipe
         const handleDeleteRecipe = (recipeToDelete) =>
           setRecipes(recipes.filter((r) => r !== recipeToDelete));
 
-        // Open edit modal for a recipe
         const handleEditRecipe = (index, recipeData) => {
           setEditingIndex(index);
           setTitle(recipeData.title || "");
@@ -741,14 +705,12 @@
           setShowModal(true);
         };
 
-        // Create Cookbook Modal handler
         const handleCreateCookbook = (newName) => {
           if (newName && !cookbooks.find(cb => cb.title === newName))
             setCookbooks((prev) => [...prev, { title: newName, image: "", tags: "" }]);
           setShowCreateCookbookModal(false);
         };
 
-        // Update cookbook after editing via modal
         const updateCookbookData = (index, updatedCookbook) => {
           const oldTitle = cookbooks[index].title;
           const updatedCookbooks = [...cookbooks];
@@ -761,7 +723,6 @@
           setEditCookbook(null);
         };
 
-        // Print cookbook
         const handlePrintCookbook = (cookbookObj) => {
           const cbRecipes = recipes.filter((r) => r.cookbook === cookbookObj.title);
           const printWindow = window.open("", "", "height=800,width=1200");
@@ -788,7 +749,6 @@
           printWindow.print();
         };
 
-        // Delete cookbook
         const handleDeleteCookbook = (cookbookObj, index) => {
           if (confirm(`Are you sure you want to delete the cookbook "${cookbookObj.title}"?`)) {
             const updatedCookbooks = cookbooks.filter((_, i) => i !== index);
@@ -800,7 +760,6 @@
           }
         };
 
-        // Print all recipes with enhanced filtering using "includes"
         const printAllRecipes = () => {
           const filteredRecipes = recipes.filter((r) =>
             r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -843,7 +802,6 @@
           printWindow.print();
         };
 
-        // Aggregate shopping list from meal plan
         const getShoppingList = () => {
           const agg = {};
           Object.keys(mealPlan).forEach((day) => {
@@ -866,7 +824,6 @@
           return Object.values(agg);
         };
 
-        // New function: Print Shopping List
         const printShoppingList = () => {
           const shoppingItems = getShoppingList();
           const printWindow = window.open("", "", "height=600,width=800");
@@ -892,7 +849,6 @@
           printWindow.print();
         };
 
-        // New function: Download Shopping List
         const downloadShoppingList = () => {
           const shoppingItems = getShoppingList();
           let content = "Shopping List:\n\n";
@@ -913,7 +869,6 @@
           document.body.removeChild(a);
         };
 
-        // New function: Share Shopping List
         const shareShoppingList = async () => {
           const shoppingItems = getShoppingList();
           let content = "Shopping List:\n\n";
@@ -944,7 +899,6 @@
           }
         };
 
-        // Update meal plan for a specific day and meal type
         const updateMealPlan = (day, mealType, newValue) => {
           setMealPlan((prev) => {
             const newPlan = { ...prev };
@@ -953,7 +907,69 @@
           });
         };
 
-        // Render Add/Edit Recipe Modal
+        // Generate markdown content for a recipe
+        const generateMarkdown = (recipe) => {
+          let frontmatter = `---\n`;
+          frontmatter += `title: "${recipe.title || "Untitled Recipe"}"\n`;
+          frontmatter += `dishType: "${recipe.dishType || "N/A"}"\n`;
+          frontmatter += `mealType: "${recipe.mealType || "N/A"}"\n`;
+          frontmatter += `cookbook: "${recipe.cookbook || "N/A"}"\n`;
+          frontmatter += `prepTime: "${recipe.prepTime || "N/A"}"\n`;
+          frontmatter += `cookTime: "${recipe.cookTime || "N/A"}"\n`;
+          frontmatter += `rating: ${recipe.rating || 0}\n`;
+          if (recipe.temperature && recipe.temperature.value) {
+            frontmatter += `temperature:\n  value: "${recipe.temperature.value}"\n  scale: "${recipe.temperature.scale}"\n`;
+          }
+          frontmatter += `ingredients:\n`;
+          if (recipe.ingredients && recipe.ingredients.length > 0) {
+            recipe.ingredients.forEach(ing => {
+              frontmatter += `  - name: "${ing.name}"\n    quantity: "${ing.quantity}"\n    unit: "${ing.unit}"\n`;
+            });
+          } else {
+            frontmatter += `  []\n`;
+          }
+          frontmatter += `---\n\n`;
+          let body = "";
+          if (recipe.directions) {
+            body += `## Directions\n${recipe.directions}\n\n`;
+          }
+          if (recipe.notes) {
+            body += `## Notes\n${recipe.notes}\n\n`;
+          }
+          return frontmatter + body;
+        };
+
+        // Export the library as a markdown vault
+        const exportVault = async () => {
+          const catalogName = prompt("Enter catalog name for the vault:", "MyCatalog");
+          if (!catalogName) return;
+          const zip = new JSZip();
+          const baseFolder = zip.folder(catalogName);
+          const cookbooksFolder = baseFolder.folder("Cookbooks");
+
+          recipes.forEach(recipe => {
+            const cookbookName = recipe.cookbook ? recipe.cookbook : "No Cookbook";
+            const mealType = recipe.mealType ? recipe.mealType : "Uncategorized Meal";
+            const category = recipe.dishType ? recipe.dishType : "Uncategorized Category";
+            const cookbookFolder = cookbooksFolder.folder(cookbookName);
+            const mealFolder = cookbookFolder.folder(mealType);
+            const categoryFolder = mealFolder.folder(category);
+            let fileName = recipe.title ? recipe.title.replace(/[\\\/:*?"<>|]/g, '') : "Untitled";
+            fileName += ".md";
+            const markdownContent = generateMarkdown(recipe);
+            categoryFolder.file(fileName, markdownContent);
+          });
+
+          const blob = await zip.generateAsync({type: "blob"});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${catalogName}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        };
+
         const renderAddRecipeModal = () => {
           if (!showModal) return null;
           return (
@@ -1233,7 +1249,6 @@
 
         return (
           <div className="min-h-screen flex flex-col" role="document">
-            {/* Top Navigation Header */}
             <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-between p-4 shadow-lg" role="banner">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-8">TasteVault</h1>
@@ -1261,6 +1276,9 @@
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 14h12" />
                   </svg>
                 </button>
+                <button onClick={exportVault} className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105" aria-label="Export Markdown Vault">
+                  Export Vault
+                </button>
                 <button onClick={() => setShowModal(true)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded" aria-label="Add a new recipe">
                   <span className="text-xl">+</span>
                 </button>
@@ -1271,8 +1289,6 @@
                 </button>
               </div>
             </header>
-
-            {/* Mobile Navigation Menu */}
             {mobileNavOpen && (
               <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white lg:hidden">
                 <ul className="flex flex-col">
@@ -1286,8 +1302,6 @@
                 </ul>
               </nav>
             )}
-
-            {/* Main Content Area */}
             <div className="flex-1 flex flex-col">
               <main className="p-4 md:p-8 flex-1 overflow-auto" id="main-content" tabIndex="0">
                 {activeTab === "recipes" ? (
@@ -1496,21 +1510,13 @@
                 ) : null}
               </main>
             </div>
-
-            {/* Footer */}
             <footer className="bg-gray-800 text-center text-white p-4 border-t" role="contentinfo">
               &copy; {new Date().getFullYear()} TasteVault
             </footer>
-
-            {/* Add/Edit Recipe Modal */}
             {renderAddRecipeModal()}
-
-            {/* Create Cookbook Modal */}
             {showCreateCookbookModal && (
               <CreateCookbookModal onCreate={handleCreateCookbook} onClose={() => setShowCreateCookbookModal(false)} />
             )}
-
-            {/* Edit Cookbook Modal */}
             {editCookbook && (
               <EditCookbookModal
                 cookbook={editCookbook.data}
