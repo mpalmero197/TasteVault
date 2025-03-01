@@ -3,16 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TasteVault with Stable Meal Plan</title>
+    <title>TasteVault with Imports</title>
     <!-- Tailwind CSS (v2) -->
     <link
       href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <!-- JSZip for zipping files -->
+    <!-- JSZip for zipping files and for .zip import -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- For .xlsx import (SheetJS) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- For CSV import (PapaParse) -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
     <style>
-      /* Basic modal transitions, skip link, print, etc. */
       .modal-enter {
         opacity: 0;
         transform: scale(0.95);
@@ -90,6 +93,7 @@
         }
       })();
     </script>
+
     <div id="root"></div>
     <!-- React and ReactDOM (development builds) -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -101,11 +105,378 @@
     <script type="text/babel">
       const { useState, useEffect, useRef } = React;
 
-      // Utility to generate a simple unique ID.
+      // Utility: generate a simple unique ID
       function generateId() {
         return (
           Date.now().toString(36) +
           Math.floor(Math.random() * 999999).toString(36)
+        );
+      }
+
+      // Attempt to parse frontmatter and body from a Markdown string
+      // This is a simplified approach – you can enhance for more robust frontmatter parsing.
+      function parseMarkdown(markdownContent) {
+        const lines = markdownContent.split('\n');
+        let frontmatter = {};
+        let i = 0;
+        if (lines[0].trim() === '---') {
+          i++;
+          while (i < lines.length && lines[i].trim() !== '---') {
+            const line = lines[i].trim();
+            const match = line.match(/^(.*?):\\s*(.*)$/);
+            if (match) {
+              const key = match[1].trim();
+              const value = match[2].replace(/\"/g, '').trim();
+              frontmatter[key] = value;
+            }
+            i++;
+          }
+          // skip the closing '---' line
+          i++;
+        }
+
+        // The rest is body text (Directions, Notes, etc.)
+        const body = lines.slice(i).join('\n');
+        // minimal attempt to parse directions and notes
+        // In your app, you might parse with headings, e.g. `## Directions`
+        // For now, just store as directions
+        return {
+          frontmatter,
+          body
+        };
+      }
+
+      // Attempt to parse .paprikarecipe JSON (Paprika format)
+      function parsePaprika(jsonString) {
+        // Paprika .paprikarecipe is basically a JSON object
+        // containing fields like name, ingredients, instructions, etc.
+        // We'll do the minimal mapping. Adjust as needed.
+        // Example structure:
+        // {
+        //   "name": "Tomato Soup",
+        //   "description": "",
+        //   "ingredients": "2 cups tomato\\n1 cup water",
+        //   "directions": "1. Combine\\n2. Boil",
+        //   "servings": "",
+        //   "difficulty": "",
+        //   "rating": "5"
+        //   ...
+        // }
+        const data = JSON.parse(jsonString);
+        return {
+          title: data.name || '',
+          dishType: '',
+          mealType: '',
+          cookbook: '',
+          ingredients: (data.ingredients || '')
+            .split('\n')
+            .map((line) => {
+              // extremely naive parse of lines
+              // e.g. "2 cups tomato"
+              const parts = line.trim().split(' ');
+              if (parts.length < 2) {
+                return { name: line.trim(), quantity: '', unit: '' };
+              }
+              // naive approach: first token numeric, second token unit, rest is name
+              const quantityCandidate = parseFloat(parts[0]);
+              if (!isNaN(quantityCandidate)) {
+                const unitCandidate = parts[1];
+                const nameCandidate = parts.slice(2).join(' ');
+                return {
+                  name: nameCandidate || '',
+                  quantity: quantityCandidate.toString(),
+                  unit: unitCandidate
+                };
+              } else {
+                // fallback: entire line as name
+                return { name: line.trim(), quantity: '', unit: '' };
+              }
+            }),
+          prepTime: '',
+          cookTime: '',
+          directions: data.directions || '',
+          rating: parseInt(data.rating || '0', 10),
+          notes: data.description || '',
+          temperature: { value: '', scale: 'F' }
+        };
+      }
+
+      // CSV or XLSX row -> recipe. Adjust columns as needed
+      function rowToRecipe(rowObj) {
+        // rowObj is a key:value dictionary from CSV/XLSX
+        // We'll guess the fields:
+        // title, dishType, mealType, cookbook, ingredients, directions, rating, notes, prepTime, cookTime
+        // If columns are named differently, adapt accordingly
+        return {
+          title: rowObj.title || 'Untitled',
+          dishType: rowObj.dishType || '',
+          mealType: rowObj.mealType || '',
+          cookbook: rowObj.cookbook || '',
+          ingredients: (rowObj.ingredients || '')
+            .split('\\n')
+            .map((line) => {
+              // parse each line as "quantity unit name"
+              const parts = line.trim().split(' ');
+              if (parts.length < 2) {
+                return { name: line.trim(), quantity: '', unit: '' };
+              }
+              const quantityCandidate = parseFloat(parts[0]);
+              if (!isNaN(quantityCandidate)) {
+                const unitCandidate = parts[1];
+                const nameCandidate = parts.slice(2).join(' ');
+                return {
+                  name: nameCandidate || '',
+                  quantity: quantityCandidate.toString(),
+                  unit: unitCandidate
+                };
+              }
+              return { name: line.trim(), quantity: '', unit: '' };
+            }),
+          directions: rowObj.directions || '',
+          rating: parseInt(rowObj.rating || '0', 10),
+          notes: rowObj.notes || '',
+          prepTime: rowObj.prepTime || '',
+          cookTime: rowObj.cookTime || '',
+          temperature: {
+            value: rowObj.tempValue || '',
+            scale: rowObj.tempScale || 'F'
+          }
+        };
+      }
+
+      // Modal to import from .xlsx, .csv, .md, .paprikarecipe, .zip
+      function ImportModal({ onClose, onImport }) {
+        const [selectedFiles, setSelectedFiles] = useState([]);
+
+        // read each file, parse into recipe objects
+        const handleImport = async () => {
+          let allImportedRecipes = [];
+
+          for (let file of selectedFiles) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            try {
+              if (ext === 'xlsx' || ext === 'xls') {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                // convert each row to a recipe
+                const recipes = jsonData.map((row) => {
+                  const recipe = rowToRecipe(row);
+                  recipe.id = generateId();
+                  return recipe;
+                });
+                allImportedRecipes = [...allImportedRecipes, ...recipes];
+              } else if (ext === 'csv') {
+                const textData = await file.text();
+                const parsed = Papa.parse(textData, { header: true });
+                if (parsed.data) {
+                  const recipes = parsed.data.map((row) => {
+                    const recipe = rowToRecipe(row);
+                    recipe.id = generateId();
+                    return recipe;
+                  });
+                  allImportedRecipes = [...allImportedRecipes, ...recipes];
+                }
+              } else if (ext === 'md') {
+                const textData = await file.text();
+                const { frontmatter, body } = parseMarkdown(textData);
+                // build a single recipe
+                const newRecipe = {
+                  id: generateId(),
+                  title: frontmatter.title || 'Untitled',
+                  dishType: frontmatter.dishType || '',
+                  mealType: frontmatter.mealType || '',
+                  cookbook: frontmatter.cookbook || '',
+                  prepTime: frontmatter.prepTime || '',
+                  cookTime: frontmatter.cookTime || '',
+                  rating: parseInt(frontmatter.rating || '0', 10),
+                  temperature: {
+                    value: frontmatter?.temperature?.value || '',
+                    scale: frontmatter?.temperature?.scale || 'F'
+                  },
+                  notes: '', // We can guess from body if there's a "## Notes"
+                  directions: '',
+                  ingredients: []
+                };
+                // Attempt minimal parse from body
+                // e.g. if we see "## Directions", store the text under it
+                // if we see "## Notes", store that
+                // We'll do a naive approach:
+                const lines = body.split('\\n');
+                let currentSection = null;
+                let directionsText = [];
+                let notesText = [];
+
+                lines.forEach((line) => {
+                  if (line.trim().toLowerCase().startsWith('## directions')) {
+                    currentSection = 'directions';
+                    return;
+                  }
+                  if (line.trim().toLowerCase().startsWith('## notes')) {
+                    currentSection = 'notes';
+                    return;
+                  }
+                  if (currentSection === 'directions') {
+                    directionsText.push(line);
+                  } else if (currentSection === 'notes') {
+                    notesText.push(line);
+                  }
+                });
+
+                newRecipe.directions = directionsText.join('\\n');
+                newRecipe.notes = notesText.join('\\n');
+                allImportedRecipes.push(newRecipe);
+              } else if (ext === 'paprikarecipe') {
+                const textData = await file.text();
+                const parsed = parsePaprika(textData);
+                parsed.id = generateId();
+                allImportedRecipes.push(parsed);
+              } else if (ext === 'zip') {
+                // expand each file and parse individually
+                const data = await file.arrayBuffer();
+                const jszip = new JSZip();
+                const zipContents = await jszip.loadAsync(data);
+
+                // iterate files in zip
+                const fileNames = Object.keys(zipContents.files);
+                for (let name of fileNames) {
+                  const zippedFile = zipContents.files[name];
+                  if (!zippedFile.dir) {
+                    // read as text
+                    const content = await zippedFile.async('string');
+                    const subExt = name.split('.').pop().toLowerCase();
+                    if (subExt === 'csv') {
+                      const parsed = Papa.parse(content, { header: true });
+                      if (parsed.data) {
+                        const subRecipes = parsed.data.map((row) => {
+                          const recipe = rowToRecipe(row);
+                          recipe.id = generateId();
+                          return recipe;
+                        });
+                        allImportedRecipes = [...allImportedRecipes, ...subRecipes];
+                      }
+                    } else if (subExt === 'xlsx' || subExt === 'xls') {
+                      // we need arrayBuffer for XLSX
+                      // but we have string in 'content' – that won't work well.
+                      // we can do: await zippedFile.async('arraybuffer') instead
+                      const abuf = await zippedFile.async('arraybuffer');
+                      const workbook = XLSX.read(abuf, { type: 'array' });
+                      const sheetName = workbook.SheetNames[0];
+                      const worksheet = workbook.Sheets[sheetName];
+                      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                      const subRecipes = jsonData.map((row) => {
+                        const recipe = rowToRecipe(row);
+                        recipe.id = generateId();
+                        return recipe;
+                      });
+                      allImportedRecipes = [...allImportedRecipes, ...subRecipes];
+                    } else if (subExt === 'md') {
+                      const { frontmatter, body } = parseMarkdown(content);
+                      const newRecipe = {
+                        id: generateId(),
+                        title: frontmatter.title || 'Untitled',
+                        dishType: frontmatter.dishType || '',
+                        mealType: frontmatter.mealType || '',
+                        cookbook: frontmatter.cookbook || '',
+                        prepTime: frontmatter.prepTime || '',
+                        cookTime: frontmatter.cookTime || '',
+                        rating: parseInt(frontmatter.rating || '0', 10),
+                        temperature: {
+                          value: frontmatter?.temperature?.value || '',
+                          scale: frontmatter?.temperature?.scale || 'F'
+                        },
+                        notes: '',
+                        directions: '',
+                        ingredients: []
+                      };
+                      // parse body for directions/notes
+                      const lines = body.split('\\n');
+                      let currentSection = null;
+                      let directionsText = [];
+                      let notesText = [];
+
+                      lines.forEach((line) => {
+                        if (line.trim().toLowerCase().startsWith('## directions')) {
+                          currentSection = 'directions';
+                          return;
+                        }
+                        if (line.trim().toLowerCase().startsWith('## notes')) {
+                          currentSection = 'notes';
+                          return;
+                        }
+                        if (currentSection === 'directions') {
+                          directionsText.push(line);
+                        } else if (currentSection === 'notes') {
+                          notesText.push(line);
+                        }
+                      });
+                      newRecipe.directions = directionsText.join('\\n');
+                      newRecipe.notes = notesText.join('\\n');
+                      allImportedRecipes.push(newRecipe);
+                    } else if (subExt === 'paprikarecipe') {
+                      const subParsed = parsePaprika(content);
+                      subParsed.id = generateId();
+                      allImportedRecipes.push(subParsed);
+                    }
+                    // other file types can be ignored or expanded as needed
+                  }
+                }
+              }
+            } catch (err) {
+              console.error('Error importing file: ', file.name, err);
+            }
+          }
+
+          onImport(allImportedRecipes);
+          onClose();
+        };
+
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="bg-gray-800 p-4 rounded modal-container overflow-auto">
+              <h2 className="text-white text-xl mb-4">Import Recipes</h2>
+              <p className="text-white text-sm mb-2">
+                Supported file types:
+                <br />
+                <strong>.xlsx, .csv, .md, .paprikarecipe, .zip</strong>
+              </p>
+              <input
+                type="file"
+                multiple
+                accept=".xlsx,.xls,.csv,.md,.paprikarecipe,.zip"
+                onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+                className="text-white mb-4"
+              />
+              {selectedFiles.length > 0 && (
+                <ul className="text-white text-sm mb-4 list-disc list-inside">
+                  {selectedFiles.map((f, i) => (
+                    <li key={i}>{f.name}</li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="flex justify-end">
+                <button
+                  onClick={handleImport}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2"
+                >
+                  Import
+                </button>
+                <button
+                  onClick={onClose}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         );
       }
 
@@ -361,25 +732,22 @@
         );
       }
 
-      // Updated MealPlanMealSelector that uses recipe IDs
       function MealPlanMealSelector({ day, mealType, value, onChange, recipes, hideLabel }) {
         const [searchQuery, setSearchQuery] = useState('');
         const [isFocused, setIsFocused] = useState(false);
 
-        // Instead of searching only by mealType, show user all or filter by mealType as you like:
-        // Here we'll keep the original filter so it only matches the intended mealType.
+        // We find the currently selected recipe by ID
+        const selectedRecipe = recipes.find((r) => r.id === value) || null;
+        const inputValue = searchQuery !== '' ? searchQuery : selectedRecipe ? selectedRecipe.title : '';
+
+        // Filter only recipes matching mealType, beginning with search
         const suggestions = recipes.filter(
           (recipe) =>
             recipe.mealType === mealType &&
             recipe.title.toLowerCase().startsWith(searchQuery.toLowerCase())
         );
 
-        // Find the currently selected recipe by ID
-        const selectedRecipe = recipes.find((r) => r.id === value) || null;
-        const inputValue = searchQuery !== '' ? searchQuery : selectedRecipe ? selectedRecipe.title : '';
-
         const handleSelect = (recipe) => {
-          // We call onChange with the recipe's ID
           onChange(recipe.id);
           setSearchQuery('');
         };
@@ -393,7 +761,6 @@
               value={inputValue}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                // If user modifies the search, clear the old selection
                 onChange('');
               }}
               onFocus={() => setIsFocused(true)}
@@ -453,6 +820,59 @@
                 ))}
               </ul>
             )}
+          </div>
+        );
+      }
+
+      function MealPlanCalendar({ mealPlan, recipes, mealTypes, updateMealPlan }) {
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
+
+        return (
+          <div className="overflow-auto">
+            <table className="min-w-full text-white">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 border border-gray-600 bg-gray-800">Meal Type / Day</th>
+                  {days.map((day) => (
+                    <th
+                      key={day}
+                      className={`px-4 py-2 border border-gray-600 ${
+                        day === currentDay ? 'bg-gray-600' : 'bg-gray-800'
+                      }`}
+                    >
+                      {day}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {mealTypes.map((mealType) => (
+                  <tr key={mealType}>
+                    <td className="px-4 py-2 border border-gray-600 bg-gray-700 font-bold">
+                      {mealType}
+                    </td>
+                    {days.map((day) => (
+                      <td
+                        key={day}
+                        className={`px-4 py-2 border border-gray-600 ${
+                          day === currentDay ? 'bg-gray-600' : ''
+                        }`}
+                      >
+                        <MealPlanMealSelector
+                          day={day}
+                          mealType={mealType}
+                          value={mealPlan[day][mealType]}
+                          onChange={(newId) => updateMealPlan(day, mealType, newId)}
+                          recipes={recipes}
+                          hideLabel={true}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         );
       }
@@ -519,60 +939,6 @@
         );
       }
 
-      // Updated MealPlanCalendar that references ID instead of array index
-      function MealPlanCalendar({ mealPlan, recipes, mealTypes, updateMealPlan }) {
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
-
-        return (
-          <div className="overflow-auto">
-            <table className="min-w-full text-white">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 border border-gray-600 bg-gray-800">Meal Type / Day</th>
-                  {days.map((day) => (
-                    <th
-                      key={day}
-                      className={`px-4 py-2 border border-gray-600 ${
-                        day === currentDay ? 'bg-gray-600' : 'bg-gray-800'
-                      }`}
-                    >
-                      {day}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {mealTypes.map((mealType) => (
-                  <tr key={mealType}>
-                    <td className="px-4 py-2 border border-gray-600 bg-gray-700 font-bold">
-                      {mealType}
-                    </td>
-                    {days.map((day) => (
-                      <td
-                        key={day}
-                        className={`px-4 py-2 border border-gray-600 ${
-                          day === currentDay ? 'bg-gray-600' : ''
-                        }`}
-                      >
-                        <MealPlanMealSelector
-                          day={day}
-                          mealType={mealType}
-                          value={mealPlan[day][mealType]} // This is now a recipe ID
-                          onChange={(newId) => updateMealPlan(day, mealType, newId)}
-                          recipes={recipes}
-                          hideLabel={true}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-      }
-
       function RecipeSaver() {
         const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Party'];
         const dishTypes = [
@@ -588,7 +954,6 @@
         ];
         const [recipes, setRecipes] = useState([]);
         const [cookbooks, setCookbooks] = useState([]);
-        // mealPlan is an object of objects, each storing a recipe ID (or "")
         const [mealPlan, setMealPlan] = useState(() => {
           const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
           const plan = {};
@@ -633,6 +998,9 @@
         const [filterDish, setFilterDish] = useState('');
         const [filterMeal, setFilterMeal] = useState('');
         const recipeImageInputRef = useRef(null);
+
+        // For "Import" functionality
+        const [showImportModal, setShowImportModal] = useState(false);
 
         useEffect(() => {
           const savedRecipes = localStorage.getItem('recipes');
@@ -716,7 +1084,6 @@
             } else {
               const response = await axios.post('/api/fetch-recipe', { url });
               fetchedRecipe = response.data;
-              // Ensure the fetched recipe has an ID
               if (!fetchedRecipe.id) {
                 fetchedRecipe.id = generateId();
               }
@@ -764,9 +1131,7 @@
 
         const handleAddRecipe = () => {
           let newRecipe;
-          // If editing an existing recipe, keep its ID
           if (editingIndex !== null) {
-            // We'll map the existing recipe's ID
             const oldId = recipes[editingIndex].id;
             newRecipe = {
               id: oldId,
@@ -788,7 +1153,6 @@
               prev.map((r, i) => (i === editingIndex ? newRecipe : r))
             );
           } else {
-            // New recipe => generate an ID
             newRecipe = {
               id: generateId(),
               title,
@@ -939,8 +1303,6 @@
               r.cookbook === cookbookObj.title ? { ...r, cookbook: '' } : r
             );
             setRecipes(updatedRecipes);
-            // If that cookbook was in use in mealPlan, no direct changes needed
-            // because we only store recipe IDs, not the cookbook name.
           }
         };
 
@@ -1025,7 +1387,6 @@
           printWindow.print();
         };
 
-        // Now, to build the aggregated shopping list by referencing IDs
         const getShoppingList = () => {
           const agg = {};
           Object.keys(mealPlan).forEach((day) => {
@@ -1042,7 +1403,7 @@
                       agg[key] = {
                         name: ing.name,
                         unit: ing.unit,
-                        quantity: isNaN(qty) ? ing.quantity : qty,
+                        quantity: isNaN(qty) ? ing.quantity : qty
                       };
                     } else {
                       if (!isNaN(qty)) agg[key].quantity += qty;
@@ -1116,7 +1477,7 @@
             try {
               await navigator.share({
                 title: 'Shopping List',
-                text: content,
+                text: content
               });
             } catch (error) {
               console.error('Error sharing', error);
@@ -1132,7 +1493,6 @@
           }
         };
 
-        // Vault share => share the entire recipe list
         const shareVaultContent = async () => {
           let content = 'Catalog:\n\n';
           if (recipes.length > 0) {
@@ -1146,7 +1506,7 @@
             try {
               await navigator.share({
                 title: 'Catalog',
-                text: content,
+                text: content
               });
             } catch (error) {
               console.error('Error sharing', error);
@@ -1162,7 +1522,6 @@
           }
         };
 
-        // Generate markdown content
         const generateMarkdown = (recipe) => {
           let frontmatter = `---\n`;
           frontmatter += `title: "${recipe.title || 'Untitled Recipe'}"\n`;
@@ -1195,7 +1554,6 @@
           return frontmatter + body;
         };
 
-        // Export as a markdown vault
         const exportVault = async () => {
           const catalogName = prompt('Enter catalog name for the vault:', 'MyCatalog');
           if (!catalogName) return;
@@ -1564,6 +1922,13 @@
           );
         };
 
+        // Called once new recipes are parsed from ImportModal
+        const handleImportRecipes = (imported) => {
+          if (!imported || imported.length === 0) return;
+          // Merge them into existing recipes
+          setRecipes((prev) => [...prev, ...imported]);
+        };
+
         return (
           <div className="min-h-screen flex flex-col" role="document">
             <header
@@ -1720,6 +2085,13 @@
                   aria-label="Add a new recipe"
                 >
                   <span className="text-xl">+</span>
+                </button>
+                <button
+                  onClick={() => setShowImportModal(true)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded"
+                  aria-label="Import recipes"
+                >
+                  Import
                 </button>
                 <button
                   className="lg:hidden p-2"
@@ -2055,7 +2427,6 @@
                       recipes={recipes}
                       mealTypes={mealTypes}
                       updateMealPlan={(day, mealType, newValue) => {
-                        // newValue is a recipe ID
                         setMealPlan((prev) => {
                           const newPlan = { ...prev };
                           newPlan[day] = { ...newPlan[day], [mealType]: newValue };
@@ -2107,6 +2478,7 @@
             </footer>
 
             {renderAddRecipeModal()}
+
             {showCreateCookbookModal && (
               <CreateCookbookModal
                 onCreate={handleCreateCookbook}
@@ -2118,6 +2490,13 @@
                 cookbook={editCookbook.data}
                 onUpdate={(updatedData) => updateCookbookData(editCookbook.index, updatedData)}
                 onClose={() => setEditCookbook(null)}
+              />
+            )}
+
+            {showImportModal && (
+              <ImportModal
+                onClose={() => setShowImportModal(false)}
+                onImport={handleImportRecipes}
               />
             )}
           </div>
