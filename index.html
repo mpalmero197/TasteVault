@@ -3,49 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TasteVault Enhanced with Markdown Export</title>
-    <!-- Precompiled Tailwind CSS for compatibility -->
+    <title>TasteVault with Stable Meal Plan</title>
+    <!-- Tailwind CSS (v2) -->
     <link
       href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <!-- JSZip Library for zipping files -->
+    <!-- JSZip for zipping files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
+      /* Basic modal transitions, skip link, print, etc. */
       .modal-enter {
         opacity: 0;
-        -webkit-transform: scale(0.95);
         transform: scale(0.95);
       }
       .modal-enter-active {
         opacity: 1;
-        -webkit-transform: scale(1);
         transform: scale(1);
-        -webkit-transition: opacity 300ms, -webkit-transform 300ms;
         transition: opacity 300ms, transform 300ms;
       }
       .modal-exit {
         opacity: 1;
-        -webkit-transform: scale(1);
         transform: scale(1);
       }
       .modal-exit-active {
         opacity: 0;
-        -webkit-transform: scale(0.95);
         transform: scale(0.95);
-        -webkit-transition: opacity 300ms, -webkit-transform 300ms;
         transition: opacity 300ms, transform 300ms;
-      }
-      .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
       }
       .skip-link {
         position: absolute;
@@ -93,7 +77,10 @@
     <a href="#main-content" class="skip-link">Skip to Content</a>
     <script>
       (function checkBrowserCompatibility() {
-        if (typeof window.Promise === "undefined" || typeof window.fetch === "undefined") {
+        if (
+          typeof window.Promise === "undefined" ||
+          typeof window.fetch === "undefined"
+        ) {
           document.write(
             '<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"><\\/script>'
           );
@@ -104,20 +91,29 @@
       })();
     </script>
     <div id="root"></div>
-    <!-- React and dependencies -->
+    <!-- React and ReactDOM (development builds) -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <!-- Babel for JSX -->
+    <!-- Babel for inline JSX transpilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <script type="text/babel">
       const { useState, useEffect, useRef } = React;
+
+      // Utility to generate a simple unique ID.
+      function generateId() {
+        return (
+          Date.now().toString(36) +
+          Math.floor(Math.random() * 999999).toString(36)
+        );
+      }
 
       function StarRating({ rating, setRating }) {
         const handleClick = (newRating) => setRating(newRating);
         return (
           <div className="flex items-center" role="radiogroup" aria-label="Star Rating">
-            {[1,2,3,4,5].map((star) => (
+            {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 type="button"
@@ -125,9 +121,9 @@
                 className="text-2xl focus:outline-none"
                 role="radio"
                 aria-checked={star === rating}
-                aria-label={`${star} star${star !== 1 ? "s" : ""}`}
+                aria-label={`${star} star${star !== 1 ? 's' : ''}`}
               >
-                {star <= rating ? "★" : "☆"}
+                {star <= rating ? '★' : '☆'}
               </button>
             ))}
           </div>
@@ -135,38 +131,46 @@
       }
 
       function IngredientRow({ ingredient, index, handleIngredientChange, removeIngredientRow }) {
-        const units = ["tsp", "tbsp", "cup", "oz", "lb", "ml", "l", "g", "kg"];
+        const units = ['tsp', 'tbsp', 'cup', 'oz', 'lb', 'ml', 'l', 'g', 'kg'];
         return (
           <div className="flex flex-col md:flex-row md:space-x-2 mb-2">
-            <label className="sr-only" htmlFor={`ingredient-name-${index}`}>Ingredient Name</label>
+            <label className="sr-only" htmlFor={`ingredient-name-${index}`}>
+              Ingredient Name
+            </label>
             <input
               id={`ingredient-name-${index}`}
               type="text"
               placeholder="Ingredient Name"
               value={ingredient.name}
-              onChange={(e) => handleIngredientChange(index, "name", e.target.value)}
+              onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
               className="w-full md:w-1/3 p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             />
-            <label className="sr-only" htmlFor={`ingredient-qty-${index}`}>Quantity</label>
+            <label className="sr-only" htmlFor={`ingredient-qty-${index}`}>
+              Quantity
+            </label>
             <input
               id={`ingredient-qty-${index}`}
               type="number"
               step="any"
               placeholder="Quantity"
               value={ingredient.quantity}
-              onChange={(e) => handleIngredientChange(index, "quantity", e.target.value)}
+              onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
               className="w-full md:w-1/4 p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             />
-            <label className="sr-only" htmlFor={`ingredient-unit-${index}`}>Unit</label>
+            <label className="sr-only" htmlFor={`ingredient-unit-${index}`}>
+              Unit
+            </label>
             <select
               id={`ingredient-unit-${index}`}
               value={ingredient.unit}
-              onChange={(e) => handleIngredientChange(index, "unit", e.target.value)}
+              onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
               className="w-full md:w-1/4 p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             >
               <option value="">Unit</option>
               {units.map((u) => (
-                <option key={u} value={u}>{u}</option>
+                <option key={u} value={u}>
+                  {u}
+                </option>
               ))}
             </select>
             <button
@@ -185,67 +189,109 @@
         const [menuOpen, setMenuOpen] = useState(false);
 
         const handleDelete = () => {
-          if (confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`))
+          if (confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`)) {
             onDeleteRecipe(recipe);
+          }
         };
 
         const handlePrint = () => {
-          const printWindow = window.open("", "", "height=600,width=800");
-          printWindow.document.write("<html><head><title>Print Recipe</title>");
+          const printWindow = window.open('', '', 'height=600,width=800');
+          printWindow.document.write('<html><head><title>Print Recipe</title>');
           printWindow.document.write(
             '<style>@media print { body { margin: 20px; } } body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; } img { max-width: 100%; height: auto; }</style>'
           );
-          printWindow.document.write("</head><body>");
+          printWindow.document.write('</head><body>');
           printWindow.document.write('<div class="card printable">');
-          printWindow.document.write("<h1>" + (recipe.title || "Untitled Recipe") + "</h1>");
-          if (recipe.image)
+          printWindow.document.write('<h1>' + (recipe.title || 'Untitled Recipe') + '</h1>');
+          if (recipe.image) {
             printWindow.document.write('<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />');
-          printWindow.document.write("<p><strong>Dish Type:</strong> " + (recipe.dishType || "N/A") + "</p>");
-          printWindow.document.write("<p><strong>Meal Type:</strong> " + (recipe.mealType || "N/A") + "</p>");
-          printWindow.document.write("<p><strong>Cookbook:</strong> " + (recipe.cookbook || "N/A") + "</p>");
-          printWindow.document.write("<p><strong>Prep Time:</strong> " + (recipe.prepTime || "N/A") + "</p>");
-          printWindow.document.write("<p><strong>Cook Time:</strong> " + (recipe.cookTime || "N/A") + "</p>");
-          if (recipe.temperature && recipe.temperature.value)
-            printWindow.document.write("<p><strong>Temp:</strong> " + recipe.temperature.value + "°" + recipe.temperature.scale + "</p>");
-          printWindow.document.write("<p><strong>Rating:</strong> " + "★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating) + "</p>");
-          if (recipe.ingredients && recipe.ingredients.length > 0) {
-            printWindow.document.write("<h3>Ingredients</h3><ul>");
-            recipe.ingredients.forEach((ing) => {
-              printWindow.document.write("<li>" + (ing.quantity ? ing.quantity + " " : "") + (ing.unit ? ing.unit + " " : "") + ing.name + "</li>");
-            });
-            printWindow.document.write("</ul>");
           }
-          if (recipe.directions)
-            printWindow.document.write("<h3>Directions</h3><p>" + recipe.directions.replace(/\n/g, "<br>") + "</p>");
-          printWindow.document.write("</div></body></html>");
+          printWindow.document.write('<p><strong>Dish Type:</strong> ' + (recipe.dishType || 'N/A') + '</p>');
+          printWindow.document.write('<p><strong>Meal Type:</strong> ' + (recipe.mealType || 'N/A') + '</p>');
+          printWindow.document.write('<p><strong>Cookbook:</strong> ' + (recipe.cookbook || 'N/A') + '</p>');
+          printWindow.document.write('<p><strong>Prep Time:</strong> ' + (recipe.prepTime || 'N/A') + '</p>');
+          printWindow.document.write('<p><strong>Cook Time:</strong> ' + (recipe.cookTime || 'N/A') + '</p>');
+          if (recipe.temperature && recipe.temperature.value) {
+            printWindow.document.write(
+              '<p><strong>Temp:</strong> ' + recipe.temperature.value + '°' + recipe.temperature.scale + '</p>'
+            );
+          }
+          printWindow.document.write(
+            '<p><strong>Rating:</strong> ' +
+              '★'.repeat(recipe.rating) +
+              '☆'.repeat(5 - recipe.rating) +
+              '</p>'
+          );
+          if (recipe.ingredients && recipe.ingredients.length > 0) {
+            printWindow.document.write('<h3>Ingredients</h3><ul>');
+            recipe.ingredients.forEach((ing) => {
+              printWindow.document.write(
+                '<li>' +
+                  (ing.quantity ? ing.quantity + ' ' : '') +
+                  (ing.unit ? ing.unit + ' ' : '') +
+                  ing.name +
+                  '</li>'
+              );
+            });
+            printWindow.document.write('</ul>');
+          }
+          if (recipe.directions) {
+            printWindow.document.write(
+              '<h3>Directions</h3><p>' + recipe.directions.replace(/\n/g, '<br>') + '</p>'
+            );
+          }
+          printWindow.document.write('</div></body></html>');
           printWindow.document.close();
           printWindow.focus();
           printWindow.print();
         };
 
         return (
-          <div className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300 relative" role="article" aria-label={`Recipe: ${recipe.title || "Untitled"}`}>
-            <div className="relative w-full mb-4" style={{ paddingTop: "60%", overflow: "hidden" }}>
+          <div
+            className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300 relative"
+            role="article"
+            aria-label={`Recipe: ${recipe.title || 'Untitled'}`}
+          >
+            <div className="relative w-full mb-4" style={{ paddingTop: '60%', overflow: 'hidden' }}>
               {recipe.image ? (
-                <img src={recipe.image} alt={recipe.title || "Recipe Image"} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
+                <img
+                  src={recipe.image}
+                  alt={recipe.title || 'Recipe Image'}
+                  className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                />
               ) : (
                 <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-white rounded-t-lg">
                   <span>No Image</span>
                 </div>
               )}
             </div>
-            <h3 className="text-xl font-bold mb-2 text-white" tabIndex="0">{recipe.title || "Untitled Recipe"}</h3>
-            <p className="mb-1 text-white"><strong>Dish Type:</strong> {recipe.dishType || "N/A"}</p>
-            <p className="mb-1 text-white"><strong>Meal Type:</strong> {recipe.mealType || "N/A"}</p>
-            <p className="mb-1 text-white"><strong>Cookbook:</strong> {recipe.cookbook || "N/A"}</p>
-            <p className="mb-1 text-white"><strong>Prep Time:</strong> {recipe.prepTime || "N/A"}</p>
-            <p className="mb-1 text-white"><strong>Cook Time:</strong> {recipe.cookTime || "N/A"}</p>
+            <h3 className="text-xl font-bold mb-2 text-white" tabIndex="0">
+              {recipe.title || 'Untitled Recipe'}
+            </h3>
+            <p className="mb-1 text-white">
+              <strong>Dish Type:</strong> {recipe.dishType || 'N/A'}
+            </p>
+            <p className="mb-1 text-white">
+              <strong>Meal Type:</strong> {recipe.mealType || 'N/A'}
+            </p>
+            <p className="mb-1 text-white">
+              <strong>Cookbook:</strong> {recipe.cookbook || 'N/A'}
+            </p>
+            <p className="mb-1 text-white">
+              <strong>Prep Time:</strong> {recipe.prepTime || 'N/A'}
+            </p>
+            <p className="mb-1 text-white">
+              <strong>Cook Time:</strong> {recipe.cookTime || 'N/A'}
+            </p>
             {recipe.temperature && recipe.temperature.value && (
-              <p className="mb-1 text-white"><strong>Temp:</strong> {recipe.temperature.value}°{recipe.temperature.scale}</p>
+              <p className="mb-1 text-white">
+                <strong>Temp:</strong> {recipe.temperature.value}°{recipe.temperature.scale}
+              </p>
             )}
             {recipe.rating > 0 && (
               <p className="mb-1 text-white" aria-label={`Recipe rating: ${recipe.rating}`}>
-                <strong>Rating:</strong> {"★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating)}
+                <strong>Rating:</strong>{' '}
+                {'★'.repeat(recipe.rating) + '☆'.repeat(5 - recipe.rating)}
               </p>
             )}
             {recipe.ingredients && recipe.ingredients.length > 0 && (
@@ -254,7 +300,9 @@
                 <ul className="list-disc list-inside mt-1">
                   {recipe.ingredients.map((ing, i) => (
                     <li key={i} className="text-white">
-                      {(ing.quantity ? ing.quantity + " " : "") + (ing.unit ? ing.unit + " " : "") + ing.name}
+                      {(ing.quantity ? ing.quantity + ' ' : '') +
+                        (ing.unit ? ing.unit + ' ' : '') +
+                        ing.name}
                     </li>
                   ))}
                 </ul>
@@ -267,27 +315,40 @@
               </div>
             )}
             <div className="absolute bottom-2 right-2">
-              <button onClick={() => setMenuOpen(!menuOpen)} className="text-white focus:outline-none" aria-label="Options">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="text-white focus:outline-none"
+                aria-label="Options"
+              >
                 ⋮
               </button>
               {menuOpen && (
                 <div className="absolute right-0 bottom-full mb-2 w-32 bg-gray-800 border border-gray-700 rounded shadow-lg z-10">
                   <button
-                    onClick={() => { setMenuOpen(false); onEditRecipe(index, recipe); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onEditRecipe(index, recipe);
+                    }}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                     aria-label={`Edit recipe ${recipe.title}`}
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => { setMenuOpen(false); handlePrint(); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handlePrint();
+                    }}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                     aria-label={`Print recipe ${recipe.title}`}
                   >
                     Print
                   </button>
                   <button
-                    onClick={() => { setMenuOpen(false); handleDelete(); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleDelete();
+                    }}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                     aria-label={`Delete recipe ${recipe.title}`}
                   >
@@ -300,16 +361,29 @@
         );
       }
 
+      // Updated MealPlanMealSelector that uses recipe IDs
       function MealPlanMealSelector({ day, mealType, value, onChange, recipes, hideLabel }) {
-        const [searchQuery, setSearchQuery] = useState("");
+        const [searchQuery, setSearchQuery] = useState('');
         const [isFocused, setIsFocused] = useState(false);
-        const selectedRecipe = value !== "" && recipes[value] ? recipes[value] : null;
-        const inputValue = searchQuery !== "" ? searchQuery : selectedRecipe ? selectedRecipe.title : "";
+
+        // Instead of searching only by mealType, show user all or filter by mealType as you like:
+        // Here we'll keep the original filter so it only matches the intended mealType.
         const suggestions = recipes.filter(
           (recipe) =>
             recipe.mealType === mealType &&
-            recipe.title.toLowerCase().startsWith(inputValue.toLowerCase())
+            recipe.title.toLowerCase().startsWith(searchQuery.toLowerCase())
         );
+
+        // Find the currently selected recipe by ID
+        const selectedRecipe = recipes.find((r) => r.id === value) || null;
+        const inputValue = searchQuery !== '' ? searchQuery : selectedRecipe ? selectedRecipe.title : '';
+
+        const handleSelect = (recipe) => {
+          // We call onChange with the recipe's ID
+          onChange(recipe.id);
+          setSearchQuery('');
+        };
+
         return (
           <div className="relative">
             {!hideLabel && <label className="block text-white mb-1">{mealType}</label>}
@@ -319,21 +393,21 @@
               value={inputValue}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                onChange("");
+                // If user modifies the search, clear the old selection
+                onChange('');
               }}
               onFocus={() => setIsFocused(true)}
-              onBlur={() => { setTimeout(() => setIsFocused(false), 200); }}
+              onBlur={() => {
+                setTimeout(() => setIsFocused(false), 200);
+              }}
               className="w-full p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
-            {isFocused && inputValue !== "" && suggestions.length > 0 && (
+            {isFocused && inputValue !== '' && suggestions.length > 0 && (
               <ul className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto">
                 {suggestions.map((recipe, index) => (
                   <li
                     key={index}
-                    onMouseDown={() => {
-                      onChange(recipes.indexOf(recipe).toString());
-                      setSearchQuery("");
-                    }}
+                    onMouseDown={() => handleSelect(recipe)}
                     className="p-2 hover:bg-teal-500 cursor-pointer text-white"
                   >
                     {recipe.title}
@@ -347,25 +421,29 @@
 
       function AutocompleteSearch({ searchQuery, setSearchQuery, recipes, onFocus }) {
         const [isFocused, setIsFocused] = useState(false);
-        const suggestions = recipes.filter(recipe =>
+        const suggestions = recipes.filter((recipe) =>
           recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
+
         return (
           <div className="relative">
-            <input 
+            <input
               type="text"
               placeholder="Search recipes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => { setIsFocused(true); onFocus && onFocus(); }}
+              onFocus={() => {
+                setIsFocused(true);
+                onFocus && onFocus();
+              }}
               onBlur={() => setTimeout(() => setIsFocused(false), 200)}
               className="border p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
               aria-label="Search recipes"
             />
-            {isFocused && searchQuery !== "" && suggestions.length > 0 && (
+            {isFocused && searchQuery !== '' && suggestions.length > 0 && (
               <ul className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto">
                 {suggestions.map((recipe, index) => (
-                  <li 
+                  <li
                     key={index}
                     onMouseDown={() => setSearchQuery(recipe.title)}
                     className="p-2 hover:bg-teal-500 cursor-pointer text-white"
@@ -380,20 +458,26 @@
       }
 
       function CreateCookbookModal({ onCreate, onClose }) {
-        const [newName, setNewName] = useState("");
+        const [newName, setNewName] = useState('');
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-gray-800 p-4 rounded">
               <h2 className="text-white text-xl mb-4">Create Cookbook</h2>
-              <input 
-                type="text" 
-                placeholder="Cookbook Name" 
-                value={newName} 
+              <input
+                type="text"
+                placeholder="Cookbook Name"
+                value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="p-2 border rounded bg-gray-700 text-white" 
+                className="p-2 border rounded bg-gray-700 text-white"
               />
               <div className="mt-4 flex justify-end">
-                <button onClick={() => { onCreate(newName); setNewName(""); }} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2">
+                <button
+                  onClick={() => {
+                    onCreate(newName);
+                    setNewName('');
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2"
+                >
                   Create
                 </button>
                 <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
@@ -411,14 +495,19 @@
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-gray-800 p-4 rounded">
               <h2 className="text-white text-xl mb-4">Edit Cookbook</h2>
-              <input 
-                type="text" 
-                value={newTitle} 
+              <input
+                type="text"
+                value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="p-2 border rounded bg-gray-700 text-white" 
+                className="p-2 border rounded bg-gray-700 text-white"
               />
               <div className="mt-4 flex justify-end">
-                <button onClick={() => { onUpdate({ ...cookbook, title: newTitle }); }} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2">
+                <button
+                  onClick={() => {
+                    onUpdate({ ...cookbook, title: newTitle });
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2"
+                >
                   Update
                 </button>
                 <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
@@ -430,9 +519,11 @@
         );
       }
 
+      // Updated MealPlanCalendar that references ID instead of array index
       function MealPlanCalendar({ mealPlan, recipes, mealTypes, updateMealPlan }) {
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        const currentDay = new Date().toLocaleString("en-US", { weekday: "long" });
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
+
         return (
           <div className="overflow-auto">
             <table className="min-w-full text-white">
@@ -442,7 +533,9 @@
                   {days.map((day) => (
                     <th
                       key={day}
-                      className={`px-4 py-2 border border-gray-600 ${day === currentDay ? "bg-gray-600" : "bg-gray-800"}`}
+                      className={`px-4 py-2 border border-gray-600 ${
+                        day === currentDay ? 'bg-gray-600' : 'bg-gray-800'
+                      }`}
                     >
                       {day}
                     </th>
@@ -452,16 +545,23 @@
               <tbody>
                 {mealTypes.map((mealType) => (
                   <tr key={mealType}>
-                    <td className="px-4 py-2 border border-gray-600 bg-gray-700 font-bold">{mealType}</td>
+                    <td className="px-4 py-2 border border-gray-600 bg-gray-700 font-bold">
+                      {mealType}
+                    </td>
                     {days.map((day) => (
-                      <td key={day} className={`px-4 py-2 border border-gray-600 ${day === currentDay ? "bg-gray-600" : ""}`}>
-                        <MealPlanMealSelector 
-                           day={day} 
-                           mealType={mealType} 
-                           value={mealPlan[day][mealType]} 
-                           onChange={(newValue) => updateMealPlan(day, mealType, newValue)} 
-                           recipes={recipes}
-                           hideLabel={true}
+                      <td
+                        key={day}
+                        className={`px-4 py-2 border border-gray-600 ${
+                          day === currentDay ? 'bg-gray-600' : ''
+                        }`}
+                      >
+                        <MealPlanMealSelector
+                          day={day}
+                          mealType={mealType}
+                          value={mealPlan[day][mealType]} // This is now a recipe ID
+                          onChange={(newId) => updateMealPlan(day, mealType, newId)}
+                          recipes={recipes}
+                          hideLabel={true}
                         />
                       </td>
                     ))}
@@ -474,49 +574,51 @@
       }
 
       function RecipeSaver() {
-        const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack", "Party"];
+        const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Party'];
         const dishTypes = [
-          "Pasta",
-          "Bread",
-          "Soup",
-          "Salad",
-          "Dessert",
-          "Meat",
-          "Seafood",
-          "Vegetarian",
-          "Vegan",
+          'Pasta',
+          'Bread',
+          'Soup',
+          'Salad',
+          'Dessert',
+          'Meat',
+          'Seafood',
+          'Vegetarian',
+          'Vegan',
         ];
         const [recipes, setRecipes] = useState([]);
         const [cookbooks, setCookbooks] = useState([]);
+        // mealPlan is an object of objects, each storing a recipe ID (or "")
         const [mealPlan, setMealPlan] = useState(() => {
-          const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+          const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
           const plan = {};
           days.forEach((day) => {
             plan[day] = {};
-            mealTypes.forEach((type) => { plan[day][type] = ""; });
+            mealTypes.forEach((type) => {
+              plan[day][type] = '';
+            });
           });
           return plan;
         });
         const [categoryImages, setCategoryImages] = useState({});
-        const [url, setUrl] = useState("");
-        const [fetchMethod, setFetchMethod] = useState("url");
-        const [title, setTitle] = useState("");
-        const [selectedDishType, setSelectedDishType] = useState("");
-        const [selectedMealType, setSelectedMealType] = useState("");
-        const [cookbook, setCookbook] = useState("");
-        const [prepTime, setPrepTime] = useState("");
-        const [cookTime, setCookTime] = useState("");
-        const [temperatureValue, setTemperatureValue] = useState("");
-        const [temperatureScale, setTemperatureScale] = useState("F");
+        const [url, setUrl] = useState('');
+        const [fetchMethod, setFetchMethod] = useState('url');
+        const [title, setTitle] = useState('');
+        const [selectedDishType, setSelectedDishType] = useState('');
+        const [selectedMealType, setSelectedMealType] = useState('');
+        const [cookbook, setCookbook] = useState('');
+        const [prepTime, setPrepTime] = useState('');
+        const [cookTime, setCookTime] = useState('');
+        const [temperatureValue, setTemperatureValue] = useState('');
+        const [temperatureScale, setTemperatureScale] = useState('F');
         const [rating, setRating] = useState(0);
-        const [notes, setNotes] = useState("");
-        const [newImage, setNewImage] = useState(null);
-        const [newImagePreview, setNewImagePreview] = useState("");
-        const [directions, setDirections] = useState("");
+        const [notes, setNotes] = useState('');
+        const [newImagePreview, setNewImagePreview] = useState('');
+        const [directions, setDirections] = useState('');
         const [ingredients, setIngredients] = useState([]);
-        const [activeTab, setActiveTab] = useState("categories");
+        const [activeTab, setActiveTab] = useState('categories');
         const [showModal, setShowModal] = useState(false);
-        const [modalTab, setModalTab] = useState("General");
+        const [modalTab, setModalTab] = useState('General');
         const [loading, setLoading] = useState(false);
         const [editingIndex, setEditingIndex] = useState(null);
         const [selectedCookbook, setSelectedCookbook] = useState(null);
@@ -525,37 +627,56 @@
         const [isNewCookbook, setIsNewCookbook] = useState(false);
         const [showCreateCookbookModal, setShowCreateCookbookModal] = useState(false);
         const [editCookbook, setEditCookbook] = useState(null);
-        const [baseServings, setBaseServings] = useState("");
-        const [desiredServings, setDesiredServings] = useState("");
-        const [searchQuery, setSearchQuery] = useState("");
-        const [filterDish, setFilterDish] = useState("");
-        const [filterMeal, setFilterMeal] = useState("");
+        const [baseServings, setBaseServings] = useState('');
+        const [desiredServings, setDesiredServings] = useState('');
+        const [searchQuery, setSearchQuery] = useState('');
+        const [filterDish, setFilterDish] = useState('');
+        const [filterMeal, setFilterMeal] = useState('');
         const recipeImageInputRef = useRef(null);
 
         useEffect(() => {
-          const savedRecipes = localStorage.getItem("recipes");
+          const savedRecipes = localStorage.getItem('recipes');
           if (savedRecipes) setRecipes(JSON.parse(savedRecipes));
-          const savedCookbooks = localStorage.getItem("cookbooks");
+
+          const savedCookbooks = localStorage.getItem('cookbooks');
           if (savedCookbooks) setCookbooks(JSON.parse(savedCookbooks));
-          const savedCategoryImages = localStorage.getItem("categoryImages");
+
+          const savedCategoryImages = localStorage.getItem('categoryImages');
           if (savedCategoryImages) setCategoryImages(JSON.parse(savedCategoryImages));
-          const savedMealPlan = localStorage.getItem("mealPlan");
+
+          const savedMealPlan = localStorage.getItem('mealPlan');
           if (savedMealPlan) setMealPlan(JSON.parse(savedMealPlan));
-          document.documentElement.classList.add("dark");
+
+          document.documentElement.classList.add('dark');
         }, []);
 
-        useEffect(() => { localStorage.setItem("recipes", JSON.stringify(recipes)); }, [recipes]);
-        useEffect(() => { localStorage.setItem("cookbooks", JSON.stringify(cookbooks)); }, [cookbooks]);
-        useEffect(() => { localStorage.setItem("categoryImages", JSON.stringify(categoryImages)); }, [categoryImages]);
-        useEffect(() => { localStorage.setItem("mealPlan", JSON.stringify(mealPlan)); }, [mealPlan]);
+        useEffect(() => {
+          localStorage.setItem('recipes', JSON.stringify(recipes));
+        }, [recipes]);
 
-        const addIngredientRow = () => setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "" }]);
+        useEffect(() => {
+          localStorage.setItem('cookbooks', JSON.stringify(cookbooks));
+        }, [cookbooks]);
+
+        useEffect(() => {
+          localStorage.setItem('categoryImages', JSON.stringify(categoryImages));
+        }, [categoryImages]);
+
+        useEffect(() => {
+          localStorage.setItem('mealPlan', JSON.stringify(mealPlan));
+        }, [mealPlan]);
+
+        const addIngredientRow = () =>
+          setIngredients((prev) => [...prev, { name: '', quantity: '', unit: '' }]);
+
         const handleIngredientChange = (index, field, value) => {
           const updated = [...ingredients];
           updated[index][field] = value;
           setIngredients(updated);
         };
-        const removeIngredientRow = (index) => setIngredients(ingredients.filter((_, i) => i !== index));
+
+        const removeIngredientRow = (index) =>
+          setIngredients(ingredients.filter((_, i) => i !== index));
 
         const handleImageChange = (e) => {
           const file = e.target.files[0];
@@ -572,44 +693,52 @@
           setLoading(true);
           try {
             let fetchedRecipe;
-            if (url.trim().toLowerCase() === "test") {
+            if (url.trim().toLowerCase() === 'test') {
               fetchedRecipe = {
-                title: "Test Recipe",
-                dishType: "Pasta",
-                mealType: "Dinner",
-                cookbook: "Test Cookbook",
+                id: generateId(),
+                title: 'Test Recipe',
+                dishType: 'Pasta',
+                mealType: 'Dinner',
+                cookbook: 'Test Cookbook',
                 ingredients: [
-                  { name: "Ingredient 1", quantity: "2", unit: "cup" },
-                  { name: "Ingredient 2", quantity: "1", unit: "tbsp" },
+                  { name: 'Ingredient 1', quantity: '2', unit: 'cup' },
+                  { name: 'Ingredient 2', quantity: '1', unit: 'tbsp' },
                 ],
-                prepTime: "10 minutes",
-                cookTime: "20 minutes",
-                directions: "1. Do something.\n2. Do next step.",
+                prepTime: '10 minutes',
+                cookTime: '20 minutes',
+                directions: '1. Do something.\n2. Do next step.',
                 rating: 3,
-                temperature: { value: "350", scale: "F" },
-                image: "",
+                temperature: { value: '350', scale: 'F' },
+                image: '',
+                notes: '',
+                baseServings: '',
               };
             } else {
-              const response = await axios.post("/api/fetch-recipe", { url });
+              const response = await axios.post('/api/fetch-recipe', { url });
               fetchedRecipe = response.data;
+              // Ensure the fetched recipe has an ID
+              if (!fetchedRecipe.id) {
+                fetchedRecipe.id = generateId();
+              }
             }
-            setTitle(fetchedRecipe.title || "");
-            setSelectedDishType(fetchedRecipe.dishType || "");
-            setSelectedMealType(fetchedRecipe.mealType || "");
-            setCookbook(fetchedRecipe.cookbook || "");
+            setTitle(fetchedRecipe.title || '');
+            setSelectedDishType(fetchedRecipe.dishType || '');
+            setSelectedMealType(fetchedRecipe.mealType || '');
+            setCookbook(fetchedRecipe.cookbook || '');
             setIsNewCookbook(false);
             setIngredients(fetchedRecipe.ingredients || []);
-            setPrepTime(fetchedRecipe.prepTime || "");
-            setCookTime(fetchedRecipe.cookTime || "");
-            setDirections(fetchedRecipe.directions || "");
+            setPrepTime(fetchedRecipe.prepTime || '');
+            setCookTime(fetchedRecipe.cookTime || '');
+            setDirections(fetchedRecipe.directions || '');
             setRating(fetchedRecipe.rating || 0);
-            setNotes(fetchedRecipe.notes || "");
-            setTemperatureValue(fetchedRecipe.temperature?.value || "");
-            setTemperatureScale(fetchedRecipe.temperature?.scale || "F");
-            if (!newImagePreview && fetchedRecipe.image) setNewImagePreview(fetchedRecipe.image);
+            setNotes(fetchedRecipe.notes || '');
+            setTemperatureValue(fetchedRecipe.temperature?.value || '');
+            setTemperatureScale(fetchedRecipe.temperature?.scale || 'F');
+            setNewImagePreview(fetchedRecipe.image || '');
+            setBaseServings(fetchedRecipe.baseServings || '');
           } catch (error) {
-            console.error("Error fetching recipe", error);
-            alert("An error occurred while fetching the recipe. Please try again.");
+            console.error('Error fetching recipe', error);
+            alert('An error occurred while fetching the recipe. Please try again.');
           } finally {
             setLoading(false);
           }
@@ -629,85 +758,125 @@
             });
             setIngredients(newIngredients);
             setBaseServings(desired.toString());
-            setDesiredServings("");
+            setDesiredServings('');
           }
         };
 
         const handleAddRecipe = () => {
-          const newRecipe = {
-            title,
-            dishType: selectedDishType,
-            mealType: selectedMealType,
-            cookbook,
-            prepTime,
-            cookTime,
-            directions,
-            rating,
-            notes,
-            temperature: { value: temperatureValue, scale: temperatureScale },
-            ingredients,
-            image: newImagePreview,
-            baseServings,
-          };
+          let newRecipe;
+          // If editing an existing recipe, keep its ID
           if (editingIndex !== null) {
-            setRecipes((prev) => prev.map((r, i) => (i === editingIndex ? newRecipe : r)));
+            // We'll map the existing recipe's ID
+            const oldId = recipes[editingIndex].id;
+            newRecipe = {
+              id: oldId,
+              title,
+              dishType: selectedDishType,
+              mealType: selectedMealType,
+              cookbook,
+              prepTime,
+              cookTime,
+              directions,
+              rating,
+              notes,
+              temperature: { value: temperatureValue, scale: temperatureScale },
+              ingredients,
+              image: newImagePreview,
+              baseServings,
+            };
+            setRecipes((prev) =>
+              prev.map((r, i) => (i === editingIndex ? newRecipe : r))
+            );
           } else {
+            // New recipe => generate an ID
+            newRecipe = {
+              id: generateId(),
+              title,
+              dishType: selectedDishType,
+              mealType: selectedMealType,
+              cookbook,
+              prepTime,
+              cookTime,
+              directions,
+              rating,
+              notes,
+              temperature: { value: temperatureValue, scale: temperatureScale },
+              ingredients,
+              image: newImagePreview,
+              baseServings,
+            };
             setRecipes((prev) => [...prev, newRecipe]);
           }
-          if (cookbook && !cookbooks.find(cb => cb.title === cookbook))
-            setCookbooks((prev) => [...prev, { title: cookbook, image: "", tags: "" }]);
+
+          if (cookbook && !cookbooks.find((cb) => cb.title === cookbook)) {
+            setCookbooks((prev) => [...prev, { title: cookbook, image: '', tags: '' }]);
+          }
           resetForm();
         };
 
         const resetForm = () => {
-          setUrl("");
-          setTitle("");
-          setSelectedDishType("");
-          setSelectedMealType("");
-          setCookbook("");
+          setUrl('');
+          setTitle('');
+          setSelectedDishType('');
+          setSelectedMealType('');
+          setCookbook('');
           setIsNewCookbook(false);
-          setPrepTime("");
-          setCookTime("");
-          setDirections("");
+          setPrepTime('');
+          setCookTime('');
+          setDirections('');
           setRating(0);
-          setNotes("");
-          setTemperatureValue("");
-          setTemperatureScale("F");
+          setNotes('');
+          setTemperatureValue('');
+          setTemperatureScale('F');
           setIngredients([]);
-          setNewImage(null);
-          setNewImagePreview("");
+          setNewImagePreview('');
           setEditingIndex(null);
-          setModalTab("General");
-          setBaseServings("");
-          setDesiredServings("");
+          setModalTab('General');
+          setBaseServings('');
+          setDesiredServings('');
+          setShowModal(false);
         };
 
-        const handleDeleteRecipe = (recipeToDelete) =>
-          setRecipes(recipes.filter((r) => r !== recipeToDelete));
+        const handleDeleteRecipe = (recipeToDelete) => {
+          setRecipes(recipes.filter((r) => r.id !== recipeToDelete.id));
+          // Also remove references to that recipe from mealPlan
+          setMealPlan((prev) => {
+            const newPlan = { ...prev };
+            Object.keys(newPlan).forEach((day) => {
+              Object.keys(newPlan[day]).forEach((type) => {
+                if (newPlan[day][type] === recipeToDelete.id) {
+                  newPlan[day][type] = '';
+                }
+              });
+            });
+            return newPlan;
+          });
+        };
 
         const handleEditRecipe = (index, recipeData) => {
           setEditingIndex(index);
-          setTitle(recipeData.title || "");
-          setSelectedDishType(recipeData.dishType || "");
-          setSelectedMealType(recipeData.mealType || "");
-          setCookbook(recipeData.cookbook || "");
+          setTitle(recipeData.title || '');
+          setSelectedDishType(recipeData.dishType || '');
+          setSelectedMealType(recipeData.mealType || '');
+          setCookbook(recipeData.cookbook || '');
           setIsNewCookbook(false);
-          setPrepTime(recipeData.prepTime || "");
-          setCookTime(recipeData.cookTime || "");
-          setDirections(recipeData.directions || "");
+          setPrepTime(recipeData.prepTime || '');
+          setCookTime(recipeData.cookTime || '');
+          setDirections(recipeData.directions || '');
           setRating(recipeData.rating || 0);
-          setNotes(recipeData.notes || "");
-          setTemperatureValue(recipeData.temperature?.value || "");
-          setTemperatureScale(recipeData.temperature?.scale || "F");
+          setNotes(recipeData.notes || '');
+          setTemperatureValue(recipeData.temperature?.value || '');
+          setTemperatureScale(recipeData.temperature?.scale || 'F');
           setIngredients(recipeData.ingredients || []);
-          setNewImagePreview(recipeData.image || "");
-          setBaseServings(recipeData.baseServings || "");
+          setNewImagePreview(recipeData.image || '');
+          setBaseServings(recipeData.baseServings || '');
           setShowModal(true);
         };
 
         const handleCreateCookbook = (newName) => {
-          if (newName && !cookbooks.find(cb => cb.title === newName))
-            setCookbooks((prev) => [...prev, { title: newName, image: "", tags: "" }]);
+          if (newName && !cookbooks.find((cb) => cb.title === newName)) {
+            setCookbooks((prev) => [...prev, { title: newName, image: '', tags: '' }]);
+          }
           setShowCreateCookbookModal(false);
         };
 
@@ -725,25 +894,38 @@
 
         const handlePrintCookbook = (cookbookObj) => {
           const cbRecipes = recipes.filter((r) => r.cookbook === cookbookObj.title);
-          const printWindow = window.open("", "", "height=800,width=1200");
-          printWindow.document.write("<html><head><title>Print Cookbook</title>");
+          const printWindow = window.open('', '', 'height=800,width=1200');
+          printWindow.document.write('<html><head><title>Print Cookbook</title>');
           printWindow.document.write(
             '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
           );
-          printWindow.document.write("</head><body>");
-          printWindow.document.write("<h1 class='text-white'>Cookbook: " + cookbookObj.title + "</h1>");
+          printWindow.document.write('</head><body>');
+          printWindow.document.write("<h1 class='text-white'>Cookbook: " + cookbookObj.title + '</h1>');
           cbRecipes.forEach((recipe) => {
             printWindow.document.write('<div class="card printable">');
-            printWindow.document.write("<h2 class='text-white'>" + (recipe.title || "Untitled Recipe") + "</h2>");
-            if (recipe.image)
-              printWindow.document.write('<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />');
-            printWindow.document.write("<p class='text-white'><strong>Dish Type:</strong> " + (recipe.dishType || "N/A") + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Meal Type:</strong> " + (recipe.mealType || "N/A") + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Prep Time:</strong> " + (recipe.prepTime || "N/A") + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Cook Time:</strong> " + (recipe.cookTime || "N/A") + "</p>");
-            printWindow.document.write("</div>");
+            printWindow.document.write(
+              "<h2 class='text-white'>" + (recipe.title || 'Untitled Recipe') + '</h2>'
+            );
+            if (recipe.image) {
+              printWindow.document.write(
+                '<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />'
+              );
+            }
+            printWindow.document.write(
+              "<p class='text-white'><strong>Dish Type:</strong> " + (recipe.dishType || 'N/A') + '</p>'
+            );
+            printWindow.document.write(
+              "<p class='text-white'><strong>Meal Type:</strong> " + (recipe.mealType || 'N/A') + '</p>'
+            );
+            printWindow.document.write(
+              "<p class='text-white'><strong>Prep Time:</strong> " + (recipe.prepTime || 'N/A') + '</p>'
+            );
+            printWindow.document.write(
+              "<p class='text-white'><strong>Cook Time:</strong> " + (recipe.cookTime || 'N/A') + '</p>'
+            );
+            printWindow.document.write('</div>');
           });
-          printWindow.document.write("</body></html>");
+          printWindow.document.write('</body></html>');
           printWindow.document.close();
           printWindow.focus();
           printWindow.print();
@@ -754,70 +936,119 @@
             const updatedCookbooks = cookbooks.filter((_, i) => i !== index);
             setCookbooks(updatedCookbooks);
             const updatedRecipes = recipes.map((r) =>
-              r.cookbook === cookbookObj.title ? { ...r, cookbook: "" } : r
+              r.cookbook === cookbookObj.title ? { ...r, cookbook: '' } : r
             );
             setRecipes(updatedRecipes);
+            // If that cookbook was in use in mealPlan, no direct changes needed
+            // because we only store recipe IDs, not the cookbook name.
           }
         };
 
         const printAllRecipes = () => {
-          const filteredRecipes = recipes.filter((r) =>
-            r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-            (filterDish === "" || r.dishType === filterDish) &&
-            (filterMeal === "" || r.mealType === filterMeal)
+          const filteredRecipes = recipes.filter(
+            (r) =>
+              r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+              (filterDish === '' || r.dishType === filterDish) &&
+              (filterMeal === '' || r.mealType === filterMeal)
           );
-          const printWindow = window.open("", "", "height=800,width=1200");
-          printWindow.document.write("<html><head><title>Print All Recipes</title>");
+          const printWindow = window.open('', '', 'height=800,width=1200');
+          printWindow.document.write('<html><head><title>Print All Recipes</title>');
           printWindow.document.write(
             '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
           );
-          printWindow.document.write("</head><body>");
+          printWindow.document.write('</head><body>');
           filteredRecipes.forEach((recipe) => {
             printWindow.document.write('<div class="card printable">');
-            printWindow.document.write("<h1 class='text-white'>" + (recipe.title || "Untitled Recipe") + "</h1>");
-            if (recipe.image)
-              printWindow.document.write('<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />');
-            printWindow.document.write("<p class='text-white'><strong>Dish Type:</strong> " + (recipe.dishType || "N/A") + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Meal Type:</strong> " + (recipe.mealType || "N/A") + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Cookbook:</strong> " + (recipe.cookbook || "N/A") + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Prep Time:</strong> " + (recipe.prepTime || "N/A") + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Cook Time:</strong> " + (recipe.cookTime || "N/A") + "</p>");
-            if (recipe.temperature && recipe.temperature.value)
-              printWindow.document.write("<p class='text-white'><strong>Temp:</strong> " + recipe.temperature.value + "°" + recipe.temperature.scale + "</p>");
-            printWindow.document.write("<p class='text-white'><strong>Rating:</strong> " + "★".repeat(recipe.rating) + "☆".repeat(5 - recipe.rating) + "</p>");
+            printWindow.document.write(
+              "<h1 class='text-white'>" + (recipe.title || 'Untitled Recipe') + '</h1>'
+            );
+            if (recipe.image) {
+              printWindow.document.write(
+                '<img src="' + recipe.image + '" alt="Recipe Image" class="mb-4" />'
+              );
+            }
+            printWindow.document.write(
+              "<p class='text-white'><strong>Dish Type:</strong> " + (recipe.dishType || 'N/A') + '</p>'
+            );
+            printWindow.document.write(
+              "<p class='text-white'><strong>Meal Type:</strong> " + (recipe.mealType || 'N/A') + '</p>'
+            );
+            printWindow.document.write(
+              "<p class='text-white'><strong>Cookbook:</strong> " + (recipe.cookbook || 'N/A') + '</p>'
+            );
+            printWindow.document.write(
+              "<p class='text-white'><strong>Prep Time:</strong> " + (recipe.prepTime || 'N/A') + '</p>'
+            );
+            printWindow.document.write(
+              "<p class='text-white'><strong>Cook Time:</strong> " + (recipe.cookTime || 'N/A') + '</p>'
+            );
+            if (recipe.temperature && recipe.temperature.value) {
+              printWindow.document.write(
+                "<p class='text-white'><strong>Temp:</strong> " +
+                  recipe.temperature.value +
+                  '°' +
+                  recipe.temperature.scale +
+                  '</p>'
+              );
+            }
+            printWindow.document.write(
+              "<p class='text-white'><strong>Rating:</strong> " +
+                '★'.repeat(recipe.rating) +
+                '☆'.repeat(5 - recipe.rating) +
+                '</p>'
+            );
             if (recipe.ingredients && recipe.ingredients.length > 0) {
               printWindow.document.write("<h3 class='text-white'>Ingredients</h3><ul>");
               recipe.ingredients.forEach((ing) => {
-                printWindow.document.write("<li class='text-white'>" + (ing.quantity ? ing.quantity + " " : "") + (ing.unit ? ing.unit + " " : "") + ing.name + "</li>");
+                printWindow.document.write(
+                  "<li class='text-white'>" +
+                    (ing.quantity ? ing.quantity + ' ' : '') +
+                    (ing.unit ? ing.unit + ' ' : '') +
+                    ing.name +
+                    '</li>'
+                );
               });
-              printWindow.document.write("</ul>");
+              printWindow.document.write('</ul>');
             }
-            if (recipe.directions)
-              printWindow.document.write("<h3 class='text-white'>Directions</h3><p class='text-white'>" + recipe.directions.replace(/\n/g, "<br>") + "</p>");
-            printWindow.document.write("</div>");
+            if (recipe.directions) {
+              printWindow.document.write(
+                "<h3 class='text-white'>Directions</h3><p class='text-white'>" +
+                  recipe.directions.replace(/\n/g, '<br>') +
+                  '</p>'
+              );
+            }
+            printWindow.document.write('</div>');
           });
-          printWindow.document.write("</body></html>");
+          printWindow.document.write('</body></html>');
           printWindow.document.close();
           printWindow.focus();
           printWindow.print();
         };
 
+        // Now, to build the aggregated shopping list by referencing IDs
         const getShoppingList = () => {
           const agg = {};
           Object.keys(mealPlan).forEach((day) => {
             const dayPlan = mealPlan[day];
             Object.keys(dayPlan).forEach((mealType) => {
-              const recipeIndex = dayPlan[mealType];
-              if (recipeIndex !== "" && recipes[recipeIndex]) {
-                recipes[recipeIndex].ingredients.forEach((ing) => {
-                  const key = ing.name.toLowerCase() + "_" + ing.unit;
-                  const qty = parseFloat(ing.quantity);
-                  if (!agg[key]) {
-                    agg[key] = { name: ing.name, unit: ing.unit, quantity: isNaN(qty) ? ing.quantity : qty };
-                  } else {
-                    if (!isNaN(qty)) agg[key].quantity += qty;
-                  }
-                });
+              const recipeId = dayPlan[mealType];
+              if (recipeId !== '') {
+                const theRecipe = recipes.find((r) => r.id === recipeId);
+                if (theRecipe && theRecipe.ingredients) {
+                  theRecipe.ingredients.forEach((ing) => {
+                    const key = ing.name.toLowerCase() + '_' + ing.unit;
+                    const qty = parseFloat(ing.quantity);
+                    if (!agg[key]) {
+                      agg[key] = {
+                        name: ing.name,
+                        unit: ing.unit,
+                        quantity: isNaN(qty) ? ing.quantity : qty,
+                      };
+                    } else {
+                      if (!isNaN(qty)) agg[key].quantity += qty;
+                    }
+                  });
+                }
               }
             });
           });
@@ -826,24 +1057,26 @@
 
         const printShoppingList = () => {
           const shoppingItems = getShoppingList();
-          const printWindow = window.open("", "", "height=600,width=800");
-          printWindow.document.write("<html><head><title>Print Shopping List</title>");
+          const printWindow = window.open('', '', 'height=600,width=800');
+          printWindow.document.write('<html><head><title>Print Shopping List</title>');
           printWindow.document.write(
             '<style>body { font-family: Arial, sans-serif; } .printable { margin: 20px; } ul { list-style: disc; padding-left: 20px; } </style>'
           );
-          printWindow.document.write("</head><body>");
+          printWindow.document.write('</head><body>');
           printWindow.document.write('<div class="printable">');
-          printWindow.document.write("<h1>Shopping List</h1>");
+          printWindow.document.write('<h1>Shopping List</h1>');
           if (shoppingItems.length > 0) {
-            printWindow.document.write("<ul>");
-            shoppingItems.forEach(item => {
-              printWindow.document.write("<li>" + item.quantity + " " + item.unit + " " + item.name + "</li>");
+            printWindow.document.write('<ul>');
+            shoppingItems.forEach((item) => {
+              printWindow.document.write(
+                '<li>' + item.quantity + ' ' + item.unit + ' ' + item.name + '</li>'
+              );
             });
-            printWindow.document.write("</ul>");
+            printWindow.document.write('</ul>');
           } else {
-            printWindow.document.write("<p>No ingredients in the shopping list.</p>");
+            printWindow.document.write('<p>No ingredients in the shopping list.</p>');
           }
-          printWindow.document.write("</div></body></html>");
+          printWindow.document.write('</div></body></html>');
           printWindow.document.close();
           printWindow.focus();
           printWindow.print();
@@ -851,19 +1084,19 @@
 
         const downloadShoppingList = () => {
           const shoppingItems = getShoppingList();
-          let content = "Shopping List:\n\n";
+          let content = 'Shopping List:\n\n';
           if (shoppingItems.length > 0) {
-            shoppingItems.forEach(item => {
+            shoppingItems.forEach((item) => {
               content += `${item.quantity} ${item.unit} ${item.name}\n`;
             });
           } else {
-            content += "No ingredients in the shopping list.\n";
+            content += 'No ingredients in the shopping list.\n';
           }
-          const blob = new Blob([content], { type: "text/plain" });
+          const blob = new Blob([content], { type: 'text/plain' });
           const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
+          const a = document.createElement('a');
           a.href = url;
-          a.download = "shopping_list.txt";
+          a.download = 'shopping_list.txt';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -871,88 +1104,88 @@
 
         const shareShoppingList = async () => {
           const shoppingItems = getShoppingList();
-          let content = "Shopping List:\n\n";
+          let content = 'Shopping List:\n\n';
           if (shoppingItems.length > 0) {
-            shoppingItems.forEach(item => {
+            shoppingItems.forEach((item) => {
               content += `${item.quantity} ${item.unit} ${item.name}\n`;
             });
           } else {
-            content += "No ingredients in the shopping list.\n";
+            content += 'No ingredients in the shopping list.\n';
           }
           if (navigator.share) {
             try {
               await navigator.share({
-                title: "Shopping List",
+                title: 'Shopping List',
                 text: content,
               });
             } catch (error) {
-              console.error("Error sharing", error);
+              console.error('Error sharing', error);
             }
           } else {
             try {
               await navigator.clipboard.writeText(content);
-              alert("Shopping list copied to clipboard.");
+              alert('Shopping list copied to clipboard.');
             } catch (error) {
-              console.error("Clipboard error", error);
-              alert("Unable to share shopping list.");
+              console.error('Clipboard error', error);
+              alert('Unable to share shopping list.');
             }
           }
         };
 
-        // Vault share function now works exactly like shareShoppingList,
-        // sharing the entire catalog of recipes.
+        // Vault share => share the entire recipe list
         const shareVaultContent = async () => {
-          let content = "Catalog:\n\n";
+          let content = 'Catalog:\n\n';
           if (recipes.length > 0) {
-            recipes.forEach(recipe => {
+            recipes.forEach((recipe) => {
               content += `${recipe.title}\n`;
             });
           } else {
-            content += "No recipes in the catalog.\n";
+            content += 'No recipes in the catalog.\n';
           }
           if (navigator.share) {
             try {
               await navigator.share({
-                title: "Catalog",
+                title: 'Catalog',
                 text: content,
               });
             } catch (error) {
-              console.error("Error sharing", error);
+              console.error('Error sharing', error);
             }
           } else {
             try {
               await navigator.clipboard.writeText(content);
-              alert("Catalog copied to clipboard.");
+              alert('Catalog copied to clipboard.');
             } catch (error) {
-              console.error("Clipboard error", error);
-              alert("Unable to share catalog.");
+              console.error('Clipboard error', error);
+              alert('Unable to share catalog.');
             }
           }
         };
 
-        // Generate markdown content for a recipe
+        // Generate markdown content
         const generateMarkdown = (recipe) => {
           let frontmatter = `---\n`;
-          frontmatter += `title: "${recipe.title || "Untitled Recipe"}"\n`;
-          frontmatter += `dishType: "${recipe.dishType || "N/A"}"\n`;
-          frontmatter += `mealType: "${recipe.mealType || "N/A"}"\n`;
-          frontmatter += `cookbook: "${recipe.cookbook || "N/A"}"\n`;
-          frontmatter += `prepTime: "${recipe.prepTime || "N/A"}"\n`;
-          frontmatter += `cookTime: "${recipe.cookTime || "N/A"}"\n`;
+          frontmatter += `title: "${recipe.title || 'Untitled Recipe'}"\n`;
+          frontmatter += `dishType: "${recipe.dishType || 'N/A'}"\n`;
+          frontmatter += `mealType: "${recipe.mealType || 'N/A'}"\n`;
+          frontmatter += `cookbook: "${recipe.cookbook || 'N/A'}"\n`;
+          frontmatter += `prepTime: "${recipe.prepTime || 'N/A'}"\n`;
+          frontmatter += `cookTime: "${recipe.cookTime || 'N/A'}"\n`;
           frontmatter += `rating: ${recipe.rating || 0}\n`;
           if (recipe.temperature && recipe.temperature.value) {
             frontmatter += `temperature:\n  value: "${recipe.temperature.value}"\n  scale: "${recipe.temperature.scale}"\n`;
           }
           frontmatter += `ingredients:\n`;
           if (recipe.ingredients && recipe.ingredients.length > 0) {
-            recipe.ingredients.forEach(ing => {
+            recipe.ingredients.forEach((ing) => {
               frontmatter += `  - name: "${ing.name}"\n    quantity: "${ing.quantity}"\n    unit: "${ing.unit}"\n`;
             });
           } else {
             frontmatter += `  []\n`;
           }
           frontmatter += `---\n\n`;
-          let body = "";
+
+          let body = '';
           if (recipe.directions) {
             body += `## Directions\n${recipe.directions}\n\n`;
           }
@@ -962,30 +1195,32 @@
           return frontmatter + body;
         };
 
-        // Export the library as a markdown vault
+        // Export as a markdown vault
         const exportVault = async () => {
-          const catalogName = prompt("Enter catalog name for the vault:", "MyCatalog");
+          const catalogName = prompt('Enter catalog name for the vault:', 'MyCatalog');
           if (!catalogName) return;
+          const JSZip = window.JSZip;
           const zip = new JSZip();
           const baseFolder = zip.folder(catalogName);
-          const cookbooksFolder = baseFolder.folder("Cookbooks");
+          const cookbooksFolder = baseFolder.folder('Cookbooks');
 
-          recipes.forEach(recipe => {
-            const cookbookName = recipe.cookbook ? recipe.cookbook : "No Cookbook";
-            const mealType = recipe.mealType ? recipe.mealType : "Uncategorized Meal";
-            const category = recipe.dishType ? recipe.dishType : "Uncategorized Category";
+          recipes.forEach((recipe) => {
+            const cookbookName = recipe.cookbook ? recipe.cookbook : 'No Cookbook';
+            const mealType = recipe.mealType ? recipe.mealType : 'Uncategorized Meal';
+            const category = recipe.dishType ? recipe.dishType : 'Uncategorized Category';
             const cookbookFolder = cookbooksFolder.folder(cookbookName);
             const mealFolder = cookbookFolder.folder(mealType);
             const categoryFolder = mealFolder.folder(category);
-            let fileName = recipe.title ? recipe.title.replace(/[\\\/:*?"<>|]/g, '') : "Untitled";
-            fileName += ".md";
+
+            let fileName = recipe.title ? recipe.title.replace(/[\\/:*?"<>|]/g, '') : 'Untitled';
+            fileName += '.md';
             const markdownContent = generateMarkdown(recipe);
             categoryFolder.file(fileName, markdownContent);
           });
 
-          const blob = await zip.generateAsync({type: "blob"});
+          const blob = await zip.generateAsync({ type: 'blob' });
           const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
+          const a = document.createElement('a');
           a.href = url;
           a.download = `${catalogName}.zip`;
           document.body.appendChild(a);
@@ -996,29 +1231,42 @@
         const renderAddRecipeModal = () => {
           if (!showModal) return null;
           return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true" aria-label="Add or Edit Recipe Modal">
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Add or Edit Recipe Modal"
+            >
               <div className="modal-container bg-gray-800 text-white rounded-lg shadow-lg overflow-auto">
                 <div className="flex justify-between items-center p-4 border-b border-gray-700">
-                  <h2 className="text-2xl font-bold text-white">{editingIndex !== null ? "Edit Recipe" : "Add a Recipe"}</h2>
-                  <button onClick={() => { setShowModal(false); resetForm(); }} className="text-white hover:text-gray-300 text-2xl" aria-label="Close add recipe modal">
+                  <h2 className="text-2xl font-bold text-white">
+                    {editingIndex !== null ? 'Edit Recipe' : 'Add a Recipe'}
+                  </h2>
+                  <button
+                    onClick={() => resetForm()}
+                    className="text-white hover:text-gray-300 text-2xl"
+                    aria-label="Close add recipe modal"
+                  >
                     &times;
                   </button>
                 </div>
                 <div className="flex border-b border-gray-700">
-                  {["General", "Ingredients", "Directions", "Grocery", "Notes"].map((tab) => (
+                  {['General', 'Ingredients', 'Directions', 'Grocery', 'Notes'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setModalTab(tab)}
-                      className={`flex-1 p-2 text-center ${modalTab === tab ? "border-b-2 border-teal-500 font-bold" : ""} text-white`}
+                      className={`flex-1 p-2 text-center ${
+                        modalTab === tab ? 'border-b-2 border-teal-500 font-bold' : ''
+                      } text-white`}
                     >
-                      {tab === "Notes" ? "Notes & Rating" : tab}
+                      {tab === 'Notes' ? 'Notes & Rating' : tab}
                     </button>
                   ))}
                 </div>
                 <div className="p-4">
-                  {modalTab === "General" && (
+                  {modalTab === 'General' && (
                     <div className="space-y-4">
-                      {fetchMethod === "url" && (
+                      {fetchMethod === 'url' && (
                         <div>
                           <input
                             id="recipe-url"
@@ -1033,12 +1281,14 @@
                             disabled={loading}
                             className="w-full bg-teal-500 hover:bg-teal-600 text-white p-2 rounded mt-2"
                           >
-                            {loading ? "Fetching..." : "Fetch Recipe"}
+                            {loading ? 'Fetching...' : 'Fetch Recipe'}
                           </button>
                         </div>
                       )}
                       <div>
-                        <label htmlFor="recipe-title" className="block mb-1 text-white">Title</label>
+                        <label htmlFor="recipe-title" className="block mb-1 text-white">
+                          Title
+                        </label>
                         <input
                           id="recipe-title"
                           type="text"
@@ -1050,7 +1300,9 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label htmlFor="dish-type" className="block mb-1 text-white">Dish Type</label>
+                          <label htmlFor="dish-type" className="block mb-1 text-white">
+                            Dish Type
+                          </label>
                           <select
                             id="dish-type"
                             value={selectedDishType}
@@ -1059,12 +1311,16 @@
                           >
                             <option value="">Select Dish Type</option>
                             {dishTypes.map((type) => (
-                              <option key={type} value={type}>{type}</option>
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
                             ))}
                           </select>
                         </div>
                         <div className="w-1/2">
-                          <label htmlFor="meal-type" className="block mb-1 text-white">Meal Type</label>
+                          <label htmlFor="meal-type" className="block mb-1 text-white">
+                            Meal Type
+                          </label>
                           <select
                             id="meal-type"
                             value={selectedMealType}
@@ -1073,20 +1329,24 @@
                           >
                             <option value="">Select Meal Type</option>
                             {mealTypes.map((type) => (
-                              <option key={type} value={type}>{type}</option>
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
                             ))}
                           </select>
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="cookbook-name" className="block mb-1 text-white">Cookbook</label>
+                        <label htmlFor="cookbook-name" className="block mb-1 text-white">
+                          Cookbook
+                        </label>
                         <select
                           id="cookbook-name"
-                          value={isNewCookbook ? "new" : cookbook || ""}
+                          value={isNewCookbook ? 'new' : cookbook || ''}
                           onChange={(e) => {
-                            if (e.target.value === "new") {
+                            if (e.target.value === 'new') {
                               setIsNewCookbook(true);
-                              setCookbook("");
+                              setCookbook('');
                             } else {
                               setIsNewCookbook(false);
                               setCookbook(e.target.value);
@@ -1096,7 +1356,9 @@
                         >
                           <option value="">None</option>
                           {cookbooks.map((cb, i) => (
-                            <option key={i} value={cb.title}>{cb.title}</option>
+                            <option key={i} value={cb.title}>
+                              {cb.title}
+                            </option>
                           ))}
                           <option value="new">Create New Cookbook</option>
                         </select>
@@ -1114,7 +1376,9 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label htmlFor="prep-time" className="block mb-1 text-white">Prep Time</label>
+                          <label htmlFor="prep-time" className="block mb-1 text-white">
+                            Prep Time
+                          </label>
                           <input
                             id="prep-time"
                             type="text"
@@ -1125,7 +1389,9 @@
                           />
                         </div>
                         <div className="w-1/2">
-                          <label htmlFor="cook-time" className="block mb-1 text-white">Cook Time</label>
+                          <label htmlFor="cook-time" className="block mb-1 text-white">
+                            Cook Time
+                          </label>
                           <input
                             id="cook-time"
                             type="text"
@@ -1138,7 +1404,9 @@
                       </div>
                       <div className="flex space-x-4">
                         <div className="w-1/2">
-                          <label htmlFor="base-servings" className="block mb-1 text-white">Base Servings</label>
+                          <label htmlFor="base-servings" className="block mb-1 text-white">
+                            Base Servings
+                          </label>
                           <input
                             id="base-servings"
                             type="number"
@@ -1149,7 +1417,9 @@
                           />
                         </div>
                         <div className="w-1/2">
-                          <label htmlFor="desired-servings" className="block mb-1 text-white">Desired Servings</label>
+                          <label htmlFor="desired-servings" className="block mb-1 text-white">
+                            Desired Servings
+                          </label>
                           <input
                             id="desired-servings"
                             type="number"
@@ -1160,14 +1430,23 @@
                           />
                         </div>
                       </div>
-                      <button onClick={handleScaleRecipe} className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2">
+                      <button
+                        onClick={handleScaleRecipe}
+                        className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mt-2"
+                      >
                         Scale Recipe
                       </button>
                       <div>
-                        <label htmlFor="recipe-image" className="block text-white mb-2">Recipe Image</label>
-                        <div className="relative w-full" style={{ paddingTop: "60%" }}>
+                        <label htmlFor="recipe-image" className="block text-white mb-2">
+                          Recipe Image
+                        </label>
+                        <div className="relative w-full" style={{ paddingTop: '60%' }}>
                           {newImagePreview ? (
-                            <img src={newImagePreview} alt="Recipe" className="absolute top-0 left-0 w-full h-full object-cover rounded" />
+                            <img
+                              src={newImagePreview}
+                              alt="Recipe"
+                              className="absolute top-0 left-0 w-full h-full object-cover rounded"
+                            />
                           ) : (
                             <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-white rounded">
                               <span>Click to add image</span>
@@ -1194,7 +1473,7 @@
                       </div>
                     </div>
                   )}
-                  {modalTab === "Ingredients" && (
+                  {modalTab === 'Ingredients' && (
                     <div>
                       <p className="mb-2 text-white font-semibold">Ingredients</p>
                       {ingredients.map((ingredient, index) => (
@@ -1206,14 +1485,20 @@
                           removeIngredientRow={removeIngredientRow}
                         />
                       ))}
-                      <button type="button" onClick={addIngredientRow} className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2">
+                      <button
+                        type="button"
+                        onClick={addIngredientRow}
+                        className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2"
+                      >
                         + Add Ingredient
                       </button>
                     </div>
                   )}
-                  {modalTab === "Directions" && (
+                  {modalTab === 'Directions' && (
                     <div>
-                      <label htmlFor="directions" className="block mb-1 text-white">Directions</label>
+                      <label htmlFor="directions" className="block mb-1 text-white">
+                        Directions
+                      </label>
                       <textarea
                         id="directions"
                         rows="6"
@@ -1224,7 +1509,7 @@
                       />
                     </div>
                   )}
-                  {modalTab === "Grocery" && (
+                  {modalTab === 'Grocery' && (
                     <div>
                       <p className="mb-2 text-white font-semibold">Grocery List</p>
                       {ingredients.length === 0 ? (
@@ -1233,21 +1518,27 @@
                         <ul className="list-disc list-inside">
                           {ingredients.map((ing, index) => (
                             <li key={index} className="text-white">
-                              {(ing.quantity ? ing.quantity + " " : "") + (ing.unit ? ing.unit + " " : "") + ing.name}
+                              {(ing.quantity ? ing.quantity + ' ' : '') +
+                                (ing.unit ? ing.unit + ' ' : '') +
+                                ing.name}
                             </li>
                           ))}
                         </ul>
                       )}
                     </div>
                   )}
-                  {modalTab === "Notes" && (
+                  {modalTab === 'Notes' && (
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="rating" className="block mb-1 text-white">Rating</label>
+                        <label htmlFor="rating" className="block mb-1 text-white">
+                          Rating
+                        </label>
                         <StarRating rating={rating} setRating={setRating} />
                       </div>
                       <div>
-                        <label htmlFor="notes" className="block mb-1 text-white">Notes</label>
+                        <label htmlFor="notes" className="block mb-1 text-white">
+                          Notes
+                        </label>
                         <textarea
                           id="notes"
                           rows="4"
@@ -1261,8 +1552,11 @@
                   )}
                 </div>
                 <div className="p-4 border-t border-gray-700 flex justify-end">
-                  <button onClick={handleAddRecipe} className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors duration-300">
-                    {editingIndex !== null ? "Update Recipe" : "Save Recipe"}
+                  <button
+                    onClick={handleAddRecipe}
+                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors duration-300"
+                  >
+                    {editingIndex !== null ? 'Update Recipe' : 'Save Recipe'}
                   </button>
                 </div>
               </div>
@@ -1272,47 +1566,166 @@
 
         return (
           <div className="min-h-screen flex flex-col" role="document">
-            <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-between p-4 shadow-lg" role="banner">
+            <header
+              className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-between p-4 shadow-lg"
+              role="banner"
+            >
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-8">TasteVault</h1>
                 <nav className="hidden lg:flex space-x-4">
-                  <button onClick={() => { setActiveTab("categories"); setSelectedCookbook(null); setSelectedMealTime(null); }} className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "categories" ? "bg-gray-800" : ""}`} role="tab" aria-selected={activeTab === "categories"}>Categories</button>
-                  <button onClick={() => { setActiveTab("recipes"); setSelectedCookbook(null); setSelectedMealTime(null); }} className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "recipes" ? "bg-gray-800" : ""}`} role="tab" aria-selected={activeTab === "recipes"}>Recipes</button>
-                  <button onClick={() => { setActiveTab("cookbooks"); setSelectedCookbook(null); setSelectedMealTime(null); }} className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "cookbooks" ? "bg-gray-800" : ""}`} role="tab" aria-selected={activeTab === "cookbooks"}>Cookbooks</button>
-                  <button onClick={() => { setActiveTab("mealTimes"); setSelectedCookbook(null); setSelectedMealTime(null); }} className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "mealTimes" ? "bg-gray-800" : ""}`} role="tab" aria-selected={activeTab === "mealTimes"}>Meal Times</button>
-                  <button onClick={() => { setActiveTab("mealPlan"); setSelectedCookbook(null); setSelectedMealTime(null); }} className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "mealPlan" ? "bg-gray-800" : ""}`} role="tab" aria-selected={activeTab === "mealPlan"}>Meal Plan</button>
-                  <button onClick={() => { setActiveTab("shoppingList"); setSelectedCookbook(null); setSelectedMealTime(null); }} className={`px-4 py-2 rounded hover:bg-gray-600 ${activeTab === "shoppingList" ? "bg-gray-800" : ""}`} role="tab" aria-selected={activeTab === "shoppingList"}>Shopping List</button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('categories');
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${
+                      activeTab === 'categories' ? 'bg-gray-800' : ''
+                    }`}
+                    role="tab"
+                    aria-selected={activeTab === 'categories'}
+                  >
+                    Categories
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('recipes');
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${
+                      activeTab === 'recipes' ? 'bg-gray-800' : ''
+                    }`}
+                    role="tab"
+                    aria-selected={activeTab === 'recipes'}
+                  >
+                    Recipes
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('cookbooks');
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${
+                      activeTab === 'cookbooks' ? 'bg-gray-800' : ''
+                    }`}
+                    role="tab"
+                    aria-selected={activeTab === 'cookbooks'}
+                  >
+                    Cookbooks
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('mealTimes');
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${
+                      activeTab === 'mealTimes' ? 'bg-gray-800' : ''
+                    }`}
+                    role="tab"
+                    aria-selected={activeTab === 'mealTimes'}
+                  >
+                    Meal Times
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('mealPlan');
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${
+                      activeTab === 'mealPlan' ? 'bg-gray-800' : ''
+                    }`}
+                    role="tab"
+                    aria-selected={activeTab === 'mealPlan'}
+                  >
+                    Meal Plan
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('shoppingList');
+                      setSelectedCookbook(null);
+                      setSelectedMealTime(null);
+                    }}
+                    className={`px-4 py-2 rounded hover:bg-gray-600 ${
+                      activeTab === 'shoppingList' ? 'bg-gray-800' : ''
+                    }`}
+                    role="tab"
+                    aria-selected={activeTab === 'shoppingList'}
+                  >
+                    Shopping List
+                  </button>
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="hidden lg:block">
-                  <AutocompleteSearch 
-                    searchQuery={searchQuery} 
-                    setSearchQuery={setSearchQuery} 
-                    recipes={recipes} 
-                    onFocus={() => setActiveTab("recipes")}
+                  <AutocompleteSearch
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    recipes={recipes}
+                    onFocus={() => setActiveTab('recipes')}
                   />
                 </div>
-                <button onClick={printAllRecipes} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105" aria-label="Print all recipes">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button
+                  onClick={printAllRecipes}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
+                  aria-label="Print all recipes"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9V2h12v7M6 18h12v-5H6v5z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 14h12" />
                   </svg>
                 </button>
-                <button onClick={exportVault} className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105" aria-label="Export Markdown Vault">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button
+                  onClick={exportVault}
+                  className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
+                  aria-label="Export Markdown Vault"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 4v12m0 0l-4-4m4 4l4-4" />
                   </svg>
                 </button>
-                <button onClick={shareVaultContent} className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105" aria-label="Share Vault Content">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button
+                  onClick={shareVaultContent}
+                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
+                  aria-label="Share Vault Content"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12v1a2 2 0 002 2h12a2 2 0 002-2v-1m-9-5l-3 3m0 0l3 3m-3-3h12" />
                   </svg>
                 </button>
-                <button onClick={() => setShowModal(true)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded" aria-label="Add a new recipe">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded"
+                  aria-label="Add a new recipe"
+                >
                   <span className="text-xl">+</span>
                 </button>
-                <button className="lg:hidden p-2" onClick={() => setMobileNavOpen(!mobileNavOpen)} aria-label="Toggle navigation menu">
+                <button
+                  className="lg:hidden p-2"
+                  onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                  aria-label="Toggle navigation menu"
+                >
                   <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
@@ -1322,81 +1735,124 @@
             {mobileNavOpen && (
               <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white lg:hidden">
                 <ul className="flex flex-col">
-                  {["categories", "recipes", "cookbooks", "mealTimes", "mealPlan", "shoppingList"].map((tab) => (
-                    <li key={tab}>
-                      <button onClick={() => { setActiveTab(tab); setMobileNavOpen(false); setSelectedCookbook(null); setSelectedMealTime(null); }} className="block w-full text-left px-4 py-2 border-b border-gray-600">
-                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                      </button>
-                    </li>
-                  ))}
+                  {['categories', 'recipes', 'cookbooks', 'mealTimes', 'mealPlan', 'shoppingList'].map(
+                    (tab) => (
+                      <li key={tab}>
+                        <button
+                          onClick={() => {
+                            setActiveTab(tab);
+                            setMobileNavOpen(false);
+                            setSelectedCookbook(null);
+                            setSelectedMealTime(null);
+                          }}
+                          className="block w-full text-left px-4 py-2 border-b border-gray-600"
+                        >
+                          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                      </li>
+                    )
+                  )}
                 </ul>
               </nav>
             )}
             <div className="flex-1 flex flex-col">
               <main className="p-4 md:p-8 flex-1 overflow-auto" id="main-content" tabIndex="0">
-                {activeTab === "recipes" ? (
+                {activeTab === 'recipes' ? (
                   <div>
                     <div className="flex space-x-4 mb-4">
-                      <select value={filterDish} onChange={(e) => setFilterDish(e.target.value)} className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400">
+                      <select
+                        value={filterDish}
+                        onChange={(e) => setFilterDish(e.target.value)}
+                        className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                      >
                         <option value="">All Dish Types</option>
                         {dishTypes.map((type, index) => (
-                          <option key={index} value={type}>{type}</option>
+                          <option key={index} value={type}>
+                            {type}
+                          </option>
                         ))}
                       </select>
-                      <select value={filterMeal} onChange={(e) => setFilterMeal(e.target.value)} className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400">
+                      <select
+                        value={filterMeal}
+                        onChange={(e) => setFilterMeal(e.target.value)}
+                        className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                      >
                         <option value="">All Meal Types</option>
                         {mealTypes.map((type, index) => (
-                          <option key={index} value={type}>{type}</option>
+                          <option key={index} value={type}>
+                            {type}
+                          </option>
                         ))}
                       </select>
                     </div>
-                    {recipes.filter((r) =>
-                      r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                      (filterDish === "" || r.dishType === filterDish) &&
-                      (filterMeal === "" || r.mealType === filterMeal)
+                    {recipes.filter(
+                      (r) =>
+                        r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                        (filterDish === '' || r.dishType === filterDish) &&
+                        (filterMeal === '' || r.mealType === filterMeal)
                     ).length === 0 ? (
                       <p className="text-white">No recipes available.</p>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {recipes
-                          .filter((r) =>
-                            r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                            (filterDish === "" || r.dishType === filterDish) &&
-                            (filterMeal === "" || r.mealType === filterMeal)
+                          .filter(
+                            (r) =>
+                              r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                              (filterDish === '' || r.dishType === filterDish) &&
+                              (filterMeal === '' || r.mealType === filterMeal)
                           )
                           .map((r, index) => (
-                            <RecipeCard key={index} index={index} recipe={r} onDeleteRecipe={handleDeleteRecipe} onEditRecipe={handleEditRecipe} />
+                            <RecipeCard
+                              key={r.id}
+                              index={index}
+                              recipe={r}
+                              onDeleteRecipe={handleDeleteRecipe}
+                              onEditRecipe={handleEditRecipe}
+                            />
                           ))}
                       </div>
                     )}
                   </div>
-                ) : activeTab === "categories" ? (
+                ) : activeTab === 'categories' ? (
                   <div id="main-content">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {dishTypes.map((cat, index) => {
                         const catRecipes = recipes.filter((r) => r.dishType === cat);
                         const customImage = categoryImages[cat];
-                        const image = customImage || (catRecipes.find((r) => r.image)?.image || "");
+                        const image = customImage || (catRecipes.find((r) => r.image)?.image || '');
                         return (
-                          <div key={index} className="border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300">
-                            <div className="relative w-full" style={{ paddingTop: "75%" }}>
+                          <div
+                            key={index}
+                            className="border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
+                          >
+                            <div className="relative w-full" style={{ paddingTop: '75%' }}>
                               {image ? (
-                                <img src={image} alt={`${cat} category`} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
+                                <img
+                                  src={image}
+                                  alt={`${cat} category`}
+                                  className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                />
                               ) : (
                                 <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-white rounded-t-lg">
                                   <span>Add Image</span>
                                 </div>
                               )}
-                              <input type="file" accept="image/*" className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    setCategoryImages(prev => ({ ...prev, [cat]: reader.result }));
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              }} aria-label={`Upload an image for category ${cat}`} />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                                onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      setCategoryImages((prev) => ({ ...prev, [cat]: reader.result }));
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                                aria-label={`Upload an image for category ${cat}`}
+                              />
                             </div>
                             <div className="mt-4">
                               <h3 className="text-xl font-bold text-white">{cat}</h3>
@@ -1407,18 +1863,31 @@
                       })}
                     </div>
                   </div>
-                ) : activeTab === "cookbooks" ? (
+                ) : activeTab === 'cookbooks' ? (
                   selectedCookbook ? (
                     <div id="main-content">
-                      <button onClick={() => setSelectedCookbook(null)} className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">&larr; Back to Cookbooks</button>
+                      <button
+                        onClick={() => setSelectedCookbook(null)}
+                        className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                      >
+                        &larr; Back to Cookbooks
+                      </button>
                       <h2 className="text-2xl font-bold mb-4 text-white">{selectedCookbook.title}</h2>
                       {recipes.filter((r) => r.cookbook === selectedCookbook.title).length === 0 ? (
                         <p className="text-white">No recipes in this cookbook.</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {recipes.filter((r) => r.cookbook === selectedCookbook.title).map((r, index) => (
-                            <RecipeCard key={index} index={index} recipe={r} onDeleteRecipe={handleDeleteRecipe} onEditRecipe={handleEditRecipe} />
-                          ))}
+                          {recipes
+                            .filter((r) => r.cookbook === selectedCookbook.title)
+                            .map((r, index) => (
+                              <RecipeCard
+                                key={r.id}
+                                index={index}
+                                recipe={r}
+                                onDeleteRecipe={handleDeleteRecipe}
+                                onEditRecipe={handleEditRecipe}
+                              />
+                            ))}
                         </div>
                       )}
                     </div>
@@ -1426,7 +1895,12 @@
                     <div id="main-content">
                       <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold text-white">Cookbooks</h2>
-                        <button onClick={() => setShowCreateCookbookModal(true)} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Create Cookbook</button>
+                        <button
+                          onClick={() => setShowCreateCookbookModal(true)}
+                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                        >
+                          Create Cookbook
+                        </button>
                       </div>
                       {cookbooks.length === 0 ? (
                         <p className="text-white">No cookbooks available.</p>
@@ -1434,12 +1908,20 @@
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {cookbooks.map((cb, index) => {
                             const cbRecipes = recipes.filter((r) => r.cookbook === cb.title);
-                            const image = cb.image || (cbRecipes.find((r) => r.image)?.image || "");
+                            const image = cb.image || (cbRecipes.find((r) => r.image)?.image || '');
                             return (
-                              <div key={index} onClick={() => setSelectedCookbook(cb)} className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300">
-                                <div className="relative w-full" style={{ paddingTop: "75%" }}>
+                              <div
+                                key={index}
+                                onClick={() => setSelectedCookbook(cb)}
+                                className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
+                              >
+                                <div className="relative w-full" style={{ paddingTop: '75%' }}>
                                   {image ? (
-                                    <img src={image} alt={`${cb.title} cookbook`} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
+                                    <img
+                                      src={image}
+                                      alt={`${cb.title} cookbook`}
+                                      className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                    />
                                   ) : (
                                     <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-white rounded-t-lg">
                                       <span>Add Image</span>
@@ -1450,9 +1932,33 @@
                                   <h3 className="text-xl font-bold text-white">{cb.title}</h3>
                                   <p className="text-white">{cbRecipes.length} recipes</p>
                                   <div className="mt-4 flex justify-between">
-                                    <button onClick={(e) => { e.stopPropagation(); setEditCookbook({ index, data: cb }); }} className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">Edit</button>
-                                    <button onClick={(e) => { e.stopPropagation(); handlePrintCookbook(cb); }} className="bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded text-sm">Print Cookbook</button>
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteCookbook(cb, index); }} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">Delete</button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditCookbook({ index, data: cb });
+                                      }}
+                                      className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePrintCookbook(cb);
+                                      }}
+                                      className="bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded text-sm"
+                                    >
+                                      Print Cookbook
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteCookbook(cb, index);
+                                      }}
+                                      className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
+                                    >
+                                      Delete
+                                    </button>
                                   </div>
                                 </div>
                               </div>
@@ -1462,18 +1968,31 @@
                       )}
                     </div>
                   )
-                ) : activeTab === "mealTimes" ? (
+                ) : activeTab === 'mealTimes' ? (
                   selectedMealTime ? (
                     <div id="main-content">
-                      <button onClick={() => setSelectedMealTime(null)} className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">&larr; Back to Meal Times</button>
+                      <button
+                        onClick={() => setSelectedMealTime(null)}
+                        className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                      >
+                        &larr; Back to Meal Times
+                      </button>
                       <h2 className="text-2xl font-bold mb-4 text-white">{selectedMealTime}</h2>
                       {recipes.filter((r) => r.mealType === selectedMealTime).length === 0 ? (
                         <p className="text-white">No recipes for this meal time.</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {recipes.filter((r) => r.mealType === selectedMealTime).map((r, index) => (
-                            <RecipeCard key={index} index={index} recipe={r} onDeleteRecipe={handleDeleteRecipe} onEditRecipe={handleEditRecipe} />
-                          ))}
+                          {recipes
+                            .filter((r) => r.mealType === selectedMealTime)
+                            .map((r, index) => (
+                              <RecipeCard
+                                key={r.id}
+                                index={index}
+                                recipe={r}
+                                onDeleteRecipe={handleDeleteRecipe}
+                                onEditRecipe={handleEditRecipe}
+                              />
+                            ))}
                         </div>
                       )}
                     </div>
@@ -1482,25 +2001,41 @@
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {mealTypes.map((meal, index) => {
                           const mealRecipes = recipes.filter((r) => r.mealType === meal);
-                          const image = mealRecipes.find((r) => r.image)?.image || "";
+                          const image = mealRecipes.find((r) => r.image)?.image || '';
                           return (
-                            <div key={index} onClick={() => setSelectedMealTime(meal)} className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300">
-                              <div className="relative w-full" style={{ paddingTop: "75%" }}>
+                            <div
+                              key={index}
+                              onClick={() => setSelectedMealTime(meal)}
+                              className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
+                            >
+                              <div className="relative w-full" style={{ paddingTop: '75%' }}>
                                 {image ? (
-                                  <img src={image} alt={`${meal} meal time`} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
+                                  <img
+                                    src={image}
+                                    alt={`${meal} meal time`}
+                                    className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                  />
                                 ) : (
                                   <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-white rounded-t-lg">
                                     <span>Add Image</span>
                                   </div>
                                 )}
-                                <input type="file" accept="image/*" className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => {
-                                  const file = e.target.files[0];
-                                  if (file) { 
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => { /* Handle meal time images if needed */ };
-                                    reader.readAsDataURL(file);
-                                  }
-                                }} aria-label={`Upload an image for meal time ${meal}`} />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        /* Could store a mealType image if desired */
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }}
+                                  aria-label={`Upload an image for meal time ${meal}`}
+                                />
                               </div>
                               <div className="mt-4">
                                 <h3 className="text-xl font-bold text-white">{meal}</h3>
@@ -1512,18 +2047,45 @@
                       </div>
                     </div>
                   )
-                ) : activeTab === "mealPlan" ? (
+                ) : activeTab === 'mealPlan' ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Meal Plan Calendar</h2>
-                    <MealPlanCalendar mealPlan={mealPlan} recipes={recipes} mealTypes={mealTypes} updateMealPlan={updateMealPlan} />
+                    <MealPlanCalendar
+                      mealPlan={mealPlan}
+                      recipes={recipes}
+                      mealTypes={mealTypes}
+                      updateMealPlan={(day, mealType, newValue) => {
+                        // newValue is a recipe ID
+                        setMealPlan((prev) => {
+                          const newPlan = { ...prev };
+                          newPlan[day] = { ...newPlan[day], [mealType]: newValue };
+                          return newPlan;
+                        });
+                      }}
+                    />
                   </div>
-                ) : activeTab === "shoppingList" ? (
+                ) : activeTab === 'shoppingList' ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Shopping List</h2>
                     <div className="mb-4 flex space-x-4">
-                      <button onClick={printShoppingList} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Print</button>
-                      <button onClick={downloadShoppingList} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Download</button>
-                      <button onClick={shareShoppingList} className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">Share</button>
+                      <button
+                        onClick={printShoppingList}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                      >
+                        Print
+                      </button>
+                      <button
+                        onClick={downloadShoppingList}
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                      >
+                        Download
+                      </button>
+                      <button
+                        onClick={shareShoppingList}
+                        className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded"
+                      >
+                        Share
+                      </button>
                     </div>
                     {getShoppingList().length === 0 ? (
                       <p className="text-white">No ingredients in the shopping list.</p>
@@ -1543,9 +2105,13 @@
             <footer className="bg-gray-800 text-center text-white p-4 border-t" role="contentinfo">
               &copy; {new Date().getFullYear()} TasteVault
             </footer>
+
             {renderAddRecipeModal()}
             {showCreateCookbookModal && (
-              <CreateCookbookModal onCreate={handleCreateCookbook} onClose={() => setShowCreateCookbookModal(false)} />
+              <CreateCookbookModal
+                onCreate={handleCreateCookbook}
+                onClose={() => setShowCreateCookbookModal(false)}
+              />
             )}
             {editCookbook && (
               <EditCookbookModal
@@ -1558,7 +2124,7 @@
         );
       }
 
-      const root = ReactDOM.createRoot(document.getElementById("root"));
+      const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(<RecipeSaver />);
     </script>
   </body>
