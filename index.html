@@ -67,10 +67,9 @@
         max-width: 500px;
         max-height: 500px;
       }
-      @media only screen and (max-width: 480px) and (orientation: portrait) {
+      @media only screen and (max-width: 480px) {
         .modal-container {
           width: 95vw;
-          height: auto;
           max-height: 90vh;
         }
       }
@@ -2071,7 +2070,7 @@
                   <span className="text-xl">+</span>
                 </button>
 
-                {/* Hamburger menu for mobile */}
+                {/* Hamburger menu for mobile (visible in both portrait and landscape) */}
                 <button
                   className="lg:hidden p-2"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
