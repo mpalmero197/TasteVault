@@ -123,7 +123,7 @@
           i++;
           while (i < lines.length && lines[i].trim() !== '---') {
             const line = lines[i].trim();
-            const match = line.match(/^(.*?):\\s*(.*)$/);
+            const match = line.match(/^(.*?):\s*(.*)$/);
             if (match) {
               const key = match[1].trim();
               const value = match[2].replace(/\"/g, '').trim();
@@ -137,9 +137,6 @@
 
         // The rest is body text (Directions, Notes, etc.)
         const body = lines.slice(i).join('\n');
-        // minimal attempt to parse directions and notes
-        // In your app, you might parse with headings, e.g. `## Directions`
-        // For now, just store as directions
         return {
           frontmatter,
           body
@@ -148,20 +145,6 @@
 
       // Attempt to parse .paprikarecipe JSON (Paprika format)
       function parsePaprika(jsonString) {
-        // Paprika .paprikarecipe is basically a JSON object
-        // containing fields like name, ingredients, instructions, etc.
-        // We'll do the minimal mapping. Adjust as needed.
-        // Example structure:
-        // {
-        //   "name": "Tomato Soup",
-        //   "description": "",
-        //   "ingredients": "2 cups tomato\\n1 cup water",
-        //   "directions": "1. Combine\\n2. Boil",
-        //   "servings": "",
-        //   "difficulty": "",
-        //   "rating": "5"
-        //   ...
-        // }
         const data = JSON.parse(jsonString);
         return {
           title: data.name || '',
@@ -171,13 +154,10 @@
           ingredients: (data.ingredients || '')
             .split('\n')
             .map((line) => {
-              // extremely naive parse of lines
-              // e.g. "2 cups tomato"
               const parts = line.trim().split(' ');
               if (parts.length < 2) {
                 return { name: line.trim(), quantity: '', unit: '' };
               }
-              // naive approach: first token numeric, second token unit, rest is name
               const quantityCandidate = parseFloat(parts[0]);
               if (!isNaN(quantityCandidate)) {
                 const unitCandidate = parts[1];
@@ -188,7 +168,6 @@
                   unit: unitCandidate
                 };
               } else {
-                // fallback: entire line as name
                 return { name: line.trim(), quantity: '', unit: '' };
               }
             }),
@@ -203,19 +182,14 @@
 
       // CSV or XLSX row -> recipe. Adjust columns as needed
       function rowToRecipe(rowObj) {
-        // rowObj is a key:value dictionary from CSV/XLSX
-        // We'll guess the fields:
-        // title, dishType, mealType, cookbook, ingredients, directions, rating, notes, prepTime, cookTime
-        // If columns are named differently, adapt accordingly
         return {
           title: rowObj.title || 'Untitled',
           dishType: rowObj.dishType || '',
           mealType: rowObj.mealType || '',
           cookbook: rowObj.cookbook || '',
           ingredients: (rowObj.ingredients || '')
-            .split('\\n')
+            .split('\n')
             .map((line) => {
-              // parse each line as "quantity unit name"
               const parts = line.trim().split(' ');
               if (parts.length < 2) {
                 return { name: line.trim(), quantity: '', unit: '' };
@@ -248,7 +222,6 @@
       function ImportModal({ onClose, onImport }) {
         const [selectedFiles, setSelectedFiles] = useState([]);
 
-        // read each file, parse into recipe objects
         const handleImport = async () => {
           let allImportedRecipes = [];
 
@@ -261,7 +234,6 @@
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                // convert each row to a recipe
                 const recipes = jsonData.map((row) => {
                   const recipe = rowToRecipe(row);
                   recipe.id = generateId();
@@ -282,7 +254,6 @@
               } else if (ext === 'md') {
                 const textData = await file.text();
                 const { frontmatter, body } = parseMarkdown(textData);
-                // build a single recipe
                 const newRecipe = {
                   id: generateId(),
                   title: frontmatter.title || 'Untitled',
@@ -296,15 +267,11 @@
                     value: frontmatter?.temperature?.value || '',
                     scale: frontmatter?.temperature?.scale || 'F'
                   },
-                  notes: '', // We can guess from body if there's a "## Notes"
+                  notes: '',
                   directions: '',
                   ingredients: []
                 };
-                // Attempt minimal parse from body
-                // e.g. if we see "## Directions", store the text under it
-                // if we see "## Notes", store that
-                // We'll do a naive approach:
-                const lines = body.split('\\n');
+                const lines = body.split('\n');
                 let currentSection = null;
                 let directionsText = [];
                 let notesText = [];
@@ -325,8 +292,8 @@
                   }
                 });
 
-                newRecipe.directions = directionsText.join('\\n');
-                newRecipe.notes = notesText.join('\\n');
+                newRecipe.directions = directionsText.join('\n');
+                newRecipe.notes = notesText.join('\n');
                 allImportedRecipes.push(newRecipe);
               } else if (ext === 'paprikarecipe') {
                 const textData = await file.text();
@@ -334,20 +301,17 @@
                 parsed.id = generateId();
                 allImportedRecipes.push(parsed);
               } else if (ext === 'zip') {
-                // expand each file and parse individually
                 const data = await file.arrayBuffer();
                 const jszip = new JSZip();
                 const zipContents = await jszip.loadAsync(data);
 
-                // iterate files in zip
                 const fileNames = Object.keys(zipContents.files);
                 for (let name of fileNames) {
                   const zippedFile = zipContents.files[name];
                   if (!zippedFile.dir) {
-                    // read as text
-                    const content = await zippedFile.async('string');
                     const subExt = name.split('.').pop().toLowerCase();
                     if (subExt === 'csv') {
+                      const content = await zippedFile.async('string');
                       const parsed = Papa.parse(content, { header: true });
                       if (parsed.data) {
                         const subRecipes = parsed.data.map((row) => {
@@ -358,9 +322,6 @@
                         allImportedRecipes = [...allImportedRecipes, ...subRecipes];
                       }
                     } else if (subExt === 'xlsx' || subExt === 'xls') {
-                      // we need arrayBuffer for XLSX
-                      // but we have string in 'content' – that won't work well.
-                      // we can do: await zippedFile.async('arraybuffer') instead
                       const abuf = await zippedFile.async('arraybuffer');
                       const workbook = XLSX.read(abuf, { type: 'array' });
                       const sheetName = workbook.SheetNames[0];
@@ -373,6 +334,7 @@
                       });
                       allImportedRecipes = [...allImportedRecipes, ...subRecipes];
                     } else if (subExt === 'md') {
+                      const content = await zippedFile.async('string');
                       const { frontmatter, body } = parseMarkdown(content);
                       const newRecipe = {
                         id: generateId(),
@@ -391,8 +353,7 @@
                         directions: '',
                         ingredients: []
                       };
-                      // parse body for directions/notes
-                      const lines = body.split('\\n');
+                      const lines = body.split('\n');
                       let currentSection = null;
                       let directionsText = [];
                       let notesText = [];
@@ -412,15 +373,15 @@
                           notesText.push(line);
                         }
                       });
-                      newRecipe.directions = directionsText.join('\\n');
-                      newRecipe.notes = notesText.join('\\n');
+                      newRecipe.directions = directionsText.join('\n');
+                      newRecipe.notes = notesText.join('\n');
                       allImportedRecipes.push(newRecipe);
                     } else if (subExt === 'paprikarecipe') {
+                      const content = await zippedFile.async('string');
                       const subParsed = parsePaprika(content);
                       subParsed.id = generateId();
                       allImportedRecipes.push(subParsed);
                     }
-                    // other file types can be ignored or expanded as needed
                   }
                 }
               }
@@ -736,11 +697,9 @@
         const [searchQuery, setSearchQuery] = useState('');
         const [isFocused, setIsFocused] = useState(false);
 
-        // We find the currently selected recipe by ID
         const selectedRecipe = recipes.find((r) => r.id === value) || null;
         const inputValue = searchQuery !== '' ? searchQuery : selectedRecipe ? selectedRecipe.title : '';
 
-        // Filter only recipes matching mealType, beginning with search
         const suggestions = recipes.filter(
           (recipe) =>
             recipe.mealType === mealType &&
@@ -1002,6 +961,9 @@
         // For "Import" functionality
         const [showImportModal, setShowImportModal] = useState(false);
 
+        // For the 9-dot menu
+        const [dotsMenuOpen, setDotsMenuOpen] = useState(false);
+
         useEffect(() => {
           const savedRecipes = localStorage.getItem('recipes');
           if (savedRecipes) setRecipes(JSON.parse(savedRecipes));
@@ -1203,7 +1165,6 @@
 
         const handleDeleteRecipe = (recipeToDelete) => {
           setRecipes(recipes.filter((r) => r.id !== recipeToDelete.id));
-          // Also remove references to that recipe from mealPlan
           setMealPlan((prev) => {
             const newPlan = { ...prev };
             Object.keys(newPlan).forEach((day) => {
@@ -1925,7 +1886,6 @@
         // Called once new recipes are parsed from ImportModal
         const handleImportRecipes = (imported) => {
           if (!imported || imported.length === 0) return;
-          // Merge them into existing recipes
           setRecipes((prev) => [...prev, ...imported]);
         };
 
@@ -2025,6 +1985,7 @@
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
+                {/* Search (hidden on mobile, shows on lg) */}
                 <div className="hidden lg:block">
                   <AutocompleteSearch
                     searchQuery={searchQuery}
@@ -2033,52 +1994,75 @@
                     onFocus={() => setActiveTab('recipes')}
                   />
                 </div>
-                <button
-                  onClick={printAllRecipes}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
-                  aria-label="Print all recipes"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+
+                {/* 9-dot menu with Import, Export, Share, Print */}
+                <div className="relative">
+                  <button
+                    onClick={() => setDotsMenuOpen(!dotsMenuOpen)}
+                    className="p-2 rounded-full focus:outline-none bg-gray-700 hover:bg-gray-600"
+                    aria-label="9-dot menu"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9V2h12v7M6 18h12v-5H6v5z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 14h12" />
-                  </svg>
-                </button>
-                <button
-                  onClick={exportVault}
-                  className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
-                  aria-label="Export Markdown Vault"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 4v12m0 0l-4-4m4 4l4-4" />
-                  </svg>
-                </button>
-                <button
-                  onClick={shareVaultContent}
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105"
-                  aria-label="Share Vault Content"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12v1a2 2 0 002 2h12a2 2 0 002-2v-1m-9-5l-3 3m0 0l3 3m-3-3h12" />
-                  </svg>
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <circle cx="5" cy="5" r="2" />
+                      <circle cx="12" cy="5" r="2" />
+                      <circle cx="19" cy="5" r="2" />
+                      <circle cx="5" cy="12" r="2" />
+                      <circle cx="12" cy="12" r="2" />
+                      <circle cx="19" cy="12" r="2" />
+                      <circle cx="5" cy="19" r="2" />
+                      <circle cx="12" cy="19" r="2" />
+                      <circle cx="19" cy="19" r="2" />
+                    </svg>
+                  </button>
+                  {dotsMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded shadow-lg z-10">
+                      <button
+                        onClick={() => {
+                          setDotsMenuOpen(false);
+                          setShowImportModal(true);
+                        }}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                      >
+                        Import
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDotsMenuOpen(false);
+                          exportVault();
+                        }}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                      >
+                        Export
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDotsMenuOpen(false);
+                          shareVaultContent();
+                        }}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                      >
+                        Share
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDotsMenuOpen(false);
+                          printAllRecipes();
+                        }}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                      >
+                        Print
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Add Recipe Button */}
                 <button
                   onClick={() => setShowModal(true)}
                   className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded"
@@ -2086,13 +2070,8 @@
                 >
                   <span className="text-xl">+</span>
                 </button>
-                <button
-                  onClick={() => setShowImportModal(true)}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded"
-                  aria-label="Import recipes"
-                >
-                  Import
-                </button>
+
+                {/* Hamburger menu for mobile */}
                 <button
                   className="lg:hidden p-2"
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
@@ -2104,6 +2083,7 @@
                 </button>
               </div>
             </header>
+
             {mobileNavOpen && (
               <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white lg:hidden">
                 <ul className="flex flex-col">
