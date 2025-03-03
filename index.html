@@ -400,7 +400,8 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- Babel for inline JSX transpilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel">
+    <!-- Added data-presets attribute to ensure React preset is used -->
+    <script type="text/babel" data-presets="react">
       const { useState, useEffect, useRef } = React;
 
       // Utility: generate a simple unique ID
@@ -524,7 +525,6 @@
         );
       }
 
-      // IngredientRow component remains unchanged
       function IngredientRow({
         ingredient,
         index,
@@ -622,6 +622,7 @@
 
       function RecipeCard({ recipe, index, onDeleteRecipe, onEditRecipe }) {
         const [menuOpen, setMenuOpen] = useState(false);
+
         const handleDelete = () => {
           if (
             confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`)
@@ -629,6 +630,7 @@
             onDeleteRecipe(recipe);
           }
         };
+
         const handlePrint = () => {
           const printWindow = window.open('', '', 'height=600,width=800');
           printWindow.document.write('<html><head><title>Print Recipe</title>');
@@ -671,6 +673,7 @@
           printWindow.focus();
           printWindow.print();
         };
+
         return (
           <div
             className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300 relative"
@@ -778,6 +781,7 @@
       function MealPlanMealSelector({ day, mealType, value, onChange, recipes, hideLabel }) {
         const [searchQuery, setSearchQuery] = useState('');
         const [isFocused, setIsFocused] = useState(false);
+
         const selectedRecipe = recipes.find((r) => r.id === value) || null;
         const inputValue = searchQuery !== '' ? searchQuery : selectedRecipe ? selectedRecipe.title : '';
         const suggestions = recipes.filter(
@@ -785,10 +789,12 @@
             recipe.mealType === mealType &&
             recipe.title.toLowerCase().startsWith(searchQuery.toLowerCase())
         );
+
         const handleSelect = (recipe) => {
           onChange(recipe.id);
           setSearchQuery('');
         };
+
         return (
           <div className="relative">
             {!hideLabel && <label className="block text-white mb-1">{mealType}</label>}
@@ -826,6 +832,7 @@
         const suggestions = recipes.filter((recipe) =>
           recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
+
         return (
           <div className="relative">
             <input
@@ -858,6 +865,7 @@
       function MealPlanCalendar({ mealPlan, recipes, mealTypes, updateMealPlan }) {
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
+
         return (
           <div className="overflow-auto">
             <table className="min-w-full text-white">
@@ -952,8 +960,14 @@
         );
       }
 
-      // New CategorizedMasterIngredientsList Component for organizing ingredients by category
-      function CategorizedMasterIngredientsList({ masterIngredients, setMasterIngredients }) {
+      // Updated CategorizedMasterIngredientsList to handle searching, selecting, and filtering recipes
+      function CategorizedMasterIngredientsList({
+        masterIngredients,
+        setMasterIngredients,
+        selectedIngredients,
+        setSelectedIngredients,
+        filterRecipes
+      }) {
         // Mapping of ingredient names to categories
         const ingredientCategories = {
           "Salt": "Spices & Seasonings",
@@ -1063,7 +1077,9 @@
         };
 
         const [searchQuery, setSearchQuery] = useState("");
+
         const groupedIngredients = masterIngredients.reduce((acc, ingredient) => {
+          // Filter by search query
           if (searchQuery && !ingredient.toLowerCase().includes(searchQuery.toLowerCase())) {
             return acc;
           }
@@ -1072,28 +1088,48 @@
           acc[category].push(ingredient);
           return acc;
         }, {});
+
         const sortedCategories = Object.keys(groupedIngredients).sort();
+
+        // Handles toggling an ingredient within the selectedIngredients array
+        const handleToggleIngredient = (ingredient) => {
+          setSelectedIngredients((prev) =>
+            prev.includes(ingredient)
+              ? prev.filter((item) => item !== ingredient)
+              : [...prev, ingredient]
+          );
+        };
+
         return (
           <div id="categorized-master-ingredients" className="p-4 bg-gray-800 rounded shadow">
             <h2 className="text-2xl font-bold text-white mb-4">Master Ingredients</h2>
-            <input 
+            <input
               type="text"
               placeholder="Search ingredients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="p-2 border rounded bg-gray-700 text-white mb-4 w-full"
             />
+
             {sortedCategories.map((category) => (
               <div key={category} className="mb-6">
                 <h3 className="text-xl font-semibold text-white mb-2">{category}</h3>
                 <ul className="mb-4 divide-y divide-gray-600">
                   {groupedIngredients[category].map((ingredient, index) => (
                     <li key={index} className="flex justify-between items-center py-2 px-4">
-                      <span className="text-white">{ingredient}</span>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIngredients.includes(ingredient)}
+                          onChange={() => handleToggleIngredient(ingredient)}
+                          className="mr-2"
+                        />
+                        <span className="text-white">{ingredient}</span>
+                      </div>
                       <button
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
                         onClick={() => {
-                          const updated = masterIngredients.filter(item => item !== ingredient);
+                          const updated = masterIngredients.filter((item) => item !== ingredient);
                           setMasterIngredients(updated);
                         }}
                       >
@@ -1104,6 +1140,7 @@
                 </ul>
               </div>
             ))}
+
             <div className="flex items-center mt-4">
               <input
                 type="text"
@@ -1114,19 +1151,26 @@
               <button
                 className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
                 onClick={() => {
-                  const inputElem = document.getElementById('new-ingredient-name');
+                  const inputElem = document.getElementById("new-ingredient-name");
                   if (inputElem) {
                     const newIngredient = inputElem.value.trim();
                     if (newIngredient && !masterIngredients.includes(newIngredient)) {
                       setMasterIngredients([...masterIngredients, newIngredient]);
                     }
-                    inputElem.value = '';
+                    inputElem.value = "";
                   }
                 }}
               >
                 Add
               </button>
             </div>
+
+            <button
+              onClick={filterRecipes}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              Filter Recipes
+            </button>
           </div>
         );
       }
@@ -1157,6 +1201,13 @@
           const saved = localStorage.getItem('masterIngredients');
           return saved ? JSON.parse(saved) : defaultMasterIngredients;
         });
+
+        // NEW: Selected ingredients to filter recipes
+        const [selectedIngredients, setSelectedIngredients] = useState([]);
+
+        // NEW: Filtered recipes state
+        const [filteredRecipes, setFilteredRecipes] = useState([]);
+
         const [recipes, setRecipes] = useState([]);
         const [cookbooks, setCookbooks] = useState([]);
         const [mealPlan, setMealPlan] = useState(() => {
@@ -1326,6 +1377,20 @@
             setDesiredServings('');
           }
         };
+        // Called when user clicks the "Filter Recipes" button in the ingredients tab
+        const filterRecipes = () => {
+          const filtered = recipes.filter((recipe) =>
+            selectedIngredients.every((selected) =>
+              recipe.ingredients.some(
+                (rIng) => rIng.name.toLowerCase() === selected.toLowerCase()
+              )
+            )
+          );
+          console.log("Filtered Recipes:", filtered);
+          alert(`Filtered to ${filtered.length} recipe(s) based on selected ingredients.`);
+          // NEW: store the filtered recipes in state
+          setFilteredRecipes(filtered);
+        };
         const handleAddRecipe = () => {
           let newRecipe;
           if (editingIndex !== null) {
@@ -1480,7 +1545,7 @@
           }
         };
         const printAllRecipes = () => {
-          const filteredRecipes = recipes.filter(
+          const filteredRecipesList = recipes.filter(
             r =>
               r.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
               (filterDish === '' || r.dishType === filterDish) &&
@@ -1492,7 +1557,7 @@
             '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
           );
           printWindow.document.write('</head><body>');
-          filteredRecipes.forEach(recipe => {
+          filteredRecipesList.forEach(recipe => {
             printWindow.document.write('<div class="card printable">');
             printWindow.document.write("<h1 class='text-white'>" + (recipe.title || 'Untitled Recipe') + '</h1>');
             if (recipe.image) {
@@ -1620,11 +1685,39 @@
           }
         };
 
-        // Updated: Render the Ingredients tab with CategorizedMasterIngredientsList
+        // Render the Ingredients tab with CategorizedMasterIngredientsList
         const renderIngredientsTab = () => {
           return (
             <div id="main-content">
-              <CategorizedMasterIngredientsList masterIngredients={masterIngredients} setMasterIngredients={setMasterIngredients} />
+              <CategorizedMasterIngredientsList
+                masterIngredients={masterIngredients}
+                setMasterIngredients={setMasterIngredients}
+                selectedIngredients={selectedIngredients}
+                setSelectedIngredients={setSelectedIngredients}
+                filterRecipes={filterRecipes}
+              />
+
+              {/* NEW: Display filtered recipes below */}
+              <div className="mt-6">
+                <h2 className="text-2xl font-bold text-white mb-4">Filtered Recipes</h2>
+                {filteredRecipes.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {filteredRecipes.map((r, index) => (
+                      <RecipeCard
+                        key={r.id}
+                        index={index}
+                        recipe={r}
+                        onDeleteRecipe={handleDeleteRecipe}
+                        onEditRecipe={handleEditRecipe}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-white">
+                    No recipes match the selected ingredients.
+                  </p>
+                )}
+              </div>
             </div>
           );
         };
@@ -1982,7 +2075,6 @@
                     )}
                   </div>
                 ) : activeTab === 'ingredients' ? (
-                  // Use the CategorizedMasterIngredientsList component here
                   renderIngredientsTab()
                 ) : null}
               </main>
@@ -2284,7 +2376,6 @@
         );
       }
 
-      // Updated ImportModal with file input and import functionality
       function ImportModal({ onClose, onImport }) {
         const [file, setFile] = useState(null);
         const [error, setError] = useState(null);
