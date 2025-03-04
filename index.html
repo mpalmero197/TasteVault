@@ -849,7 +849,6 @@
         const [filterDish, setFilterDish] = useState('');
         const [filterMeal, setFilterMeal] = useState('');
         const [showSearch, setShowSearch] = useState(false);
-        const [shoppingList, setShoppingList] = useState([]); // Not used directly, computed below
         const [editableShoppingList, setEditableShoppingList] = useState([]);
         const recipeImageInputRef = useRef(null);
         const [showImportModal, setShowImportModal] = useState(false);
@@ -1650,26 +1649,55 @@
                   )
                 ) : activeTab === 'mealPlan' ? (
                   <div id="main-content">
-                    <h2 className="text-2xl font-bold mb-4 text-white">Meal Plan Calendar</h2>
-                    <MealPlanCalendar mealPlan={mealPlan} recipes={recipes} mealTypes={mealTypes} updateMealPlan={(day, mealType, newValue) => {
-                      setMealPlan(prev => {
-                        const newPlan = { ...prev };
-                        newPlan[day] = { ...newPlan[day], [mealType]: newValue };
-                        return newPlan;
-                      });
-                    }} />
+                    <h2 className="text-2xl font-bold mb-4 text-white">Meal Plan</h2>
+                    {/* Desktop Table Layout */}
+                    <div className="hidden md:block">
+                      <MealPlanCalendar mealPlan={mealPlan} recipes={recipes} mealTypes={mealTypes} updateMealPlan={(day, mealType, newValue) => {
+                        setMealPlan(prev => {
+                          const newPlan = { ...prev };
+                          newPlan[day] = { ...newPlan[day], [mealType]: newValue };
+                          return newPlan;
+                        });
+                      }} />
+                    </div>
+                    {/* Mobile Card Layout */}
+                    <div className="block md:hidden space-y-4">
+                      {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => (
+                        <div key={day} className="bg-gray-800 p-4 rounded shadow">
+                          <h3 className="text-xl font-bold text-white mb-2">{day}</h3>
+                          {mealTypes.map(mealType => (
+                            <div key={mealType} className="mb-2">
+                              <label className="block text-white text-sm mb-1">{mealType}</label>
+                              <MealPlanMealSelector
+                                day={day}
+                                mealType={mealType}
+                                value={mealPlan[day][mealType]}
+                                onChange={(newId) => setMealPlan(prev => {
+                                  const newPlan = { ...prev };
+                                  newPlan[day] = { ...newPlan[day], [mealType]: newId };
+                                  return newPlan;
+                                })}
+                                recipes={recipes}
+                                hideLabel={true}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : activeTab === 'shoppingList' ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Shopping List</h2>
-                    <div className="mb-4 flex space-x-4">
-                      <button onClick={printShoppingList} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    {/* Responsive action buttons */}
+                    <div className="mb-4 flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
+                      <button onClick={printShoppingList} className="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
                         Print
                       </button>
-                      <button onClick={downloadShoppingList} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                      <button onClick={downloadShoppingList} className="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
                         Download
                       </button>
-                      <button onClick={shareShoppingList} className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
+                      <button onClick={shareShoppingList} className="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
                         Share
                       </button>
                     </div>
@@ -1678,11 +1706,11 @@
                         <p className="text-white">No ingredients in the shopping list.</p>
                       ) : (
                         editableShoppingList.map((item, index) => (
-                          <div key={index} className="flex items-center space-x-2 mb-2">
-                            <input type="number" value={item.quantity} onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)} className="w-20 p-1 border rounded bg-gray-700 text-white" />
-                            <input type="text" value={item.unit} onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)} className="w-24 p-1 border rounded bg-gray-700 text-white" />
-                            <input type="text" value={item.name} onChange={(e) => handleShoppingItemChange(index, "name", e.target.value)} className="flex-1 p-1 border rounded bg-gray-700 text-white" />
-                            <button onClick={() => deleteShoppingItem(index)} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                          <div key={index} className="flex flex-col md:flex-row md:items-center md:space-x-2 mb-2">
+                            <input type="number" value={item.quantity} onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)} className="w-full md:w-20 p-1 border rounded bg-gray-700 text-white" />
+                            <input type="text" value={item.unit} onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)} className="w-full md:w-24 p-1 border rounded bg-gray-700 text-white" />
+                            <input type="text" value={item.name} onChange={(e) => handleShoppingItemChange(index, "name", e.target.value)} className="w-full md:flex-1 p-1 border rounded bg-gray-700 text-white" />
+                            <button onClick={() => deleteShoppingItem(index)} className="mt-2 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
                               Delete
                             </button>
                           </div>
