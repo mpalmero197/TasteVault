@@ -1,0 +1,1007 @@
+[
+  {
+    "id": "cb0f7b65",
+    "title": "Spaghetti Carbonara",
+    "dishType": "Pasta",
+    "mealType": "Dinner",
+    "cookbook": "Italian Classics",
+    "prepTime": "10 mins",
+    "cookTime": "20 mins",
+    "directions": "1. Bring a large pot of salted water to a boil. Cook spaghetti until al dente.\n2. In a separate bowl, whisk together eggs and grated Parmesan until combined.\n3. Dice pancetta into small cubes and sauté in a skillet over medium heat for 4–5 minutes or until crisp.\n4. Turn off the heat on the skillet and add cooked spaghetti directly into the pancetta.\n5. Quickly stir in the egg-cheese mixture, letting the residual heat form a creamy sauce (avoid high heat to prevent scrambling the eggs).\n6. Season with salt to taste and generously sprinkle black pepper before serving.",
+    "rating": 5,
+    "notes": "Use fresh eggs for the best texture and flavor.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Spaghetti",
+        "quantity": "200",
+        "unit": "g"
+      },
+      {
+        "name": "Eggs",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Parmesan Cheese",
+        "quantity": "50",
+        "unit": "g"
+      },
+      {
+        "name": "Pancetta",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Black Pepper",
+        "quantity": "1",
+        "unit": "tsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Spaghetti Carbonara</text></svg>",
+    "baseServings": "2"
+  },
+  {
+    "id": "6fa2d83b",
+    "title": "Chicken Tikka Masala",
+    "dishType": "Curry",
+    "mealType": "Dinner",
+    "cookbook": "Indian Delights",
+    "prepTime": "15 mins",
+    "cookTime": "40 mins",
+    "directions": "1. Combine yogurt, garam masala, and a pinch of salt to create a marinade. Coat chicken pieces thoroughly and let them marinate for at least 30 minutes.\n2. In a hot grill pan or skillet, sear chicken pieces until lightly charred on each side. Set aside.\n3. In a medium pot, heat oil or ghee over medium heat. Sauté a tablespoon of ginger-garlic paste with additional spices (garam masala or chili powder, if desired) for about 1 minute.\n4. Stir in tomato puree and let it cook for 3–4 minutes, then reduce heat and pour in cream.\n5. Add the cooked chicken back into the sauce and simmer for 10–15 minutes. Adjust salt and spices to taste.\n6. Garnish with fresh cilantro and serve hot with rice or naan bread.",
+    "rating": 5,
+    "notes": "Best served with rice or naan bread.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Chicken Breast",
+        "quantity": "500",
+        "unit": "g"
+      },
+      {
+        "name": "Yogurt",
+        "quantity": "150",
+        "unit": "g"
+      },
+      {
+        "name": "Garam Masala",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "Tomato Puree",
+        "quantity": "200",
+        "unit": "ml"
+      },
+      {
+        "name": "Cream",
+        "quantity": "100",
+        "unit": "ml"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Chicken Tikka Masala</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "5cc97d1f",
+    "title": "Beef Tacos",
+    "dishType": "Mexican",
+    "mealType": "Lunch",
+    "cookbook": "Fiesta Favorites",
+    "prepTime": "10 mins",
+    "cookTime": "15 mins",
+    "directions": "1. In a skillet over medium-high heat, add a drizzle of oil and sauté chopped onions for 2–3 minutes until translucent.\n2. Add ground beef and minced garlic, breaking up any lumps as it cooks. Season with a pinch of salt.\n3. When the beef is browned (about 5–7 minutes), drain excess fat if necessary.\n4. Stir in taco seasoning with a small splash of water, allowing the flavors to meld for another 2–3 minutes.\n5. Warm tortillas on a skillet or microwave to make them pliable.\n6. Assemble each taco with seasoned beef, shredded lettuce, diced tomatoes, grated cheese, and salsa.\n7. Serve immediately while the tacos are still warm and the shells retain a slight crisp.",
+    "rating": 4,
+    "notes": "Serve immediately while warm and crisp.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Ground Beef",
+        "quantity": "400",
+        "unit": "g"
+      },
+      {
+        "name": "Onion",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Garlic",
+        "quantity": "2",
+        "unit": "cloves"
+      },
+      {
+        "name": "Tortillas",
+        "quantity": "8",
+        "unit": ""
+      },
+      {
+        "name": "Taco Seasoning",
+        "quantity": "1",
+        "unit": "tbsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Beef Tacos</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "05c8d27a",
+    "title": "Vegetable Stir-Fry",
+    "dishType": "Stir-Fry",
+    "mealType": "Dinner",
+    "cookbook": "Quick & Healthy",
+    "prepTime": "10 mins",
+    "cookTime": "10 mins",
+    "directions": "1. Wash and chop the vegetables into uniform bite-sized pieces (e.g., broccoli florets, sliced carrots, sliced bell peppers).\n2. Heat vegetable oil in a wok or large skillet over high heat.\n3. Stir-fry firmer vegetables (like carrots, broccoli) for 2–3 minutes before adding softer vegetables (like peppers, mushrooms). Cook an additional 2 minutes.\n4. Add minced garlic and toss for about 30 seconds to release its aroma.\n5. In a small bowl, mix soy sauce and corn starch with a few tablespoons of water. Pour this mixture into the wok.\n6. Stir rapidly until the sauce thickens and coats the vegetables evenly (1–2 minutes). Season with salt or additional soy sauce.\n7. Serve immediately over steamed rice or noodles.",
+    "rating": 4,
+    "notes": "Adjust the soy sauce to taste. Add sesame oil for added fragrance.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Mixed Vegetables",
+        "quantity": "300",
+        "unit": "g"
+      },
+      {
+        "name": "Garlic",
+        "quantity": "2",
+        "unit": "cloves"
+      },
+      {
+        "name": "Soy Sauce",
+        "quantity": "2",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Corn Starch",
+        "quantity": "1",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Vegetable Oil",
+        "quantity": "1",
+        "unit": "tbsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Vegetable Stir-Fry</text></svg>",
+    "baseServings": "2"
+  },
+  {
+    "id": "ee51b74c",
+    "title": "Chocolate Chip Cookies",
+    "dishType": "Bakery",
+    "mealType": "Dessert",
+    "cookbook": "Sweet Treats",
+    "prepTime": "15 mins",
+    "cookTime": "12 mins",
+    "directions": "1. Preheat oven to 350°F (175°C). Line a baking sheet with parchment paper.\n2. In a mixing bowl, cream together softened butter, white sugar, and brown sugar until fluffy (about 2 minutes).\n3. Beat in eggs, one at a time, followed by vanilla extract.\n4. In a separate bowl, whisk together flour, baking soda, and a pinch of salt.\n5. Gradually blend the dry mixture into the wet mixture until just combined; avoid overmixing.\n6. Fold in chocolate chips.\n7. Drop spoonfuls of dough onto the prepared sheet and bake for 10–12 minutes, or until the edges turn golden.\n8. Let cookies cool on the sheet for a couple of minutes before transferring them to a wire rack to fully cool.",
+    "rating": 5,
+    "notes": "Chill dough for thicker, chewier cookies.",
+    "temperature": {
+      "value": "350",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "All-Purpose Flour",
+        "quantity": "250",
+        "unit": "g"
+      },
+      {
+        "name": "Butter",
+        "quantity": "113",
+        "unit": "g"
+      },
+      {
+        "name": "White Sugar",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Brown Sugar",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Chocolate Chips",
+        "quantity": "150",
+        "unit": "g"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Chocolate Chip Cookies</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "f7a431c2",
+    "title": "French Omelette",
+    "dishType": "Egg Dish",
+    "mealType": "Breakfast",
+    "cookbook": "Morning Delights",
+    "prepTime": "5 mins",
+    "cookTime": "5 mins",
+    "directions": "1. Crack eggs into a bowl and whisk vigorously with a pinch of salt and pepper.\n2. Heat a non-stick pan over medium-low heat and melt a small knob of butter.\n3. Pour the beaten eggs into the pan, tilting it gently to distribute evenly.\n4. Using a rubber spatula, stir the eggs occasionally, scraping the bottom to form small curds.\n5. When the omelette is mostly set (still slightly moist on top), fold one edge toward the center.\n6. Tilt the pan to roll the omelette onto a plate. Serve immediately.",
+    "rating": 4,
+    "notes": "Use a non-stick pan and low to medium heat to keep the omelette tender.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Eggs",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Butter",
+        "quantity": "1",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Salt",
+        "quantity": "1",
+        "unit": "pinch"
+      },
+      {
+        "name": "Black Pepper",
+        "quantity": "1",
+        "unit": "pinch"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>French Omelette</text></svg>",
+    "baseServings": "1"
+  },
+  {
+    "id": "b3d987a0",
+    "title": "Garlic Butter Salmon",
+    "dishType": "Seafood",
+    "mealType": "Dinner",
+    "cookbook": "Healthy Home Cooking",
+    "prepTime": "10 mins",
+    "cookTime": "15 mins",
+    "directions": "1. Preheat oven to 400°F (200°C). Line a baking dish with foil or parchment.\n2. In a small bowl, mix softened butter, minced garlic, chopped parsley, and a pinch of salt.\n3. Place salmon fillets in the dish, skin side down. Spread the garlic-butter mixture evenly over each fillet.\n4. Bake for 12–15 minutes or until salmon flakes easily with a fork.\n5. If desired, briefly broil for a golden crust.\n6. Serve with lemon wedges and steamed vegetables.",
+    "rating": 5,
+    "notes": "For added flavor, drizzle fresh lemon juice over the salmon before serving.",
+    "temperature": {
+      "value": "400",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Salmon Fillets",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Butter",
+        "quantity": "2",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Garlic",
+        "quantity": "2",
+        "unit": "cloves"
+      },
+      {
+        "name": "Parsley",
+        "quantity": "1",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Salt",
+        "quantity": "1",
+        "unit": "pinch"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Garlic Butter Salmon</text></svg>",
+    "baseServings": "2"
+  },
+  {
+    "id": "72c1e345",
+    "title": "Greek Salad",
+    "dishType": "Salad",
+    "mealType": "Lunch",
+    "cookbook": "Mediterranean Classics",
+    "prepTime": "15 mins",
+    "cookTime": "0 mins",
+    "directions": "1. Chop cucumbers, tomatoes, red onion, and bell peppers into bite-sized pieces. Place in a large bowl.\n2. Add pitted olives and crumbled feta cheese.\n3. In a separate small bowl, whisk together olive oil, red wine vinegar, dried oregano, and a pinch of salt.\n4. Drizzle the dressing over the salad and toss gently to combine.\n5. Adjust seasoning with salt and pepper to taste. Serve fresh.",
+    "rating": 4,
+    "notes": "Use high-quality olive oil and fresh produce for the best flavor.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Cucumber",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Tomatoes",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Red Onion",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Olives",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Feta Cheese",
+        "quantity": "50",
+        "unit": "g"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Greek Salad</text></svg>",
+    "baseServings": "2"
+  },
+  {
+    "id": "ab501b31",
+    "title": "Vegetable Lasagna",
+    "dishType": "Pasta",
+    "mealType": "Dinner",
+    "cookbook": "Italian Classics",
+    "prepTime": "20 mins",
+    "cookTime": "45 mins",
+    "directions": "1. Preheat oven to 375°F (190°C). Lightly grease a baking dish.\n2. In a skillet, sauté chopped onions, garlic, and mixed vegetables (e.g., spinach, mushrooms, zucchini) until tender.\n3. In a separate bowl, mix ricotta cheese with a pinch of salt and pepper. Stir in half the shredded mozzarella.\n4. Spread a thin layer of tomato sauce in the dish. Arrange lasagna noodles on top, then layer with the vegetable mixture, ricotta mixture, and more sauce.\n5. Repeat layers until the dish is filled, finishing with a layer of sauce and remaining mozzarella on top.\n6. Cover with foil and bake for 30 minutes. Remove foil and bake an additional 15 minutes or until cheese is bubbling and lightly browned.\n7. Let stand for 5–10 minutes before slicing. Serve warm.",
+    "rating": 5,
+    "notes": "Adjust vegetable types based on preference. Add extra cheese or reduce vegetables to taste.",
+    "temperature": {
+      "value": "375",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Lasagna Noodles",
+        "quantity": "8",
+        "unit": ""
+      },
+      {
+        "name": "Mixed Vegetables",
+        "quantity": "300",
+        "unit": "g"
+      },
+      {
+        "name": "Ricotta Cheese",
+        "quantity": "200",
+        "unit": "g"
+      },
+      {
+        "name": "Mozzarella Cheese",
+        "quantity": "150",
+        "unit": "g"
+      },
+      {
+        "name": "Tomato Sauce",
+        "quantity": "400",
+        "unit": "ml"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Vegetable Lasagna</text></svg>",
+    "baseServings": "6"
+  },
+  {
+    "id": "c2b7df10",
+    "title": "Classic Cheesecake",
+    "dishType": "Dessert",
+    "mealType": "Dessert",
+    "cookbook": "Sweet Treats",
+    "prepTime": "20 mins",
+    "cookTime": "55 mins",
+    "directions": "1. Preheat oven to 325°F (160°C). Grease a 9-inch springform pan.\n2. Create the crust by mixing crushed graham crackers with melted butter and a tablespoon of sugar. Press firmly into the bottom of the pan.\n3. In a large bowl, beat softened cream cheese and sugar until smooth. Blend in eggs one at a time.\n4. Add sour cream and vanilla extract, mixing just until combined.\n5. Pour filling over the crust. Place the pan on a baking sheet.\n6. Bake for 50–55 minutes, or until the center is almost set. Turn off the oven and let the cheesecake cool inside with the door slightly open.\n7. Chill in the refrigerator for at least 4 hours. Serve with fruit topping if desired.",
+    "rating": 5,
+    "notes": "Cooling in the oven helps prevent cracks. Always use room-temperature ingredients for a smoother texture.",
+    "temperature": {
+      "value": "325",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Graham Crackers",
+        "quantity": "150",
+        "unit": "g"
+      },
+      {
+        "name": "Butter",
+        "quantity": "50",
+        "unit": "g"
+      },
+      {
+        "name": "Cream Cheese",
+        "quantity": "680",
+        "unit": "g"
+      },
+      {
+        "name": "Sugar",
+        "quantity": "200",
+        "unit": "g"
+      },
+      {
+        "name": "Eggs",
+        "quantity": "3",
+        "unit": ""
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Classic Cheesecake</text></svg>",
+    "baseServings": "8"
+  },
+  {
+    "id": "d3e4f5a7",
+    "title": "Shrimp Scampi",
+    "dishType": "Seafood/Pasta",
+    "mealType": "Dinner",
+    "cookbook": "Seafood Specialties",
+    "prepTime": "10 mins",
+    "cookTime": "15 mins",
+    "directions": "1. Rinse and pat dry shrimp.\n2. In a large skillet, melt butter over medium heat. Add minced garlic and sauté until fragrant.\n3. Add shrimp and cook until pink, about 2-3 minutes per side.\n4. Pour in white wine and lemon juice, simmering for 2 minutes.\n5. Toss with cooked pasta and garnish with chopped parsley. Serve immediately.",
+    "rating": 5,
+    "notes": "Ensure shrimp are not overcooked for optimum texture.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Shrimp",
+        "quantity": "300",
+        "unit": "g"
+      },
+      {
+        "name": "Butter",
+        "quantity": "50",
+        "unit": "g"
+      },
+      {
+        "name": "Garlic",
+        "quantity": "3",
+        "unit": "cloves"
+      },
+      {
+        "name": "White Wine",
+        "quantity": "100",
+        "unit": "ml"
+      },
+      {
+        "name": "Lemon Juice",
+        "quantity": "2",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Pasta",
+        "quantity": "200",
+        "unit": "g"
+      },
+      {
+        "name": "Parsley",
+        "quantity": "2",
+        "unit": "tbsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Shrimp Scampi</text></svg>",
+    "baseServings": "3"
+  },
+  {
+    "id": "e1f2a3b4",
+    "title": "Vegan Buddha Bowl",
+    "dishType": "Salad/Grain Bowl",
+    "mealType": "Lunch",
+    "cookbook": "Healthy Vegan",
+    "prepTime": "15 mins",
+    "cookTime": "20 mins",
+    "directions": "1. Cook quinoa as per package instructions.\n2. Roast chickpeas with olive oil and spices at 400°F for 20 minutes.\n3. Chop kale, avocado, cherry tomatoes, and cucumber.\n4. Assemble quinoa, roasted chickpeas, and vegetables in a bowl.\n5. Drizzle with tahini dressing and toss gently before serving.",
+    "rating": 5,
+    "notes": "Customize with your favorite vegetables or grains.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Quinoa",
+        "quantity": "150",
+        "unit": "g"
+      },
+      {
+        "name": "Chickpeas",
+        "quantity": "200",
+        "unit": "g"
+      },
+      {
+        "name": "Kale",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Avocado",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Cherry Tomatoes",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Cucumber",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Tahini",
+        "quantity": "2",
+        "unit": "tbsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Vegan Buddha Bowl</text></svg>",
+    "baseServings": "2"
+  },
+  {
+    "id": "f5a6b7c8",
+    "title": "BBQ Pork Ribs",
+    "dishType": "Barbecue",
+    "mealType": "Dinner",
+    "cookbook": "Grill Master",
+    "prepTime": "20 mins",
+    "cookTime": "2 hrs",
+    "directions": "1. Preheat oven to 225°F (107°C).\n2. Season pork ribs with salt, pepper, and garlic powder.\n3. Brush generously with BBQ sauce.\n4. Cover with foil and bake for 1.5 hours.\n5. Remove foil, baste again, and bake for an additional 30 minutes until tender.\n6. Let rest for 10 minutes before serving.",
+    "rating": 5,
+    "notes": "Low and slow cooking yields tender, flavorful ribs.",
+    "temperature": {
+      "value": "225",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Pork Ribs",
+        "quantity": "1",
+        "unit": "kg"
+      },
+      {
+        "name": "BBQ Sauce",
+        "quantity": "200",
+        "unit": "ml"
+      },
+      {
+        "name": "Salt",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "Pepper",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "Garlic Powder",
+        "quantity": "1",
+        "unit": "tsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>BBQ Pork Ribs</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "c8d9e0f1",
+    "title": "Avocado Toast with Poached Egg",
+    "dishType": "Breakfast",
+    "mealType": "Breakfast",
+    "cookbook": "Quick Mornings",
+    "prepTime": "5 mins",
+    "cookTime": "5 mins",
+    "directions": "1. Toast bread slices until golden.\n2. Mash avocado with a pinch of salt, pepper, and lemon juice.\n3. Poach an egg in simmering water for 3 minutes.\n4. Spread mashed avocado on toast and top with the poached egg.\n5. Garnish with fresh herbs if desired.",
+    "rating": 4,
+    "notes": "Serve immediately for the best texture.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Bread",
+        "quantity": "2",
+        "unit": "slices"
+      },
+      {
+        "name": "Avocado",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Egg",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Lemon Juice",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "Salt",
+        "quantity": "1",
+        "unit": "pinch"
+      },
+      {
+        "name": "Black Pepper",
+        "quantity": "1",
+        "unit": "pinch"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Avocado Toast</text></svg>",
+    "baseServings": "1"
+  },
+  {
+    "id": "b2c3d4e5",
+    "title": "Mushroom Risotto",
+    "dishType": "Rice Dish",
+    "mealType": "Dinner",
+    "cookbook": "Italian Classics",
+    "prepTime": "10 mins",
+    "cookTime": "30 mins",
+    "directions": "1. Sauté chopped onions and garlic in olive oil until soft.\n2. Add Arborio rice and toast for 2 minutes.\n3. Pour in white wine and let it absorb.\n4. Gradually add warm vegetable broth, stirring continuously until the rice is creamy and al dente.\n5. Stir in sautéed mushrooms and grated Parmesan cheese. Season with salt and pepper.\n6. Serve hot with extra cheese on top.",
+    "rating": 5,
+    "notes": "Stir continuously for a creamy consistency.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Arborio Rice",
+        "quantity": "200",
+        "unit": "g"
+      },
+      {
+        "name": "Mushrooms",
+        "quantity": "250",
+        "unit": "g"
+      },
+      {
+        "name": "Vegetable Broth",
+        "quantity": "1",
+        "unit": "l"
+      },
+      {
+        "name": "White Wine",
+        "quantity": "100",
+        "unit": "ml"
+      },
+      {
+        "name": "Onion",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Garlic",
+        "quantity": "2",
+        "unit": "cloves"
+      },
+      {
+        "name": "Parmesan Cheese",
+        "quantity": "50",
+        "unit": "g"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Mushroom Risotto</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "g7h8i9j0",
+    "title": "Lemon Herb Roasted Chicken",
+    "dishType": "Poultry",
+    "mealType": "Dinner",
+    "cookbook": "Roasted Classics",
+    "prepTime": "15 mins",
+    "cookTime": "1 hr 15 mins",
+    "directions": "1. Preheat oven to 375°F (190°C). \n2. Season whole chicken with salt, pepper, lemon juice, and mixed herbs.\n3. Rub olive oil over the chicken to keep it moist.\n4. Roast in the oven for 1 hr 15 mins, basting occasionally until the skin is crispy and the juices run clear.\n5. Let rest for 10 minutes before carving and serving.",
+    "rating": 5,
+    "notes": "Marinate overnight for deeper flavor.",
+    "temperature": {
+      "value": "375",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Whole Chicken",
+        "quantity": "1.5",
+        "unit": "kg"
+      },
+      {
+        "name": "Lemon Juice",
+        "quantity": "2",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Mixed Herbs",
+        "quantity": "1",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Olive Oil",
+        "quantity": "2",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Salt",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "Black Pepper",
+        "quantity": "1",
+        "unit": "tsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Lemon Herb Roasted Chicken</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "k1l2m3n4",
+    "title": "Beef Stroganoff",
+    "dishType": "Beef Dish",
+    "mealType": "Dinner",
+    "cookbook": "Comfort Food Classics",
+    "prepTime": "20 mins",
+    "cookTime": "40 mins",
+    "directions": "1. Slice beef sirloin into thin strips and season with salt and pepper.\n2. Sauté chopped onions and mushrooms in butter until tender.\n3. Remove vegetables, then quickly sear the beef until browned.\n4. Sprinkle flour over the beef, then add beef broth and Dijon mustard, stirring until the sauce thickens.\n5. Return vegetables to the pan and stir in sour cream. Heat through without boiling.\n6. Serve hot over egg noodles or rice.",
+    "rating": 5,
+    "notes": "Serve with egg noodles or rice for a complete meal.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Beef Sirloin",
+        "quantity": "500",
+        "unit": "g"
+      },
+      {
+        "name": "Onion",
+        "quantity": "1",
+        "unit": ""
+      },
+      {
+        "name": "Mushrooms",
+        "quantity": "250",
+        "unit": "g"
+      },
+      {
+        "name": "Butter",
+        "quantity": "2",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Flour",
+        "quantity": "1",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Beef Broth",
+        "quantity": "250",
+        "unit": "ml"
+      },
+      {
+        "name": "Dijon Mustard",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "Sour Cream",
+        "quantity": "100",
+        "unit": "ml"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Beef Stroganoff</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "o5p6q7r8",
+    "title": "Pad Thai",
+    "dishType": "Noodle Dish",
+    "mealType": "Lunch/Dinner",
+    "cookbook": "Thai Street Food",
+    "prepTime": "20 mins",
+    "cookTime": "15 mins",
+    "directions": "1. Soak rice noodles in warm water until soft.\n2. Sauté garlic and tofu (or shrimp) in oil until golden.\n3. Add beaten eggs and scramble lightly.\n4. Stir in soaked noodles and Pad Thai sauce made from tamarind paste, fish sauce, and sugar.\n5. Toss in bean sprouts and chopped green onions. Garnish with crushed peanuts and lime wedges.\n6. Serve immediately.",
+    "rating": 5,
+    "notes": "Use tamarind paste for an authentic flavor.",
+    "temperature": {
+      "value": "",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Rice Noodles",
+        "quantity": "200",
+        "unit": "g"
+      },
+      {
+        "name": "Tofu or Shrimp",
+        "quantity": "150",
+        "unit": "g"
+      },
+      {
+        "name": "Eggs",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Bean Sprouts",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Green Onions",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Tamarind Paste",
+        "quantity": "2",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Fish Sauce",
+        "quantity": "1",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Sugar",
+        "quantity": "1",
+        "unit": "tbsp"
+      },
+      {
+        "name": "Peanuts",
+        "quantity": "50",
+        "unit": "g"
+      },
+      {
+        "name": "Lime Wedges",
+        "quantity": "2",
+        "unit": ""
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Pad Thai</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "s9t0u1v2",
+    "title": "Eggplant Parmesan",
+    "dishType": "Italian",
+    "mealType": "Dinner",
+    "cookbook": "Vegetarian Italian",
+    "prepTime": "30 mins",
+    "cookTime": "45 mins",
+    "directions": "1. Slice eggplant into rounds and salt them to remove excess moisture. Let sit for 20 minutes, then pat dry.\n2. Dip slices in beaten egg, then coat with breadcrumbs mixed with Parmesan.\n3. Fry slices in olive oil until golden on both sides.\n4. Layer fried eggplant with marinara sauce and mozzarella cheese in a baking dish.\n5. Bake at 375°F (190°C) for 30-35 minutes until bubbly and cheese is melted.\n6. Let rest for 10 minutes before serving.",
+    "rating": 4,
+    "notes": "Let the dish rest to set the layers before serving.",
+    "temperature": {
+      "value": "375",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Eggplant",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Eggs",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Breadcrumbs",
+        "quantity": "100",
+        "unit": "g"
+      },
+      {
+        "name": "Parmesan Cheese",
+        "quantity": "50",
+        "unit": "g"
+      },
+      {
+        "name": "Marinara Sauce",
+        "quantity": "300",
+        "unit": "ml"
+      },
+      {
+        "name": "Mozzarella Cheese",
+        "quantity": "150",
+        "unit": "g"
+      },
+      {
+        "name": "Olive Oil",
+        "quantity": "2",
+        "unit": "tbsp"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Eggplant Parmesan</text></svg>",
+    "baseServings": "4"
+  },
+  {
+    "id": "w3x4y5z6",
+    "title": "Banana Bread",
+    "dishType": "Bakery",
+    "mealType": "Dessert",
+    "cookbook": "Baking Delights",
+    "prepTime": "15 mins",
+    "cookTime": "60 mins",
+    "directions": "1. Preheat oven to 350°F (175°C) and grease a loaf pan.\n2. In a bowl, mash overripe bananas until smooth.\n3. Mix in melted butter, sugar, eggs, and vanilla extract.\n4. Stir in flour, baking soda, and salt until just combined. Fold in walnuts if desired.\n5. Pour the batter into the loaf pan and bake for 60 minutes or until a toothpick comes out clean.\n6. Let cool in the pan for 10 minutes, then transfer to a wire rack to cool completely.",
+    "rating": 5,
+    "notes": "Overripe bananas yield the best flavor.",
+    "temperature": {
+      "value": "350",
+      "scale": "F"
+    },
+    "ingredients": [
+      {
+        "name": "Overripe Bananas",
+        "quantity": "3",
+        "unit": ""
+      },
+      {
+        "name": "Butter",
+        "quantity": "75",
+        "unit": "g"
+      },
+      {
+        "name": "Sugar",
+        "quantity": "150",
+        "unit": "g"
+      },
+      {
+        "name": "Eggs",
+        "quantity": "2",
+        "unit": ""
+      },
+      {
+        "name": "Vanilla Extract",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "All-Purpose Flour",
+        "quantity": "250",
+        "unit": "g"
+      },
+      {
+        "name": "Baking Soda",
+        "quantity": "1",
+        "unit": "tsp"
+      },
+      {
+        "name": "Salt",
+        "quantity": "0.5",
+        "unit": "tsp"
+      },
+      {
+        "name": "Walnuts",
+        "quantity": "50",
+        "unit": "g"
+      }
+    ],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-size='20'>Banana Bread</text></svg>",
+    "baseServings": "8"
+  }
+]
