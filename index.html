@@ -108,317 +108,134 @@
     <script type="text/babel" data-presets="react">
       const { useState, useEffect, useRef } = React;
 
-      // Global default categories mapping for ingredients
-      const defaultIngredientCategories = {
-        "Salt": "Spices & Seasonings",
-        "Pepper": "Spices & Seasonings",
-        "Garlic": "Spices & Seasonings",
-        "Onion": "Spices & Seasonings",
-        "Olive Oil": "Oils & Fats",
-        "Butter": "Oils & Fats",
-        "Sugar": "Baking & Sweeteners",
-        "Flour": "Baking & Sweeteners",
-        "Eggs": "Dairy & Eggs",
-        "Milk": "Dairy & Eggs",
-        "Baking Powder": "Baking & Sweeteners",
-        "Baking Soda": "Baking & Sweeteners",
-        "Vanilla Extract": "Baking & Sweeteners",
-        "Chicken Breast": "Proteins & Meats",
-        "Ground Beef": "Proteins & Meats",
-        "Pork Chops": "Proteins & Meats",
-        "Tomatoes": "Vegetables",
-        "Potatoes": "Vegetables",
-        "Carrots": "Vegetables",
-        "Celery": "Vegetables",
-        "Lettuce": "Vegetables",
-        "Bell Peppers": "Vegetables",
-        "Cheddar Cheese": "Dairy & Eggs",
-        "Mozzarella Cheese": "Dairy & Eggs",
-        "Parmesan Cheese": "Dairy & Eggs",
-        "Cream Cheese": "Dairy & Eggs",
-        "Yogurt": "Dairy & Eggs",
-        "Mayonnaise": "Condiments & Sauces",
-        "Ketchup": "Condiments & Sauces",
-        "Mustard": "Condiments & Sauces",
-        "Soy Sauce": "Condiments & Sauces",
-        "Worcestershire Sauce": "Condiments & Sauces",
-        "Hot Sauce": "Condiments & Sauces",
-        "Vinegar (White)": "Condiments & Sauces",
-        "Apple Cider Vinegar": "Condiments & Sauces",
-        "Balsamic Vinegar": "Condiments & Sauces",
-        "Rice": "Grains & Pasta",
-        "Pasta (Spaghetti)": "Grains & Pasta",
-        "Pasta (Penne)": "Grains & Pasta",
-        "Beans (Black)": "Legumes & Beans",
-        "Beans (Pinto)": "Legumes & Beans",
-        "Beans (Kidney)": "Legumes & Beans",
-        "Lentils": "Legumes & Beans",
-        "Bread": "Grains & Pasta",
-        "Tortillas": "Grains & Pasta",
-        "Cornstarch": "Others",
-        "Oats": "Grains & Pasta",
-        "Peanut Butter": "Others",
-        "Jelly (Grape)": "Others",
-        "Honey": "Baking & Sweeteners",
-        "Syrup (Maple)": "Baking & Sweeteners",
-        "Chocolate Chips": "Baking & Sweeteners",
-        "Cocoa Powder": "Baking & Sweeteners",
-        "Chicken Broth": "Broths & Stocks",
-        "Beef Broth": "Broths & Stocks",
-        "Fish Sauce": "Condiments & Sauces",
-        "Sesame Oil": "Oils & Fats",
-        "Canola Oil": "Oils & Fats",
-        "Vegetable Oil": "Oils & Fats",
-        "Coconut Oil": "Oils & Fats",
-        "Coconut Milk": "Others",
-        "Lemon": "Fruits",
-        "Lime": "Fruits",
-        "Cumin": "Spices & Seasonings",
-        "Paprika": "Spices & Seasonings",
-        "Chili Powder": "Spices & Seasonings",
-        "Oregano": "Spices & Seasonings",
-        "Basil": "Spices & Seasonings",
-        "Rosemary": "Spices & Seasonings",
-        "Thyme": "Spices & Seasonings",
-        "Cinnamon": "Baking & Sweeteners",
-        "Nutmeg": "Baking & Sweeteners",
-        "Ginger": "Spices & Seasonings",
-        "Turmeric": "Spices & Seasonings",
-        "Cayenne Pepper": "Spices & Seasonings",
-        "Red Pepper Flakes": "Spices & Seasonings",
-        "Bay Leaves": "Spices & Seasonings",
-        "Parsley": "Spices & Seasonings",
-        "Cilantro": "Spices & Seasonings",
-        "Green Onions": "Spices & Seasonings",
-        "Corn": "Vegetables",
-        "Peas": "Vegetables",
-        "Green Beans": "Vegetables",
-        "Broccoli": "Vegetables",
-        "Cauliflower": "Vegetables",
-        "Spinach": "Vegetables",
-        "Mushrooms": "Vegetables",
-        "Zucchini": "Vegetables",
-        "Squash": "Vegetables",
-        "Eggplant": "Vegetables",
-        "Apples": "Fruits",
-        "Bananas": "Fruits",
-        "Strawberries": "Fruits",
-        "Blueberries": "Fruits",
-        "Raspberries": "Fruits",
-        "Grapes": "Fruits",
-        "Orange": "Fruits",
-        "Pineapple": "Fruits",
-        "Brown Sugar": "Baking & Sweeteners",
-        "Powdered Sugar": "Baking & Sweeteners",
-        "Cream": "Dairy & Eggs",
-        "Half & Half": "Dairy & Eggs",
-        "Bacon": "Proteins & Meats",
-        "Ham": "Proteins & Meats"
-      };
-
-      // Default list of ingredient names
-      const defaultIngredientNames = [
-        "Salt","Pepper","Garlic","Onion","Olive Oil","Butter","Sugar","Flour","Eggs","Milk",
-        "Baking Powder","Baking Soda","Vanilla Extract","Chicken Breast","Ground Beef","Pork Chops","Tomatoes","Potatoes","Carrots","Celery",
-        "Lettuce","Bell Peppers","Cheddar Cheese","Mozzarella Cheese","Parmesan Cheese","Cream Cheese","Yogurt","Mayonnaise","Ketchup","Mustard",
-        "Soy Sauce","Worcestershire Sauce","Hot Sauce","Vinegar (White)","Apple Cider Vinegar","Balsamic Vinegar","Rice","Pasta (Spaghetti)","Pasta (Penne)","Beans (Black)",
-        "Beans (Pinto)","Beans (Kidney)","Lentils","Bread","Tortillas","Cornstarch","Oats","Peanut Butter","Jelly (Grape)","Honey",
-        "Syrup (Maple)","Chocolate Chips","Cocoa Powder","Chicken Broth","Beef Broth","Fish Sauce","Sesame Oil","Canola Oil","Vegetable Oil","Coconut Oil",
-        "Coconut Milk","Lemon","Lime","Cumin","Paprika","Chili Powder","Oregano","Basil","Rosemary","Thyme",
-        "Cinnamon","Nutmeg","Ginger","Turmeric","Cayenne Pepper","Red Pepper Flakes","Bay Leaves","Parsley","Cilantro","Green Onions",
-        "Corn","Peas","Green Beans","Broccoli","Cauliflower","Spinach","Mushrooms","Zucchini","Squash","Eggplant",
-        "Apples","Bananas","Strawberries","Blueberries","Raspberries","Grapes","Orange","Pineapple","Brown Sugar","Powdered Sugar",
-        "Cream","Half & Half","Bacon","Ham"
-      ];
-
-      // Create default master ingredients array as objects with name and category
-      const defaultMasterIngredients = defaultIngredientNames.map(name => ({
-        name,
-        category: defaultIngredientCategories[name] || "Uncategorized"
-      }));
-
-      // MasterIngredientRow component: renders a single ingredient with inline edit capabilities
-      function MasterIngredientRow({ ingredient, onToggle, isSelected, onUpdate, onRemove }) {
-        const [editing, setEditing] = useState(false);
-        const [editedName, setEditedName] = useState(ingredient.name);
-        const [editedCategory, setEditedCategory] = useState(ingredient.category || "Uncategorized");
+      // Utility: generate a simple unique ID
+      function generateId() {
         return (
-          <li className="flex justify-between items-center py-2 px-4">
-            <div className="flex items-center">
-              <input type="checkbox" checked={isSelected} onChange={onToggle} className="mr-2" />
-              {editing ? (
-                <div>
-                  <input
-                    type="text"
-                    value={editedName}
-                    onChange={(e) => setEditedName(e.target.value)}
-                    className="p-1 border rounded bg-gray-700 text-white mr-2"
-                  />
-                  <input
-                    type="text"
-                    value={editedCategory}
-                    onChange={(e) => setEditedCategory(e.target.value)}
-                    className="p-1 border rounded bg-gray-700 text-white"
-                  />
-                </div>
-              ) : (
-                <span className="text-white">
-                  {ingredient.name} ({ingredient.category || "Uncategorized"})
-                </span>
-              )}
-            </div>
-            <div>
-              {editing ? (
-                <>
-                  <button
-                    onClick={() => {
-                      onUpdate({ name: editedName, category: editedCategory });
-                      setEditing(false);
-                    }}
-                    className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm mr-2"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditing(false);
-                      setEditedName(ingredient.name);
-                      setEditedCategory(ingredient.category || "Uncategorized");
-                    }}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-sm mr-2"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setEditing(true)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm mr-2"
-                >
-                  Edit
-                </button>
-              )}
-              <button onClick={onRemove} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
-                Remove
-              </button>
-            </div>
-          </li>
+          Date.now().toString(36) +
+          Math.floor(Math.random() * 999999).toString(36)
         );
       }
 
-      // MasterIngredientEditor component: allows adding a new master ingredient manually
-      function MasterIngredientEditor({ onAdd }) {
-        const [name, setName] = useState("");
-        const [category, setCategory] = useState("");
-        return (
-          <>
-            <input
-              type="text"
-              placeholder="New ingredient name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="p-2 border rounded bg-gray-700 text-white mr-2"
-            />
-            <input
-              type="text"
-              placeholder="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="p-2 border rounded bg-gray-700 text-white mr-2"
-            />
-            <button
-              onClick={() => {
-                if (name.trim()) {
-                  onAdd({ name: name.trim(), category: category.trim() || "Uncategorized" });
-                  setName("");
-                  setCategory("");
-                }
-              }}
-              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
-            >
-              Add Ingredient
-            </button>
-          </>
-        );
-      }
-
-      // CategorizedMasterIngredientsList component: now works with objects and allows editing
-      function CategorizedMasterIngredientsList({ masterIngredients, setMasterIngredients, selectedIngredients, setSelectedIngredients, filterRecipes }) {
-        const [searchQuery, setSearchQuery] = useState("");
-        const groupedIngredients = masterIngredients.reduce((acc, ingredientObj) => {
-          const ingredientName = ingredientObj.name;
-          const category = ingredientObj.category || "Uncategorized";
-          if (searchQuery && !ingredientName.toLowerCase().includes(searchQuery.toLowerCase())) {
-            return acc;
+      function parseMarkdown(markdownContent) {
+        const lines = markdownContent.split('\n');
+        let frontmatter = {};
+        let i = 0;
+        if (lines[0].trim() === '---') {
+          i++;
+          while (i < lines.length && lines[i].trim() !== '---') {
+            const line = lines[i].trim();
+            const match = line.match(/^(.*?):\s*(.*)$/);
+            if (match) {
+              const key = match[1].trim();
+              const value = match[2].replace(/\"/g, '').trim();
+              frontmatter[key] = value;
+            }
+            i++;
           }
-          if (!acc[category]) acc[category] = [];
-          acc[category].push(ingredientObj);
-          return acc;
-        }, {});
-        const sortedCategories = Object.keys(groupedIngredients).sort();
-        const handleToggleIngredient = (ingredientObj) => {
-          setSelectedIngredients((prev) =>
-            prev.includes(ingredientObj.name)
-              ? prev.filter((item) => item !== ingredientObj.name)
-              : [...prev, ingredientObj.name]
-          );
+          i++;
+        }
+        const body = lines.slice(i).join('\n');
+        return { frontmatter, body };
+      }
+
+      function parsePaprika(jsonString) {
+        const data = JSON.parse(jsonString);
+        return {
+          title: data.name || '',
+          dishType: '',
+          mealType: '',
+          cookbook: '',
+          ingredients: (data.ingredients || '')
+            .split('\n')
+            .map((line) => {
+              const parts = line.trim().split(' ');
+              if (parts.length < 2)
+                return { name: line.trim(), quantity: '', unit: '' };
+              const quantityCandidate = parseFloat(parts[0]);
+              if (!isNaN(quantityCandidate)) {
+                const unitCandidate = parts[1];
+                const nameCandidate = parts.slice(2).join(' ');
+                return {
+                  name: nameCandidate || '',
+                  quantity: quantityCandidate.toString(),
+                  unit: unitCandidate,
+                };
+              }
+              return { name: line.trim(), quantity: '', unit: '' };
+            }),
+          prepTime: '',
+          cookTime: '',
+          directions: data.directions || '',
+          rating: parseInt(data.rating || '0', 10),
+          notes: data.description || '',
+          temperature: { value: '', scale: 'F' },
         };
+      }
+
+      function rowToRecipe(rowObj) {
+        return {
+          title: rowObj.title || 'Untitled',
+          dishType: rowObj.dishType || '',
+          mealType: rowObj.mealType || '',
+          cookbook: rowObj.cookbook || '',
+          ingredients: (rowObj.ingredients || '')
+            .split('\n')
+            .map((line) => {
+              const parts = line.trim().split(' ');
+              if (parts.length < 2)
+                return { name: line.trim(), quantity: '', unit: '' };
+              const quantityCandidate = parseFloat(parts[0]);
+              if (!isNaN(quantityCandidate)) {
+                const unitCandidate = parts[1];
+                const nameCandidate = parts.slice(2).join(' ');
+                return {
+                  name: nameCandidate || '',
+                  quantity: quantityCandidate.toString(),
+                  unit: unitCandidate,
+                };
+              }
+              return { name: line.trim(), quantity: '', unit: '' };
+            }),
+          directions: rowObj.directions || '',
+          rating: parseInt(rowObj.rating || '0', 10),
+          notes: rowObj.notes || '',
+          prepTime: rowObj.prepTime || '',
+          cookTime: rowObj.cookTime || '',
+          temperature: {
+            value: rowObj.tempValue || '',
+            scale: rowObj.tempScale || 'F',
+          },
+        };
+      }
+
+      function StarRating({ rating, setRating }) {
+        const handleClick = (newRating) => setRating(newRating);
         return (
-          <div id="categorized-master-ingredients" className="p-4 bg-gray-800 rounded shadow">
-            <h2 className="text-2xl font-bold text-white mb-4">Master Ingredients</h2>
-            <input
-              type="text"
-              placeholder="Search ingredients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="p-2 border rounded bg-gray-700 text-white mb-4 w-full"
-            />
-            {sortedCategories.map((category) => (
-              <div key={category} className="mb-6">
-                <h3 className="text-xl font-semibold text-white mb-2">{category}</h3>
-                <ul className="mb-4 divide-y divide-gray-600">
-                  {groupedIngredients[category].map((ingredientObj, index) => (
-                    <MasterIngredientRow
-                      key={index}
-                      ingredient={ingredientObj}
-                      onToggle={() => handleToggleIngredient(ingredientObj)}
-                      isSelected={selectedIngredients.includes(ingredientObj.name)}
-                      onUpdate={(updatedObj) => {
-                        setMasterIngredients((prev) =>
-                          prev.map((item) =>
-                            item.name.toLowerCase() === ingredientObj.name.toLowerCase() ? updatedObj : item
-                          )
-                        );
-                      }}
-                      onRemove={() => {
-                        setMasterIngredients((prev) => prev.filter((item) => item.name.toLowerCase() !== ingredientObj.name.toLowerCase()));
-                      }}
-                    />
-                  ))}
-                </ul>
-              </div>
+          <div className="flex items-center" role="radiogroup" aria-label="Star Rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => handleClick(star)}
+                className="text-2xl focus:outline-none"
+                role="radio"
+                aria-checked={star === rating}
+                aria-label={`${star} star${star !== 1 ? 's' : ''}`}
+              >
+                {star <= rating ? '★' : '☆'}
+              </button>
             ))}
-            <div className="flex items-center mt-4">
-              <MasterIngredientEditor
-                onAdd={(newIngredient) => {
-                  setMasterIngredients((prev) => {
-                    if (prev.some((item) => item.name.toLowerCase() === newIngredient.name.toLowerCase())) {
-                      return prev;
-                    }
-                    return [...prev, newIngredient];
-                  });
-                }}
-              />
-            </div>
-            <button onClick={filterRecipes} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-              Filter Recipes
-            </button>
           </div>
         );
       }
 
-      // Update IngredientRow (used in recipe creation/edit) to list masterIngredients by name
-      function IngredientRow({ ingredient, index, handleIngredientChange, removeIngredientRow, masterIngredients }) {
+      function IngredientRow({
+        ingredient,
+        index,
+        handleIngredientChange,
+        removeIngredientRow,
+        masterIngredients,
+      }) {
         const units = ['tsp', 'tbsp', 'cup', 'oz', 'lb', 'ml', 'l', 'g', 'kg'];
         return (
           <div className="flex flex-col md:flex-row md:space-x-2 mb-2">
@@ -433,8 +250,8 @@
             >
               <option value="">-- Master Ingredient List --</option>
               {masterIngredients.map((item, i) => (
-                <option key={i} value={item.name}>
-                  {item.name}
+                <option key={i} value={item}>
+                  {item}
                 </option>
               ))}
             </select>
@@ -489,14 +306,15 @@
         );
       }
 
-      // (The RecipeCard, MealPlanMealSelector, AutocompleteSearch, MealPlanCalendar, CreateCookbookModal, EditCookbookModal, ImportModal components remain unchanged.)
       function RecipeCard({ recipe, index, onDeleteRecipe, onEditRecipe }) {
         const [menuOpen, setMenuOpen] = useState(false);
+
         const handleDelete = () => {
           if (confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`)) {
             onDeleteRecipe(recipe);
           }
         };
+
         const handlePrint = () => {
           const printWindow = window.open('', '', 'height=600,width=800');
           printWindow.document.write('<html><head><title>Print Recipe</title>');
@@ -533,6 +351,7 @@
           printWindow.focus();
           printWindow.print();
         };
+
         return (
           <div className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300 relative" role="article" aria-label={`Recipe: ${recipe.title || 'Untitled'}`}>
             <div className="relative w-full mb-4" style={{ paddingTop: '60%', overflow: 'hidden' }}>
@@ -754,61 +573,230 @@
         );
       }
 
-      function ImportModal({ onClose, onImport }) {
-        const [file, setFile] = useState(null);
-        const [error, setError] = useState(null);
-        const handleFileChange = (e) => { setFile(e.target.files[0]); setError(null); };
-        const handleImport = () => {
-          if (!file) { setError("Please select a file."); return; }
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const content = e.target.result;
-            let importedRecipes = [];
-            try {
-              if (file.name.endsWith('.json')) {
-                importedRecipes = JSON.parse(content);
-              } else if (file.name.endsWith('.csv')) {
-                importedRecipes = Papa.parse(content, { header: true }).data;
-              } else if (file.name.endsWith('.xlsx')) {
-                const workbook = XLSX.read(content, { type: 'binary' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                importedRecipes = XLSX.utils.sheet_to_json(worksheet);
-              } else {
-                setError("Unsupported file type.");
-                return;
-              }
-              onImport(importedRecipes);
-              onClose();
-            } catch (err) {
-              console.error(err);
-              setError("Failed to import recipes.");
-            }
-          };
-          if (file.name.endsWith('.xlsx')) {
-            reader.readAsBinaryString(file);
-          } else {
-            reader.readAsText(file);
-          }
+      // Updated CategorizedMasterIngredientsList to handle searching, selecting, and filtering recipes
+      function CategorizedMasterIngredientsList({ masterIngredients, setMasterIngredients, selectedIngredients, setSelectedIngredients, filterRecipes }) {
+        // Mapping of ingredient names to categories
+        const ingredientCategories = {
+          "Salt": "Spices & Seasonings",
+          "Pepper": "Spices & Seasonings",
+          "Garlic": "Spices & Seasonings",
+          "Onion": "Spices & Seasonings",
+          "Olive Oil": "Oils & Fats",
+          "Butter": "Oils & Fats",
+          "Sugar": "Baking & Sweeteners",
+          "Flour": "Baking & Sweeteners",
+          "Eggs": "Dairy & Eggs",
+          "Milk": "Dairy & Eggs",
+          "Baking Powder": "Baking & Sweeteners",
+          "Baking Soda": "Baking & Sweeteners",
+          "Vanilla Extract": "Baking & Sweeteners",
+          "Chicken Breast": "Proteins & Meats",
+          "Ground Beef": "Proteins & Meats",
+          "Pork Chops": "Proteins & Meats",
+          "Tomatoes": "Vegetables",
+          "Potatoes": "Vegetables",
+          "Carrots": "Vegetables",
+          "Celery": "Vegetables",
+          "Lettuce": "Vegetables",
+          "Bell Peppers": "Vegetables",
+          "Cheddar Cheese": "Dairy & Eggs",
+          "Mozzarella Cheese": "Dairy & Eggs",
+          "Parmesan Cheese": "Dairy & Eggs",
+          "Cream Cheese": "Dairy & Eggs",
+          "Yogurt": "Dairy & Eggs",
+          "Mayonnaise": "Condiments & Sauces",
+          "Ketchup": "Condiments & Sauces",
+          "Mustard": "Condiments & Sauces",
+          "Soy Sauce": "Condiments & Sauces",
+          "Worcestershire Sauce": "Condiments & Sauces",
+          "Hot Sauce": "Condiments & Sauces",
+          "Vinegar (White)": "Condiments & Sauces",
+          "Apple Cider Vinegar": "Condiments & Sauces",
+          "Balsamic Vinegar": "Condiments & Sauces",
+          "Rice": "Grains & Pasta",
+          "Pasta (Spaghetti)": "Grains & Pasta",
+          "Pasta (Penne)": "Grains & Pasta",
+          "Beans (Black)": "Legumes & Beans",
+          "Beans (Pinto)": "Legumes & Beans",
+          "Beans (Kidney)": "Legumes & Beans",
+          "Lentils": "Legumes & Beans",
+          "Bread": "Grains & Pasta",
+          "Tortillas": "Grains & Pasta",
+          "Cornstarch": "Others",
+          "Oats": "Grains & Pasta",
+          "Peanut Butter": "Others",
+          "Jelly (Grape)": "Others",
+          "Honey": "Baking & Sweeteners",
+          "Syrup (Maple)": "Baking & Sweeteners",
+          "Chocolate Chips": "Baking & Sweeteners",
+          "Cocoa Powder": "Baking & Sweeteners",
+          "Chicken Broth": "Broths & Stocks",
+          "Beef Broth": "Broths & Stocks",
+          "Fish Sauce": "Condiments & Sauces",
+          "Sesame Oil": "Oils & Fats",
+          "Canola Oil": "Oils & Fats",
+          "Vegetable Oil": "Oils & Fats",
+          "Coconut Oil": "Oils & Fats",
+          "Coconut Milk": "Others",
+          "Lemon": "Fruits",
+          "Lime": "Fruits",
+          "Cumin": "Spices & Seasonings",
+          "Paprika": "Spices & Seasonings",
+          "Chili Powder": "Spices & Seasonings",
+          "Oregano": "Spices & Seasonings",
+          "Basil": "Spices & Seasonings",
+          "Rosemary": "Spices & Seasonings",
+          "Thyme": "Spices & Seasonings",
+          "Cinnamon": "Baking & Sweeteners",
+          "Nutmeg": "Baking & Sweeteners",
+          "Ginger": "Spices & Seasonings",
+          "Turmeric": "Spices & Seasonings",
+          "Cayenne Pepper": "Spices & Seasonings",
+          "Red Pepper Flakes": "Spices & Seasonings",
+          "Bay Leaves": "Spices & Seasonings",
+          "Parsley": "Spices & Seasonings",
+          "Cilantro": "Spices & Seasonings",
+          "Green Onions": "Spices & Seasonings",
+          "Corn": "Vegetables",
+          "Peas": "Vegetables",
+          "Green Beans": "Vegetables",
+          "Broccoli": "Vegetables",
+          "Cauliflower": "Vegetables",
+          "Spinach": "Vegetables",
+          "Mushrooms": "Vegetables",
+          "Zucchini": "Vegetables",
+          "Squash": "Vegetables",
+          "Eggplant": "Vegetables",
+          "Apples": "Fruits",
+          "Bananas": "Fruits",
+          "Strawberries": "Fruits",
+          "Blueberries": "Fruits",
+          "Raspberries": "Fruits",
+          "Grapes": "Fruits",
+          "Orange": "Fruits",
+          "Pineapple": "Fruits",
+          "Brown Sugar": "Baking & Sweeteners",
+          "Powdered Sugar": "Baking & Sweeteners",
+          "Cream": "Dairy & Eggs",
+          "Half & Half": "Dairy & Eggs",
+          "Bacon": "Proteins & Meats",
+          "Ham": "Proteins & Meats"
         };
+
+        const [searchQuery, setSearchQuery] = useState("");
+
+        const groupedIngredients = masterIngredients.reduce((acc, ingredient) => {
+          if (searchQuery && !ingredient.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return acc;
+          }
+          const category = ingredientCategories[ingredient] || "Uncategorized";
+          if (!acc[category]) acc[category] = [];
+          acc[category].push(ingredient);
+          return acc;
+        }, {});
+
+        const sortedCategories = Object.keys(groupedIngredients).sort();
+
+        const handleToggleIngredient = (ingredient) => {
+          setSelectedIngredients((prev) =>
+            prev.includes(ingredient)
+              ? prev.filter((item) => item !== ingredient)
+              : [...prev, ingredient]
+          );
+        };
+
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-gray-800 p-4 rounded text-white">
-              <h2 className="text-xl mb-4">Import Recipes</h2>
-              <input type="file" accept=".json,.csv,.xlsx" onChange={handleFileChange} className="mb-4" />
-              {error && <p className="text-red-500 mb-2">{error}</p>}
-              <div className="flex justify-end mt-4">
-                <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mr-2">Cancel</button>
-                <button onClick={handleImport} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Import</button>
+          <div id="categorized-master-ingredients" className="p-4 bg-gray-800 rounded shadow">
+            <h2 className="text-2xl font-bold text-white mb-4">Master Ingredients</h2>
+            <input
+              type="text"
+              placeholder="Search ingredients..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="p-2 border rounded bg-gray-700 text-white mb-4 w-full"
+            />
+            {sortedCategories.map((category) => (
+              <div key={category} className="mb-6">
+                <h3 className="text-xl font-semibold text-white mb-2">{category}</h3>
+                <ul className="mb-4 divide-y divide-gray-600">
+                  {groupedIngredients[category].map((ingredient, index) => (
+                    <li key={index} className="flex justify-between items-center py-2 px-4">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIngredients.includes(ingredient)}
+                          onChange={() => handleToggleIngredient(ingredient)}
+                          className="mr-2"
+                        />
+                        <span className="text-white">{ingredient}</span>
+                      </div>
+                      <button
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                        onClick={() => {
+                          const updated = masterIngredients.filter((item) => item !== ingredient);
+                          setMasterIngredients(updated);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
+            ))}
+            <div className="flex items-center mt-4">
+              <input
+                type="text"
+                placeholder="New ingredient name"
+                className="p-2 border rounded bg-gray-700 text-white mr-2 w-full"
+                id="new-ingredient-name"
+              />
+              <button
+                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                onClick={() => {
+                  const inputElem = document.getElementById("new-ingredient-name");
+                  if (inputElem) {
+                    const newIngredient = inputElem.value.trim();
+                    if (newIngredient && !masterIngredients.includes(newIngredient)) {
+                      setMasterIngredients([...masterIngredients, newIngredient]);
+                    }
+                    inputElem.value = "";
+                  }
+                }}
+              >
+                Add
+              </button>
             </div>
+            <button
+              onClick={filterRecipes}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              Filter Recipes
+            </button>
           </div>
         );
       }
 
+      const defaultMasterIngredients = [
+        "Salt","Pepper","Garlic","Onion","Olive Oil","Butter","Sugar","Flour","Eggs","Milk",
+        "Baking Powder","Baking Soda","Vanilla Extract","Chicken Breast","Ground Beef","Pork Chops","Tomatoes","Potatoes","Carrots","Celery",
+        "Lettuce","Bell Peppers","Cheddar Cheese","Mozzarella Cheese","Parmesan Cheese","Cream Cheese","Yogurt","Mayonnaise","Ketchup","Mustard",
+        "Soy Sauce","Worcestershire Sauce","Hot Sauce","Vinegar (White)","Apple Cider Vinegar","Balsamic Vinegar","Rice","Pasta (Spaghetti)","Pasta (Penne)","Beans (Black)",
+        "Beans (Pinto)","Beans (Kidney)","Lentils","Bread","Tortillas","Cornstarch","Oats","Peanut Butter","Jelly (Grape)","Honey",
+        "Syrup (Maple)","Chocolate Chips","Cocoa Powder","Chicken Broth","Beef Broth","Fish Sauce","Sesame Oil","Canola Oil","Vegetable Oil","Coconut Oil",
+        "Coconut Milk","Lemon","Lime","Cumin","Paprika","Chili Powder","Oregano","Basil","Rosemary","Thyme",
+        "Cinnamon","Nutmeg","Ginger","Turmeric","Cayenne Pepper","Red Pepper Flakes","Bay Leaves","Parsley","Cilantro","Green Onions",
+        "Corn","Peas","Green Beans","Broccoli","Cauliflower","Spinach","Mushrooms","Zucchini","Squash","Eggplant",
+        "Apples","Bananas","Strawberries","Blueberries","Raspberries","Grapes","Orange","Pineapple","Brown Sugar","Powdered Sugar",
+        "Cream","Half & Half","Bacon","Ham"
+      ];
+
       function RecipeSaver() {
         const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Party'];
-        const dishTypes = ['Pasta', 'Bread', 'Soup', 'Salad', 'Dessert', 'Meat', 'Seafood', 'Vegetarian', 'Vegan'];
+        const dishTypes = [
+          'Pasta', 'Bread', 'Soup', 'Salad', 'Dessert',
+          'Meat', 'Seafood', 'Vegetarian', 'Vegan'
+        ];
         const [masterIngredients, setMasterIngredients] = useState(() => {
           const saved = localStorage.getItem('masterIngredients');
           return saved ? JSON.parse(saved) : defaultMasterIngredients;
@@ -861,13 +849,154 @@
         const [filterDish, setFilterDish] = useState('');
         const [filterMeal, setFilterMeal] = useState('');
         const [showSearch, setShowSearch] = useState(false);
+        const [shoppingList, setShoppingList] = useState([]); // Not used directly, computed below
+        const [editableShoppingList, setEditableShoppingList] = useState([]);
         const recipeImageInputRef = useRef(null);
         const [showImportModal, setShowImportModal] = useState(false);
         const [dotsMenuOpen, setDotsMenuOpen] = useState(false);
 
-        // Update cookbooks and categories when new recipes are imported
+        // Function to recommend purchasable units for shopping items
+        function recommendShoppingListItem(item) {
+          let { name, unit, quantity } = item;
+          const numQty = parseFloat(quantity);
+          if (isNaN(numQty)) return item;
+          if (name.toLowerCase().includes("egg")) {
+            // Recommend a dozen eggs: if less than 12, recommend 12; else round up to nearest dozen.
+            const dozens = Math.ceil(numQty / 12);
+            quantity = dozens * 12;
+            unit = "eggs";
+          } else if (name.toLowerCase().includes("milk") && unit.toLowerCase() === "cup") {
+            // Convert cups to gallons (1 gallon = 16 cups)
+            const gallons = Math.ceil(numQty / 16);
+            quantity = gallons;
+            unit = gallons === 1 ? "gallon" : "gallons";
+          }
+          return { ...item, quantity, unit };
+        }
+
+        // Function to aggregate ingredients from meal plan
+        const getShoppingList = () => {
+          const agg = {};
+          Object.keys(mealPlan).forEach(day => {
+            const dayPlan = mealPlan[day];
+            Object.keys(dayPlan).forEach(mealType => {
+              const recipeId = dayPlan[mealType];
+              if (recipeId !== '') {
+                const theRecipe = recipes.find(r => r.id === recipeId);
+                if (theRecipe && theRecipe.ingredients) {
+                  theRecipe.ingredients.forEach(ing => {
+                    const key = ing.name.toLowerCase() + '_' + ing.unit;
+                    const qty = parseFloat(ing.quantity);
+                    if (!agg[key]) {
+                      agg[key] = { name: ing.name, unit: ing.unit, quantity: isNaN(qty) ? ing.quantity : qty };
+                    } else {
+                      if (!isNaN(qty)) agg[key].quantity += qty;
+                    }
+                  });
+                }
+              }
+            });
+          });
+          return Object.values(agg);
+        };
+
+        // Update editable shopping list when mealPlan or recipes change
+        useEffect(() => {
+          const computedList = getShoppingList();
+          const recommendedList = computedList.map(item => recommendShoppingListItem(item));
+          setEditableShoppingList(recommendedList);
+        }, [mealPlan, recipes]);
+
+        // Shopping list editing functions
+        const handleShoppingItemChange = (index, field, value) => {
+          const updatedList = [...editableShoppingList];
+          updatedList[index] = { ...updatedList[index], [field]: value };
+          setEditableShoppingList(updatedList);
+        };
+
+        const deleteShoppingItem = (index) => {
+          const updatedList = editableShoppingList.filter((_, i) => i !== index);
+          setEditableShoppingList(updatedList);
+        };
+
+        const addShoppingItem = () => {
+          setEditableShoppingList([...editableShoppingList, { name: '', unit: '', quantity: '' }]);
+        };
+
+        const printShoppingList = () => {
+          const shoppingItems = editableShoppingList;
+          const printWindow = window.open('', '', 'height=600,width=800');
+          printWindow.document.write('<html><head><title>Print Shopping List</title>');
+          printWindow.document.write('<style>body { font-family: Arial, sans-serif; } .printable { margin: 20px; } ul { list-style: disc; padding-left: 20px; } </style>');
+          printWindow.document.write('</head><body>');
+          printWindow.document.write('<div class="printable"><h1>Shopping List</h1>');
+          if (shoppingItems.length > 0) {
+            printWindow.document.write('<ul>');
+            shoppingItems.forEach(item => {
+              printWindow.document.write('<li>' + item.quantity + ' ' + item.unit + ' ' + item.name + '</li>');
+            });
+            printWindow.document.write('</ul>');
+          } else {
+            printWindow.document.write('<p>No ingredients in the shopping list.</p>');
+          }
+          printWindow.document.write('</div></body></html>');
+          printWindow.document.close();
+          printWindow.focus();
+          printWindow.print();
+        };
+
+        const downloadShoppingList = () => {
+          const shoppingItems = editableShoppingList;
+          let content = 'Shopping List:\n\n';
+          if (shoppingItems.length > 0) {
+            shoppingItems.forEach(item => {
+              content += `${item.quantity} ${item.unit} ${item.name}\n`;
+            });
+          } else {
+            content += 'No ingredients in the shopping list.\n';
+          }
+          const blob = new Blob([content], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'shopping_list.txt';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        };
+
+        const shareShoppingList = async () => {
+          const shoppingItems = editableShoppingList;
+          let content = 'Shopping List:\n\n';
+          if (shoppingItems.length > 0) {
+            shoppingItems.forEach(item => {
+              content += `${item.quantity} ${item.unit} ${item.name}\n`;
+            });
+          } else {
+            content += 'No ingredients in the shopping list.\n';
+          }
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: 'Shopping List', text: content });
+            } catch (error) {
+              console.error('Error sharing', error);
+            }
+          } else {
+            try {
+              await navigator.clipboard.writeText(content);
+              alert('Shopping list copied to clipboard.');
+            } catch (error) {
+              console.error('Clipboard error', error);
+              alert('Unable to share shopping list.');
+            }
+          }
+        };
+
+        // NEW: Function to update cookbooks and categories when new recipes are imported
         const updateCookbooksAndCategories = (newRecipes) => {
-          const newCookbookTitles = newRecipes.map(r => r.cookbook).filter(title => title && title.trim() !== '');
+          const newCookbookTitles = newRecipes
+            .map(r => r.cookbook)
+            .filter(title => title && title.trim() !== '');
           setCookbooks(prevCookbooks => {
             const cookbookSet = new Set(prevCookbooks.map(cb => cb.title));
             newCookbookTitles.forEach(title => {
@@ -879,7 +1008,7 @@
           });
         };
 
-        // Modified Import function: avoid duplicate recipes and update master ingredients list
+        // Modified Import function: avoid duplicate recipes (using title as key) and ensure each has an id
         const handleImportRecipes = (importedRecipes) => {
           setRecipes(prev => {
             const existingTitles = new Set(prev.map(r => r.title));
@@ -891,27 +1020,12 @@
               }
               return acc;
             }, []);
-            // Update master ingredients list from imported recipes
-            setMasterIngredients(prevMaster => {
-              const updated = [...prevMaster];
-              newRecipes.forEach(recipe => {
-                if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
-                  recipe.ingredients.forEach(ing => {
-                    const ingredientName = ing.name.trim();
-                    if (ingredientName && !updated.some(item => item.name.toLowerCase() === ingredientName.toLowerCase())) {
-                      updated.push({ name: ingredientName, category: "Uncategorized" });
-                    }
-                  });
-                }
-              });
-              return updated;
-            });
             return [...prev, ...newRecipes];
           });
           updateCookbooksAndCategories(importedRecipes);
         };
 
-        // Export function
+        // Export function: downloads recipes as JSON file
         const handleExportRecipes = () => {
           const dataStr = JSON.stringify(recipes, null, 2);
           const blob = new Blob([dataStr], { type: "application/json" });
@@ -1034,7 +1148,7 @@
           setFilteredRecipes(filtered);
         };
         const handleAddRecipe = () => {
-          const currentIngredients = ingredients.slice();
+          const currentIngredients = ingredients.slice(); // Capture current ingredients before resetting form
           let newRecipe;
           if (editingIndex !== null) {
             const oldId = recipes[editingIndex].id;
@@ -1082,8 +1196,8 @@
             const newList = [...prev];
             currentIngredients.forEach((ing) => {
               const ingredientName = ing.name.trim();
-              if (ingredientName && !newList.some(item => item.name.toLowerCase() === ingredientName.toLowerCase())) {
-                newList.push({ name: ingredientName, category: "Uncategorized" });
+              if (ingredientName && !newList.some(item => item.toLowerCase() === ingredientName.toLowerCase())) {
+                newList.push(ingredientName);
               }
             });
             return newList;
@@ -1112,6 +1226,7 @@
           setDesiredServings('');
           setShowModal(false);
         };
+        // Updated delete function using functional state update and now updating filteredRecipes as well
         const handleDeleteRecipe = (recipeToDelete) => {
           setRecipes(prevRecipes => prevRecipes.filter(r => r.id !== recipeToDelete.id));
           setMealPlan(prev => {
@@ -1236,98 +1351,8 @@
           printWindow.focus();
           printWindow.print();
         };
-        const getShoppingList = () => {
-          const agg = {};
-          Object.keys(mealPlan).forEach(day => {
-            const dayPlan = mealPlan[day];
-            Object.keys(dayPlan).forEach(mealType => {
-              const recipeId = dayPlan[mealType];
-              if (recipeId !== '') {
-                const theRecipe = recipes.find(r => r.id === recipeId);
-                if (theRecipe && theRecipe.ingredients) {
-                  theRecipe.ingredients.forEach(ing => {
-                    const key = ing.name.toLowerCase() + '_' + ing.unit;
-                    const qty = parseFloat(ing.quantity);
-                    if (!agg[key]) {
-                      agg[key] = { name: ing.name, unit: ing.unit, quantity: isNaN(qty) ? ing.quantity : qty };
-                    } else {
-                      if (!isNaN(qty)) agg[key].quantity += qty;
-                    }
-                  });
-                }
-              }
-            });
-          });
-          return Object.values(agg);
-        };
-        const printShoppingList = () => {
-          const shoppingItems = getShoppingList();
-          const printWindow = window.open('', '', 'height=600,width=800');
-          printWindow.document.write('<html><head><title>Print Shopping List</title>');
-          printWindow.document.write('<style>body { font-family: Arial, sans-serif; } .printable { margin: 20px; } ul { list-style: disc; padding-left: 20px; } </style>');
-          printWindow.document.write('</head><body>');
-          printWindow.document.write('<div class="printable"><h1>Shopping List</h1>');
-          if (shoppingItems.length > 0) {
-            printWindow.document.write('<ul>');
-            shoppingItems.forEach(item => {
-              printWindow.document.write('<li>' + item.quantity + ' ' + item.unit + ' ' + item.name + '</li>');
-            });
-            printWindow.document.write('</ul>');
-          } else {
-            printWindow.document.write('<p>No ingredients in the shopping list.</p>');
-          }
-          printWindow.document.write('</div></body></html>');
-          printWindow.document.close();
-          printWindow.focus();
-          printWindow.print();
-        };
-        const downloadShoppingList = () => {
-          const shoppingItems = getShoppingList();
-          let content = 'Shopping List:\n\n';
-          if (shoppingItems.length > 0) {
-            shoppingItems.forEach(item => {
-              content += `${item.quantity} ${item.unit} ${item.name}\n`;
-            });
-          } else {
-            content += 'No ingredients in the shopping list.\n';
-          }
-          const blob = new Blob([content], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'shopping_list.txt';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        };
-        const shareShoppingList = async () => {
-          const shoppingItems = getShoppingList();
-          let content = 'Shopping List:\n\n';
-          if (shoppingItems.length > 0) {
-            shoppingItems.forEach(item => {
-              content += `${item.quantity} ${item.unit} ${item.name}\n`;
-            });
-          } else {
-            content += 'No ingredients in the shopping list.\n';
-          }
-          if (navigator.share) {
-            try {
-              await navigator.share({ title: 'Shopping List', text: content });
-            } catch (error) {
-              console.error('Error sharing', error);
-            }
-          } else {
-            try {
-              await navigator.clipboard.writeText(content);
-              alert('Shopping list copied to clipboard.');
-            } catch (error) {
-              console.error('Clipboard error', error);
-              alert('Unable to share shopping list.');
-            }
-          }
-        };
 
-        // Render the Ingredients tab with the updated master ingredients list
+        // Render the Ingredients tab with CategorizedMasterIngredientsList
         const renderIngredientsTab = () => {
           return (
             <div id="main-content">
@@ -1365,7 +1390,7 @@
                   <button
                     onClick={() => {
                       setShowSearch(!showSearch);
-                      setActiveTab('recipes');
+                      setActiveTab('recipes'); // Ensure recipes tab is active when searching
                     }}
                     className="p-2"
                     aria-label="Search"
@@ -1648,17 +1673,25 @@
                         Share
                       </button>
                     </div>
-                    {getShoppingList().length === 0 ? (
-                      <p className="text-white">No ingredients in the shopping list.</p>
-                    ) : (
-                      <ul className="list-disc list-inside">
-                        {getShoppingList().map((item, index) => (
-                          <li key={index} className="text-white">
-                            {item.quantity} {item.unit} {item.name}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                    <div>
+                      {editableShoppingList.length === 0 ? (
+                        <p className="text-white">No ingredients in the shopping list.</p>
+                      ) : (
+                        editableShoppingList.map((item, index) => (
+                          <div key={index} className="flex items-center space-x-2 mb-2">
+                            <input type="number" value={item.quantity} onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)} className="w-20 p-1 border rounded bg-gray-700 text-white" />
+                            <input type="text" value={item.unit} onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)} className="w-24 p-1 border rounded bg-gray-700 text-white" />
+                            <input type="text" value={item.name} onChange={(e) => handleShoppingItemChange(index, "name", e.target.value)} className="flex-1 p-1 border rounded bg-gray-700 text-white" />
+                            <button onClick={() => deleteShoppingItem(index)} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                              Delete
+                            </button>
+                          </div>
+                        ))
+                      )}
+                      <button onClick={addShoppingItem} className="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                        Add Item
+                      </button>
+                    </div>
                   </div>
                 ) : activeTab === 'ingredients' ? (
                   renderIngredientsTab()
@@ -1941,6 +1974,58 @@
             {showImportModal && (
               <ImportModal onClose={() => setShowImportModal(false)} onImport={handleImportRecipes} />
             )}
+          </div>
+        );
+      }
+
+      function ImportModal({ onClose, onImport }) {
+        const [file, setFile] = useState(null);
+        const [error, setError] = useState(null);
+        const handleFileChange = (e) => { setFile(e.target.files[0]); setError(null); };
+        const handleImport = () => {
+          if (!file) { setError("Please select a file."); return; }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const content = e.target.result;
+            let importedRecipes = [];
+            try {
+              if (file.name.endsWith('.json')) {
+                importedRecipes = JSON.parse(content);
+              } else if (file.name.endsWith('.csv')) {
+                importedRecipes = Papa.parse(content, { header: true }).data;
+              } else if (file.name.endsWith('.xlsx')) {
+                const workbook = XLSX.read(content, { type: 'binary' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                importedRecipes = XLSX.utils.sheet_to_json(worksheet);
+              } else {
+                setError("Unsupported file type.");
+                return;
+              }
+              onImport(importedRecipes);
+              onClose();
+            } catch (err) {
+              console.error(err);
+              setError("Failed to import recipes.");
+            }
+          };
+          if (file.name.endsWith('.xlsx')) {
+            reader.readAsBinaryString(file);
+          } else {
+            reader.readAsText(file);
+          }
+        };
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-gray-800 p-4 rounded text-white">
+              <h2 className="text-xl mb-4">Import Recipes</h2>
+              <input type="file" accept=".json,.csv,.xlsx" onChange={handleFileChange} className="mb-4" />
+              {error && <p className="text-red-500 mb-2">{error}</p>}
+              <div className="flex justify-end mt-4">
+                <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mr-2">Cancel</button>
+                <button onClick={handleImport} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Import</button>
+              </div>
+            </div>
           </div>
         );
       }
