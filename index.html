@@ -3,383 +3,87 @@
   <head>
     <meta charset="UTF-8" />
     <!-- Combined meta viewport with additional scaling settings -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
     <title>TasteVault - Recipe Management & Meal Planner</title>
-
     <!-- Tailwind CSS (v2) -->
-    <link
-      href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-
+    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <!-- Google Material Icons -->
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <!-- JSZip for zipping files and for .zip import -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <!-- For .xlsx import (SheetJS) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <!-- For CSV import (PapaParse) -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-
     <!-- ORIGINAL + NEW STYLES MERGED -->
     <style>
       /* Modal transitions and skip link */
       .modal-enter { opacity: 0; transform: scale(0.95); }
-      .modal-enter-active {
-        opacity: 1;
-        transform: scale(1);
-        transition: opacity 300ms, transform 300ms;
-      }
+      .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms; }
       .modal-exit { opacity: 1; transform: scale(1); }
-      .modal-exit-active {
-        opacity: 0;
-        transform: scale(0.95);
-        transition: opacity 300ms, transform 300ms;
-      }
-      .skip-link {
-        position: absolute;
-        top: -40px;
-        left: 0;
-        background: #1d4ed8;
-        color: #fff;
-        padding: 8px;
-        z-index: 100;
-        transition: top 0.3s;
-      }
-      .skip-link:focus {
-        top: 0;
-      }
+      .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 300ms, transform 300ms; }
+      .skip-link { position: absolute; top: -40px; left: 0; background: #1d4ed8; color: #fff; padding: 8px; z-index: 100; transition: top 0.3s; }
+      .skip-link:focus { top: 0; }
       @media print {
-        body * {
-          visibility: hidden;
-        }
-        .printable,
-        .printable * {
-          visibility: visible;
-        }
-        .printable {
-          position: absolute;
-          left: 0;
-          top: 0;
-        }
+        body * { visibility: hidden; }
+        .printable, .printable * { visibility: visible; }
+        .printable { position: absolute; left: 0; top: 0; }
       }
-      .modal-container {
-        width: 90vw;
-        height: 90vw;
-        max-width: 500px;
-        max-height: 500px;
-      }
-      @media only screen and (max-width: 480px) {
-        .modal-container {
-          width: 95vw;
-          max-height: 90vh;
-        }
-      }
-
+      .modal-container { width: 90vw; height: 90vw; max-width: 500px; max-height: 500px; }
+      @media only screen and (max-width: 480px) { .modal-container { width: 95vw; max-height: 90vh; } }
       /* Reset & Base Styles */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
-      html,
-      body {
-        background-color: #111;
-        color: #fff;
-        height: 100%;
-        overflow-x: hidden;
-      }
-      a {
-        text-decoration: none;
-        color: inherit;
-        cursor: pointer;
-      }
-      ul,
-      li {
-        list-style: none;
-      }
-      button {
-        cursor: pointer;
-        border: none;
-        background: none;
-      }
-      input,
-      select,
-      textarea {
-        background-color: #222;
-        border: 1px solid #444;
-        color: #fff;
-        padding: 0.5em;
-        border-radius: 4px;
-        font-size: 0.95em;
-      }
-      input:focus,
-      select:focus,
-      textarea:focus,
-      button:focus {
-        outline: none;
-      }
-
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+      html, body { background-color: #111; color: #fff; height: 100%; overflow-x: hidden; }
+      a { text-decoration: none; color: inherit; cursor: pointer; }
+      ul, li { list-style: none; }
+      button { cursor: pointer; border: none; background: none; }
+      input, select, textarea { background-color: #222; border: 1px solid #444; color: #fff; padding: 0.5em; border-radius: 4px; font-size: 0.95em; }
+      input:focus, select:focus, textarea:focus, button:focus { outline: none; }
       /* Light Mode Overrides */
-      .light-mode {
-        background-color: #f5f5f5;
-        color: #111;
-      }
-      .light-mode header,
-      .light-mode .header-links,
-      .light-mode .mobile-nav {
-        background-color: #eaeaea;
-      }
-      .light-mode .site-title {
-        color: #111;
-      }
-      .light-mode .nine-dot-menu,
-      .light-mode .hamburger .bar {
-        background-color: #333 !important;
-      }
-      .light-mode .toggle-dark-mode {
-        background-color: #ccc;
-        color: #111;
-      }
-      .light-mode input,
-      .light-mode select,
-      .light-mode textarea {
-        background-color: #fff;
-        border: 1px solid #888;
-        color: #111;
-      }
-      .light-mode .section-container,
-      .light-mode .recipe-card,
-      .light-mode .meal-plan-section,
-      .light-mode .shopping-list-section {
-        background-color: #fff;
-        color: #111;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      .light-mode nav a:hover,
-      .light-mode .dropdown-menu a:hover {
-        background-color: #ddd;
-        color: #111;
-      }
-
+      .light-mode { background-color: #f5f5f5; color: #111; }
+      .light-mode header, .light-mode .header-links, .light-mode .mobile-nav { background-color: #eaeaea; }
+      .light-mode .site-title { color: #111; }
+      .light-mode .nine-dot-menu, .light-mode .hamburger .bar { background-color: #333 !important; }
+      .light-mode .toggle-dark-mode { background-color: #ccc; color: #111; }
+      .light-mode input, .light-mode select, .light-mode textarea { background-color: #fff; border: 1px solid #888; color: #111; }
+      .light-mode .section-container, .light-mode .recipe-card, .light-mode .meal-plan-section, .light-mode .shopping-list-section { background-color: #fff; color: #111; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+      .light-mode nav a:hover, .light-mode .dropdown-menu a:hover { background-color: #ddd; color: #111; }
       /* Header & Navigation */
-      header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: #222;
-        padding: 0.5em 1em;
-        position: sticky;
-        top: 0;
-        z-index: 999;
-        border-bottom: 1px solid #333;
-      }
-      .site-title {
-        font-size: 1.3em;
-        font-weight: 600;
-        color: #ffcc66;
-        margin-right: 1em;
-      }
-
+      header { display: flex; align-items: center; justify-content: space-between; background-color: #222; padding: 0.5em 1em; position: sticky; top: 0; z-index: 999; border-bottom: 1px solid #333; }
+      .site-title { font-size: 1.3em; font-weight: 600; color: #ffcc66; margin-right: 1em; }
       /* Mobile Nav */
-      .mobile-nav {
-        display: none;
-        background-color: #222;
-        position: absolute;
-        top: 3.5em;
-        right: 0;
-        left: 0;
-        padding: 1em;
-        border-top: 1px solid #333;
-      }
-      .mobile-nav a {
-        display: block;
-        margin-bottom: 1em;
-        color: #ccc;
-        text-transform: uppercase;
-        font-size: 0.95em;
-      }
-      .mobile-nav a:hover {
-        color: #fff;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1em;
-      }
-      .section-container {
-        background-color: #1c1c1c;
-        border: 1px solid #333;
-        border-radius: 6px;
-        padding: 1em 1.5em;
-        margin-bottom: 1.5em;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-      }
-      .section-container h2 {
-        margin-bottom: 0.5em;
-        font-size: 1.2em;
-        border-bottom: 1px solid #333;
-        padding-bottom: 0.3em;
-        color: #ffcc66;
-      }
-      .section-container p {
-        margin-bottom: 1em;
-        color: #ccc;
-      }
-      .search-bar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1em;
-        margin-bottom: 1.5em;
-      }
-      .search-bar input,
-      .search-bar select {
-        flex: 1;
-        min-width: 200px;
-      }
-      .add-recipe-button {
-        display: none;
-        position: fixed;
-        bottom: 1.5em;
-        right: 1.5em;
-        width: 3em;
-        height: 3em;
-        background-color: #ff5722;
-        border-radius: 50%;
-        font-size: 2em;
-        color: #fff;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-      }
-      .recipe-card {
-        background-color: #222;
-        border: 1px solid #444;
-        border-radius: 4px;
-        padding: 1em;
-        margin-bottom: 1em;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      }
-      .recipe-title {
-        font-size: 1.2em;
-        margin-bottom: 0.5em;
-        font-weight: bold;
-        color: #ffcc66;
-      }
-      .recipe-meta {
-        font-size: 0.9em;
-        margin-bottom: 0.5em;
-        color: #bbb;
-      }
-      .recipe-img {
-        max-width: 100%;
-        height: auto;
-        margin-bottom: 0.5em;
-        display: none;
-        border-radius: 4px;
-        border: 1px solid #333;
-      }
-      .recipe-ingredients,
-      .recipe-directions {
-        margin-bottom: 0.5em;
-      }
-      .recipe-ingredients ul,
-      .recipe-directions ol {
-        margin-left: 1.2em;
-        margin-top: 0.3em;
-        padding-left: 1em;
-      }
-      .recipe-card button {
-        background-color: #333;
-        color: #fff;
-        padding: 0.3em 0.6em;
-        border-radius: 4px;
-        margin-right: 0.3em;
-        font-size: 0.8em;
-        transition: background-color 0.3s, color 0.3s;
-      }
-      .recipe-card button:hover {
-        background-color: #ffcc66;
-        color: #111;
-      }
-      .meal-plan-section {
-        background-color: #1c1c1c;
-        border: 1px solid #333;
-        border-radius: 4px;
-        padding: 1em;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      }
-      .meal-plan-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1em;
-      }
-      .meal-plan-table th,
-      .meal-plan-table td {
-        border: 1px solid #444;
-        padding: 0.5em;
-        text-align: center;
-        color: #ccc;
-        font-size: 0.9em;
-      }
-      .meal-plan-day.highlight {
-        background-color: #ff5722;
-        color: #fff;
-      }
-      .shopping-list-section {
-        background-color: #1c1c1c;
-        border: 1px solid #333;
-        border-radius: 4px;
-        padding: 1em;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      }
-      .shopping-list-items {
-        margin-bottom: 1em;
-      }
-      .shopping-list-items li {
-        margin: 0.3em 0;
-        cursor: pointer;
-        padding: 0.2em 0.4em;
-        border-radius: 4px;
-        transition: background-color 0.2s;
-      }
-      .shopping-list-items li:hover {
-        background-color: #333;
-      }
-      .shopping-list-section input[type="text"] {
-        width: 70%;
-        margin-right: 0.5em;
-      }
-      .shopping-list-section button {
-        background-color: #ff5722;
-        color: #fff;
-        padding: 0.4em 0.8em;
-        border-radius: 4px;
-        font-size: 0.9em;
-        transition: background-color 0.3s, color 0.3s;
-      }
-      .shopping-list-section button:hover {
-        background-color: #ffcc66;
-        color: #111;
-      }
+      .mobile-nav { display: none; background-color: #222; position: absolute; top: 3.5em; right: 0; left: 0; padding: 1em; border-top: 1px solid #333; }
+      .mobile-nav a { display: block; margin-bottom: 1em; color: #ccc; text-transform: uppercase; font-size: 0.95em; }
+      .mobile-nav a:hover { color: #fff; }
+      .container { max-width: 1200px; margin: 0 auto; padding: 1em; }
+      .section-container { background-color: #1c1c1c; border: 1px solid #333; border-radius: 6px; padding: 1em 1.5em; margin-bottom: 1.5em; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); }
+      .section-container h2 { margin-bottom: 0.5em; font-size: 1.2em; border-bottom: 1px solid #333; padding-bottom: 0.3em; color: #ffcc66; }
+      .section-container p { margin-bottom: 1em; color: #ccc; }
+      .search-bar { display: flex; flex-wrap: wrap; gap: 1em; margin-bottom: 1.5em; }
+      .search-bar input, .search-bar select { flex: 1; min-width: 200px; }
+      .add-recipe-button { display: none; position: fixed; bottom: 1.5em; right: 1.5em; width: 3em; height: 3em; background-color: #ff5722; border-radius: 50%; font-size: 2em; color: #fff; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); z-index: 1000; }
+      .recipe-card { background-color: #222; border: 1px solid #444; border-radius: 4px; padding: 1em; margin-bottom: 1em; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+      .recipe-title { font-size: 1.2em; margin-bottom: 0.5em; font-weight: bold; color: #ffcc66; }
+      .recipe-meta { font-size: 0.9em; margin-bottom: 0.5em; color: #bbb; }
+      .recipe-img { max-width: 100%; height: auto; margin-bottom: 0.5em; display: none; border-radius: 4px; border: 1px solid #333; }
+      .recipe-ingredients, .recipe-directions { margin-bottom: 0.5em; }
+      .recipe-ingredients ul, .recipe-directions ol { margin-left: 1.2em; margin-top: 0.3em; padding-left: 1em; }
+      .recipe-card button { background-color: #333; color: #fff; padding: 0.3em 0.6em; border-radius: 4px; margin-right: 0.3em; font-size: 0.8em; transition: background-color 0.3s, color 0.3s; }
+      .recipe-card button:hover { background-color: #ffcc66; color: #111; }
+      .meal-plan-section { background-color: #1c1c1c; border: 1px solid #333; border-radius: 4px; padding: 1em; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+      .meal-plan-table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+      .meal-plan-table th, .meal-plan-table td { border: 1px solid #444; padding: 0.5em; text-align: center; color: #ccc; font-size: 0.9em; }
+      .meal-plan-day.highlight { background-color: #ff5722; color: #fff; }
+      .shopping-list-section { background-color: #1c1c1c; border: 1px solid #333; border-radius: 4px; padding: 1em; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+      .shopping-list-items { margin-bottom: 1em; }
+      .shopping-list-items li { margin: 0.3em 0; cursor: pointer; padding: 0.2em 0.4em; border-radius: 4px; transition: background-color 0.2s; }
+      .shopping-list-items li:hover { background-color: #333; }
+      .shopping-list-section input[type="text"] { width: 70%; margin-right: 0.5em; }
+      .shopping-list-section button { background-color: #ff5722; color: #fff; padding: 0.4em 0.8em; border-radius: 4px; font-size: 0.9em; transition: background-color 0.3s, color 0.3s; }
+      .shopping-list-section button:hover { background-color: #ffcc66; color: #111; }
       @media (max-width: 768px) {
-        .add-recipe-button {
-          display: flex;
-        }
-        .section-container {
-          margin-left: 0.2em;
-          margin-right: 0.2em;
-        }
+        .add-recipe-button { display: flex; }
+        .section-container { margin-left: 0.2em; margin-right: 0.2em; }
       }
     </style>
   </head>
@@ -532,17 +236,7 @@
         removeIngredientRow,
         masterIngredients,
       }) {
-        const units = [
-          'tsp',
-          'tbsp',
-          'cup',
-          'oz',
-          'lb',
-          'ml',
-          'l',
-          'g',
-          'kg',
-        ];
+        const units = ['tsp', 'tbsp', 'cup', 'oz', 'lb', 'ml', 'l', 'g', 'kg'];
         return (
           <div className="flex flex-col md:flex-row md:space-x-2 mb-2">
             <label className="sr-only" htmlFor={`ingredient-select-${index}`}>
@@ -551,9 +245,7 @@
             <select
               id={`ingredient-select-${index}`}
               value={ingredient.name || ''}
-              onChange={(e) =>
-                handleIngredientChange(index, 'name', e.target.value)
-              }
+              onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
               className="w-full md:w-1/3 p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             >
               <option value="">-- Master Ingredient List --</option>
@@ -571,9 +263,7 @@
               type="text"
               placeholder="Ingredient Name"
               value={ingredient.name}
-              onChange={(e) =>
-                handleIngredientChange(index, 'name', e.target.value)
-              }
+              onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
               className="w-full md:w-1/3 p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             />
             <label className="sr-only" htmlFor={`ingredient-qty-${index}`}>
@@ -585,9 +275,7 @@
               step="any"
               placeholder="Quantity"
               value={ingredient.quantity}
-              onChange={(e) =>
-                handleIngredientChange(index, 'quantity', e.target.value)
-              }
+              onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
               className="w-full md:w-1/4 p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             />
             <label className="sr-only" htmlFor={`ingredient-unit-${index}`}>
@@ -596,9 +284,7 @@
             <select
               id={`ingredient-unit-${index}`}
               value={ingredient.unit}
-              onChange={(e) =>
-                handleIngredientChange(index, 'unit', e.target.value)
-              }
+              onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
               className="w-full md:w-1/4 p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 mb-2 md:mb-0"
             >
               <option value="">Unit</option>
@@ -624,9 +310,7 @@
         const [menuOpen, setMenuOpen] = useState(false);
 
         const handleDelete = () => {
-          if (
-            confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`)
-          ) {
+          if (confirm(`Are you sure you want to delete the recipe "${recipe.title}"?`)) {
             onDeleteRecipe(recipe);
           }
         };
@@ -649,24 +333,18 @@
           printWindow.document.write('<p><strong>Prep Time:</strong> ' + (recipe.prepTime || 'N/A') + '</p>');
           printWindow.document.write('<p><strong>Cook Time:</strong> ' + (recipe.cookTime || 'N/A') + '</p>');
           if (recipe.temperature && recipe.temperature.value) {
-            printWindow.document.write('<p><strong>Temp:</strong> ' +
-              recipe.temperature.value + '°' + recipe.temperature.scale + '</p>');
+            printWindow.document.write('<p><strong>Temp:</strong> ' + recipe.temperature.value + '°' + recipe.temperature.scale + '</p>');
           }
-          printWindow.document.write('<p><strong>Rating:</strong> ' +
-            '★'.repeat(recipe.rating) + '☆'.repeat(5 - recipe.rating) + '</p>');
+          printWindow.document.write('<p><strong>Rating:</strong> ' + '★'.repeat(recipe.rating) + '☆'.repeat(5 - recipe.rating) + '</p>');
           if (recipe.ingredients && recipe.ingredients.length > 0) {
             printWindow.document.write('<h3>Ingredients</h3><ul>');
             recipe.ingredients.forEach((ing) => {
-              printWindow.document.write('<li>' +
-                (ing.quantity ? ing.quantity + ' ' : '') +
-                (ing.unit ? ing.unit + ' ' : '') +
-                ing.name + '</li>');
+              printWindow.document.write('<li>' + (ing.quantity ? ing.quantity + ' ' : '') + (ing.unit ? ing.unit + ' ' : '') + ing.name + '</li>');
             });
             printWindow.document.write('</ul>');
           }
           if (recipe.directions) {
-            printWindow.document.write('<h3>Directions</h3><p>' +
-              recipe.directions.replace(/\n/g, '<br>') + '</p>');
+            printWindow.document.write('<h3>Directions</h3><p>' + recipe.directions.replace(/\n/g, '<br>') + '</p>');
           }
           printWindow.document.write('</div></body></html>');
           printWindow.document.close();
@@ -675,18 +353,10 @@
         };
 
         return (
-          <div
-            className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300 relative"
-            role="article"
-            aria-label={`Recipe: ${recipe.title || 'Untitled'}`}
-          >
+          <div className="border rounded-lg p-4 shadow-md bg-gray-800 text-white hover:shadow-lg transition-shadow duration-300 relative" role="article" aria-label={`Recipe: ${recipe.title || 'Untitled'}`}>
             <div className="relative w-full mb-4" style={{ paddingTop: '60%', overflow: 'hidden' }}>
               {recipe.image ? (
-                <img
-                  src={recipe.image}
-                  alt={recipe.title || 'Recipe Image'}
-                  className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
-                />
+                <img src={recipe.image} alt={recipe.title || 'Recipe Image'} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
               ) : (
                 <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-600 flex items-center justify-center text-white rounded-t-lg">
                   <span>No Image</span>
@@ -715,9 +385,7 @@
                 <ul className="list-disc list-inside mt-1">
                   {recipe.ingredients.map((ing, i) => (
                     <li key={i} className="text-white">
-                      {(ing.quantity ? ing.quantity + ' ' : '') +
-                        (ing.unit ? ing.unit + ' ' : '') +
-                        ing.name}
+                      {(ing.quantity ? ing.quantity + ' ' : '') + (ing.unit ? ing.unit + ' ' : '') + ing.name}
                     </li>
                   ))}
                 </ul>
@@ -726,51 +394,18 @@
             {recipe.directions && (
               <div className="mt-2">
                 <strong className="text-white">Directions:</strong>
-                <p className="whitespace-pre-wrap mt-1 text-white">
-                  {recipe.directions}
-                </p>
+                <p className="whitespace-pre-wrap mt-1 text-white">{recipe.directions}</p>
               </div>
             )}
             <div className="absolute bottom-2 right-2">
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="text-white focus:outline-none"
-                aria-label="Options"
-              >
+              <button onClick={() => setMenuOpen(!menuOpen)} className="text-white focus:outline-none" aria-label="Options">
                 <span className="material-icons">more_vert</span>
               </button>
               {menuOpen && (
                 <div className="absolute right-0 bottom-full mb-2 w-32 bg-gray-800 border border-gray-700 rounded shadow-lg z-10">
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onEditRecipe(index, recipe);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                    aria-label={`Edit recipe ${recipe.title}`}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      handlePrint();
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                    aria-label={`Print recipe ${recipe.title}`}
-                  >
-                    Print
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      handleDelete();
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                    aria-label={`Delete recipe ${recipe.title}`}
-                  >
-                    Delete
-                  </button>
+                  <button onClick={() => { setMenuOpen(false); onEditRecipe(index, recipe); }} className="block w-full text-left px-4 py-2 hover:bg-gray-700" aria-label={`Edit recipe ${recipe.title}`}>Edit</button>
+                  <button onClick={() => { setMenuOpen(false); handlePrint(); }} className="block w-full text-left px-4 py-2 hover:bg-gray-700" aria-label={`Print recipe ${recipe.title}`}>Print</button>
+                  <button onClick={() => { setMenuOpen(false); handleDelete(); }} className="block w-full text-left px-4 py-2 hover:bg-gray-700" aria-label={`Delete recipe ${recipe.title}`}>Delete</button>
                 </div>
               )}
             </div>
@@ -781,7 +416,6 @@
       function MealPlanMealSelector({ day, mealType, value, onChange, recipes, hideLabel }) {
         const [searchQuery, setSearchQuery] = useState('');
         const [isFocused, setIsFocused] = useState(false);
-
         const selectedRecipe = recipes.find((r) => r.id === value) || null;
         const inputValue = searchQuery !== '' ? searchQuery : selectedRecipe ? selectedRecipe.title : '';
         const suggestions = recipes.filter(
@@ -789,12 +423,10 @@
             recipe.mealType === mealType &&
             recipe.title.toLowerCase().startsWith(searchQuery.toLowerCase())
         );
-
         const handleSelect = (recipe) => {
           onChange(recipe.id);
           setSearchQuery('');
         };
-
         return (
           <div className="relative">
             {!hideLabel && <label className="block text-white mb-1">{mealType}</label>}
@@ -802,10 +434,7 @@
               type="text"
               placeholder={hideLabel ? `Search ${mealType}...` : `Search ${mealType} meals...`}
               value={inputValue}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                onChange('');
-              }}
+              onChange={(e) => { setSearchQuery(e.target.value); onChange(''); }}
               onFocus={() => setIsFocused(true)}
               onBlur={() => { setTimeout(() => setIsFocused(false), 200); }}
               className="w-full p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
@@ -813,11 +442,7 @@
             {isFocused && inputValue !== '' && suggestions.length > 0 && (
               <ul className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto">
                 {suggestions.map((recipe, index) => (
-                  <li
-                    key={index}
-                    onMouseDown={() => handleSelect(recipe)}
-                    className="p-2 hover:bg-teal-500 cursor-pointer text-white"
-                  >
+                  <li key={index} onMouseDown={() => handleSelect(recipe)} className="p-2 hover:bg-teal-500 cursor-pointer text-white">
                     {recipe.title}
                   </li>
                 ))}
@@ -832,7 +457,6 @@
         const suggestions = recipes.filter((recipe) =>
           recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
-
         return (
           <div className="relative">
             <input
@@ -848,11 +472,7 @@
             {isFocused && searchQuery !== '' && suggestions.length > 0 && (
               <ul className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto">
                 {suggestions.map((recipe, index) => (
-                  <li
-                    key={index}
-                    onMouseDown={() => setSearchQuery(recipe.title)}
-                    className="p-2 hover:bg-teal-500 cursor-pointer text-white"
-                  >
+                  <li key={index} onMouseDown={() => setSearchQuery(recipe.title)} className="p-2 hover:bg-teal-500 cursor-pointer text-white">
                     {recipe.title}
                   </li>
                 ))}
@@ -865,7 +485,6 @@
       function MealPlanCalendar({ mealPlan, recipes, mealTypes, updateMealPlan }) {
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         const currentDay = new Date().toLocaleString('en-US', { weekday: 'long' });
-
         return (
           <div className="overflow-auto">
             <table className="min-w-full text-white">
@@ -917,10 +536,7 @@
                 className="p-2 border rounded bg-gray-700 text-white"
               />
               <div className="mt-4 flex justify-end">
-                <button
-                  onClick={() => { onCreate(newName); setNewName(''); }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2"
-                >
+                <button onClick={() => { onCreate(newName); setNewName(''); }} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2">
                   Create
                 </button>
                 <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
@@ -945,10 +561,7 @@
                 className="p-2 border rounded bg-gray-700 text-white"
               />
               <div className="mt-4 flex justify-end">
-                <button
-                  onClick={() => { onUpdate({ ...cookbook, title: newTitle }); }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2"
-                >
+                <button onClick={() => { onUpdate({ ...cookbook, title: newTitle }); }} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2">
                   Update
                 </button>
                 <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
@@ -961,13 +574,7 @@
       }
 
       // Updated CategorizedMasterIngredientsList to handle searching, selecting, and filtering recipes
-      function CategorizedMasterIngredientsList({
-        masterIngredients,
-        setMasterIngredients,
-        selectedIngredients,
-        setSelectedIngredients,
-        filterRecipes
-      }) {
+      function CategorizedMasterIngredientsList({ masterIngredients, setMasterIngredients, selectedIngredients, setSelectedIngredients, filterRecipes }) {
         // Mapping of ingredient names to categories
         const ingredientCategories = {
           "Salt": "Spices & Seasonings",
@@ -1079,7 +686,6 @@
         const [searchQuery, setSearchQuery] = useState("");
 
         const groupedIngredients = masterIngredients.reduce((acc, ingredient) => {
-          // Filter by search query
           if (searchQuery && !ingredient.toLowerCase().includes(searchQuery.toLowerCase())) {
             return acc;
           }
@@ -1091,7 +697,6 @@
 
         const sortedCategories = Object.keys(groupedIngredients).sort();
 
-        // Handles toggling an ingredient within the selectedIngredients array
         const handleToggleIngredient = (ingredient) => {
           setSelectedIngredients((prev) =>
             prev.includes(ingredient)
@@ -1110,7 +715,6 @@
               onChange={(e) => setSearchQuery(e.target.value)}
               className="p-2 border rounded bg-gray-700 text-white mb-4 w-full"
             />
-
             {sortedCategories.map((category) => (
               <div key={category} className="mb-6">
                 <h3 className="text-xl font-semibold text-white mb-2">{category}</h3>
@@ -1140,7 +744,6 @@
                 </ul>
               </div>
             ))}
-
             <div className="flex items-center mt-4">
               <input
                 type="text"
@@ -1164,7 +767,6 @@
                 Add
               </button>
             </div>
-
             <button
               onClick={filterRecipes}
               className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
@@ -1175,7 +777,6 @@
         );
       }
 
-      // Default top 100 ingredients
       const defaultMasterIngredients = [
         "Salt","Pepper","Garlic","Onion","Olive Oil","Butter","Sugar","Flour","Eggs","Milk",
         "Baking Powder","Baking Soda","Vanilla Extract","Chicken Breast","Ground Beef","Pork Chops","Tomatoes","Potatoes","Carrots","Celery",
@@ -1196,18 +797,12 @@
           'Pasta', 'Bread', 'Soup', 'Salad', 'Dessert',
           'Meat', 'Seafood', 'Vegetarian', 'Vegan'
         ];
-        // State for master ingredients
         const [masterIngredients, setMasterIngredients] = useState(() => {
           const saved = localStorage.getItem('masterIngredients');
           return saved ? JSON.parse(saved) : defaultMasterIngredients;
         });
-
-        // NEW: Selected ingredients to filter recipes
         const [selectedIngredients, setSelectedIngredients] = useState([]);
-
-        // NEW: Filtered recipes state
         const [filteredRecipes, setFilteredRecipes] = useState([]);
-
         const [recipes, setRecipes] = useState([]);
         const [cookbooks, setCookbooks] = useState([]);
         const [mealPlan, setMealPlan] = useState(() => {
@@ -1258,6 +853,39 @@
         const [showImportModal, setShowImportModal] = useState(false);
         const [dotsMenuOpen, setDotsMenuOpen] = useState(false);
 
+        // NEW: Function to update cookbooks and categories when new recipes are imported
+        const updateCookbooksAndCategories = (newRecipes) => {
+          const newCookbookTitles = newRecipes
+            .map(r => r.cookbook)
+            .filter(title => title && title.trim() !== '');
+          setCookbooks(prevCookbooks => {
+            const cookbookSet = new Set(prevCookbooks.map(cb => cb.title));
+            newCookbookTitles.forEach(title => {
+              if (!cookbookSet.has(title)) {
+                cookbookSet.add(title);
+              }
+            });
+            return Array.from(cookbookSet).map(title => ({ title, image: '', tags: '' }));
+          });
+        };
+
+        // Modified Import function: avoid duplicate recipes (using title as key) and ensure each has an id
+        const handleImportRecipes = (importedRecipes) => {
+          setRecipes(prev => {
+            const existingTitles = new Set(prev.map(r => r.title));
+            const newRecipes = importedRecipes.reduce((acc, recipe) => {
+              const newRecipe = recipe.id ? recipe : { ...recipe, id: generateId() };
+              if (!existingTitles.has(newRecipe.title)) {
+                existingTitles.add(newRecipe.title);
+                acc.push(newRecipe);
+              }
+              return acc;
+            }, []);
+            return [...prev, ...newRecipes];
+          });
+          updateCookbooksAndCategories(importedRecipes);
+        };
+
         // Export function: downloads recipes as JSON file
         const handleExportRecipes = () => {
           const dataStr = JSON.stringify(recipes, null, 2);
@@ -1269,11 +897,6 @@
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-        };
-
-        // Import function: merge imported recipes with current recipes
-        const handleImportRecipes = (importedRecipes) => {
-          setRecipes(prev => [...prev, ...importedRecipes]);
         };
 
         useEffect(() => {
@@ -1367,9 +990,7 @@
             const factor = desired / base;
             const newIngredients = ingredients.map((ing) => {
               let qty = parseFloat(ing.quantity);
-              if (!isNaN(qty)) {
-                qty = Math.round(qty * factor * 100) / 100;
-              }
+              if (!isNaN(qty)) { qty = Math.round(qty * factor * 100) / 100; }
               return { ...ing, quantity: isNaN(qty) ? ing.quantity : qty.toString() };
             });
             setIngredients(newIngredients);
@@ -1377,18 +998,14 @@
             setDesiredServings('');
           }
         };
-        // Called when user clicks the "Filter Recipes" button in the ingredients tab
         const filterRecipes = () => {
           const filtered = recipes.filter((recipe) =>
             selectedIngredients.every((selected) =>
-              recipe.ingredients.some(
-                (rIng) => rIng.name.toLowerCase() === selected.toLowerCase()
-              )
+              recipe.ingredients.some((rIng) => rIng.name.toLowerCase() === selected.toLowerCase())
             )
           );
           console.log("Filtered Recipes:", filtered);
           alert(`Filtered to ${filtered.length} recipe(s) based on selected ingredients.`);
-          // NEW: store the filtered recipes in state
           setFilteredRecipes(filtered);
         };
         const handleAddRecipe = () => {
@@ -1458,8 +1075,9 @@
           setDesiredServings('');
           setShowModal(false);
         };
+        // Updated delete function using functional state update
         const handleDeleteRecipe = (recipeToDelete) => {
-          setRecipes(recipes.filter(r => r.id !== recipeToDelete.id));
+          setRecipes(prevRecipes => prevRecipes.filter(r => r.id !== recipeToDelete.id));
           setMealPlan(prev => {
             const newPlan = { ...prev };
             Object.keys(newPlan).forEach(day => {
@@ -1502,9 +1120,7 @@
           const updatedCookbooks = [...cookbooks];
           updatedCookbooks[index] = updatedCookbook;
           setCookbooks(updatedCookbooks);
-          const updatedRecipes = recipes.map(r =>
-            r.cookbook === oldTitle ? { ...r, cookbook: updatedCookbook.title } : r
-          );
+          const updatedRecipes = recipes.map(r => r.cookbook === oldTitle ? { ...r, cookbook: updatedCookbook.title } : r);
           setRecipes(updatedRecipes);
           setEditCookbook(null);
         };
@@ -1512,9 +1128,7 @@
           const cbRecipes = recipes.filter(r => r.cookbook === cookbookObj.title);
           const printWindow = window.open('', '', 'height=800,width=1200');
           printWindow.document.write('<html><head><title>Print Cookbook</title>');
-          printWindow.document.write(
-            '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
-          );
+          printWindow.document.write('<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>');
           printWindow.document.write('</head><body>');
           printWindow.document.write("<h1 class='text-white'>Cookbook: " + cookbookObj.title + '</h1>');
           cbRecipes.forEach(recipe => {
@@ -1538,9 +1152,7 @@
           if (confirm(`Are you sure you want to delete the cookbook "${cookbookObj.title}"?`)) {
             const updatedCookbooks = cookbooks.filter((_, i) => i !== index);
             setCookbooks(updatedCookbooks);
-            const updatedRecipes = recipes.map(r =>
-              r.cookbook === cookbookObj.title ? { ...r, cookbook: '' } : r
-            );
+            const updatedRecipes = recipes.map(r => r.cookbook === cookbookObj.title ? { ...r, cookbook: '' } : r);
             setRecipes(updatedRecipes);
           }
         };
@@ -1553,9 +1165,7 @@
           );
           const printWindow = window.open('', '', 'height=800,width=1200');
           printWindow.document.write('<html><head><title>Print All Recipes</title>');
-          printWindow.document.write(
-            '<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>'
-          );
+          printWindow.document.write('<style>body { font-family: Arial, sans-serif; } .card { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; } img { max-width: 100%; height: auto; } @media print { body { margin: 20px; } }</style>');
           printWindow.document.write('</head><body>');
           filteredRecipesList.forEach(recipe => {
             printWindow.document.write('<div class="card printable">');
@@ -1571,21 +1181,16 @@
             if (recipe.temperature && recipe.temperature.value) {
               printWindow.document.write("<p class='text-white'><strong>Temp:</strong> " + recipe.temperature.value + '°' + recipe.temperature.scale + '</p>');
             }
-            printWindow.document.write("<p class='text-white'><strong>Rating:</strong> " +
-              '★'.repeat(recipe.rating) + '☆'.repeat(5 - recipe.rating) + '</p>');
+            printWindow.document.write("<p class='text-white'><strong>Rating:</strong> " + '★'.repeat(recipe.rating) + '☆'.repeat(5 - recipe.rating) + '</p>');
             if (recipe.ingredients && recipe.ingredients.length > 0) {
               printWindow.document.write("<h3 class='text-white'>Ingredients</h3><ul>");
               recipe.ingredients.forEach(ing => {
-                printWindow.document.write("<li class='text-white'>" +
-                  (ing.quantity ? ing.quantity + ' ' : '') +
-                  (ing.unit ? ing.unit + ' ' : '') +
-                  ing.name + '</li>');
+                printWindow.document.write("<li class='text-white'>" + (ing.quantity ? ing.quantity + ' ' : '') + (ing.unit ? ing.unit + ' ' : '') + ing.name + '</li>');
               });
               printWindow.document.write('</ul>');
             }
             if (recipe.directions) {
-              printWindow.document.write("<h3 class='text-white'>Directions</h3><p class='text-white'>" +
-                recipe.directions.replace(/\n/g, '<br>') + '</p>');
+              printWindow.document.write("<h3 class='text-white'>Directions</h3><p class='text-white'>" + recipe.directions.replace(/\n/g, '<br>') + '</p>');
             }
             printWindow.document.write('</div>');
           });
@@ -1696,26 +1301,16 @@
                 setSelectedIngredients={setSelectedIngredients}
                 filterRecipes={filterRecipes}
               />
-
-              {/* NEW: Display filtered recipes below */}
               <div className="mt-6">
                 <h2 className="text-2xl font-bold text-white mb-4">Filtered Recipes</h2>
                 {filteredRecipes.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {filteredRecipes.map((r, index) => (
-                      <RecipeCard
-                        key={r.id}
-                        index={index}
-                        recipe={r}
-                        onDeleteRecipe={handleDeleteRecipe}
-                        onEditRecipe={handleEditRecipe}
-                      />
+                      <RecipeCard key={r.id} index={index} recipe={r} onDeleteRecipe={handleDeleteRecipe} onEditRecipe={handleEditRecipe} />
                     ))}
                   </div>
                 ) : (
-                  <p className="text-white">
-                    No recipes match the selected ingredients.
-                  </p>
+                  <p className="text-white">No recipes match the selected ingredients.</p>
                 )}
               </div>
             </div>
@@ -1749,22 +1344,13 @@
                   </button>
                   {dotsMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded shadow-lg z-10">
-                      <button
-                        onClick={() => { setDotsMenuOpen(false); setShowImportModal(true); }}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                      >
+                      <button onClick={() => { setDotsMenuOpen(false); setShowImportModal(true); }} className="block w-full text-left px-4 py-2 hover:bg-gray-700">
                         Import
                       </button>
-                      <button
-                        onClick={() => { setDotsMenuOpen(false); handleExportRecipes(); }}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                      >
+                      <button onClick={() => { setDotsMenuOpen(false); handleExportRecipes(); }} className="block w-full text-left px-4 py-2 hover:bg-gray-700">
                         Export
                       </button>
-                      <button
-                        onClick={() => { setDotsMenuOpen(false); printAllRecipes(); }}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                      >
+                      <button onClick={() => { setDotsMenuOpen(false); printAllRecipes(); }} className="block w-full text-left px-4 py-2 hover:bg-gray-700">
                         Print
                       </button>
                     </div>
@@ -1783,10 +1369,7 @@
                 <ul className="flex flex-col">
                   {['categories', 'recipes', 'cookbooks', 'mealTimes', 'mealPlan', 'shoppingList', 'ingredients'].map(tab => (
                     <li key={tab}>
-                      <button
-                        onClick={() => { setActiveTab(tab); setMobileNavOpen(false); setSelectedCookbook(null); setSelectedMealTime(null); }}
-                        className="block w-full text-left px-4 py-2 border-b border-gray-600"
-                      >
+                      <button onClick={() => { setActiveTab(tab); setMobileNavOpen(false); setSelectedCookbook(null); setSelectedMealTime(null); }} className="block w-full text-left px-4 py-2 border-b border-gray-600">
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                       </button>
                     </li>
@@ -1799,21 +1382,13 @@
                 {activeTab === 'recipes' ? (
                   <div>
                     <div className="flex space-x-4 mb-4">
-                      <select
-                        value={filterDish}
-                        onChange={(e) => setFilterDish(e.target.value)}
-                        className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-                      >
+                      <select value={filterDish} onChange={(e) => setFilterDish(e.target.value)} className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400">
                         <option value="">All Dish Types</option>
                         {dishTypes.map((type, index) => (
                           <option key={index} value={type}>{type}</option>
                         ))}
                       </select>
-                      <select
-                        value={filterMeal}
-                        onChange={(e) => setFilterMeal(e.target.value)}
-                        className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-                      >
+                      <select value={filterMeal} onChange={(e) => setFilterMeal(e.target.value)} className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400">
                         <option value="">All Meal Types</option>
                         {mealTypes.map((type, index) => (
                           <option key={index} value={type}>{type}</option>
@@ -1865,9 +1440,7 @@
                                   const file = e.target.files[0];
                                   if (file) {
                                     const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                      setCategoryImages(prev => ({ ...prev, [cat]: reader.result }));
-                                    };
+                                    reader.onloadend = () => { setCategoryImages(prev => ({ ...prev, [cat]: reader.result })); };
                                     reader.readAsDataURL(file);
                                   }
                                 }}
@@ -1886,10 +1459,7 @@
                 ) : activeTab === 'cookbooks' ? (
                   selectedCookbook ? (
                     <div id="main-content">
-                      <button
-                        onClick={() => setSelectedCookbook(null)}
-                        className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
-                      >
+                      <button onClick={() => setSelectedCookbook(null)} className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
                         &larr; Back to Cookbooks
                       </button>
                       <h2 className="text-2xl font-bold mb-4 text-white">{selectedCookbook.title}</h2>
@@ -1907,10 +1477,7 @@
                     <div id="main-content">
                       <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold text-white">Cookbooks</h2>
-                        <button
-                          onClick={() => setShowCreateCookbookModal(true)}
-                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-                        >
+                        <button onClick={() => setShowCreateCookbookModal(true)} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
                           Create Cookbook
                         </button>
                       </div>
@@ -1922,11 +1489,7 @@
                             const cbRecipes = recipes.filter(r => r.cookbook === cb.title);
                             const image = cb.image || cbRecipes.find(r => r.image)?.image || '';
                             return (
-                              <div
-                                key={index}
-                                onClick={() => setSelectedCookbook(cb)}
-                                className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
-                              >
+                              <div key={index} onClick={() => setSelectedCookbook(cb)} className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300">
                                 <div className="relative w-full" style={{ paddingTop: '75%' }}>
                                   {image ? (
                                     <img src={image} alt={`${cb.title} cookbook`} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
@@ -1940,22 +1503,13 @@
                                   <h3 className="text-xl font-bold text-white">{cb.title}</h3>
                                   <p className="text-white">{cbRecipes.length} recipes</p>
                                   <div className="mt-4 flex justify-between">
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); setEditCookbook({ index, data: cb }); }}
-                                      className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm"
-                                    >
+                                    <button onClick={(e) => { e.stopPropagation(); setEditCookbook({ index, data: cb }); }} className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">
                                       Edit
                                     </button>
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); handlePrintCookbook(cb); }}
-                                      className="bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded text-sm"
-                                    >
+                                    <button onClick={(e) => { e.stopPropagation(); handlePrintCookbook(cb); }} className="bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded text-sm">
                                       Print Cookbook
                                     </button>
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); handleDeleteCookbook(cb, index); }}
-                                      className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
-                                    >
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteCookbook(cb, index); }} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
                                       Delete
                                     </button>
                                   </div>
@@ -1970,10 +1524,7 @@
                 ) : activeTab === 'mealTimes' ? (
                   selectedMealTime ? (
                     <div id="main-content">
-                      <button
-                        onClick={() => setSelectedMealTime(null)}
-                        className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
-                      >
+                      <button onClick={() => setSelectedMealTime(null)} className="mb-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
                         &larr; Back to Meal Times
                       </button>
                       <h2 className="text-2xl font-bold mb-4 text-white">{selectedMealTime}</h2>
@@ -1994,11 +1545,7 @@
                           const mealRecipes = recipes.filter(r => r.mealType === meal);
                           const image = mealRecipes.find(r => r.image)?.image || '';
                           return (
-                            <div
-                              key={index}
-                              onClick={() => setSelectedMealTime(meal)}
-                              className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300"
-                            >
+                            <div key={index} onClick={() => setSelectedMealTime(meal)} className="cursor-pointer border rounded-lg shadow bg-gray-800 text-white p-4 hover:shadow-xl transition-shadow duration-300">
                               <div className="relative w-full" style={{ paddingTop: '75%' }}>
                                 {image ? (
                                   <img src={image} alt={`${meal} meal time`} className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg" />
@@ -2035,18 +1582,13 @@
                 ) : activeTab === 'mealPlan' ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Meal Plan Calendar</h2>
-                    <MealPlanCalendar
-                      mealPlan={mealPlan}
-                      recipes={recipes}
-                      mealTypes={mealTypes}
-                      updateMealPlan={(day, mealType, newValue) => {
-                        setMealPlan(prev => {
-                          const newPlan = { ...prev };
-                          newPlan[day] = { ...newPlan[day], [mealType]: newValue };
-                          return newPlan;
-                        });
-                      }}
-                    />
+                    <MealPlanCalendar mealPlan={mealPlan} recipes={recipes} mealTypes={mealTypes} updateMealPlan={(day, mealType, newValue) => {
+                      setMealPlan(prev => {
+                        const newPlan = { ...prev };
+                        newPlan[day] = { ...newPlan[day], [mealType]: newValue };
+                        return newPlan;
+                      });
+                    }} />
                   </div>
                 ) : activeTab === 'shoppingList' ? (
                   <div id="main-content">
@@ -2277,25 +1819,14 @@
                           )}
                         </div>
                       </div>
-                    )}
+                    )} 
                     {modalTab === 'Ingredients' && (
                       <div>
                         <p className="mb-2 text-white font-semibold">Ingredients</p>
                         {ingredients.map((ingredient, index) => (
-                          <IngredientRow
-                            key={index}
-                            ingredient={ingredient}
-                            index={index}
-                            handleIngredientChange={handleIngredientChange}
-                            removeIngredientRow={removeIngredientRow}
-                            masterIngredients={masterIngredients}
-                          />
+                          <IngredientRow key={index} ingredient={ingredient} index={index} handleIngredientChange={handleIngredientChange} removeIngredientRow={removeIngredientRow} masterIngredients={masterIngredients} />
                         ))}
-                        <button
-                          type="button"
-                          onClick={addIngredientRow}
-                          className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2"
-                        >
+                        <button type="button" onClick={addIngredientRow} className="bg-teal-500 hover:bg-teal-600 text-black px-4 py-2 rounded mt-2">
                           + Add Ingredient
                         </button>
                       </div>
@@ -2322,9 +1853,7 @@
                           <ul className="list-disc list-inside">
                             {ingredients.map((ing, index) => (
                               <li key={index} className="text-white">
-                                {(ing.quantity ? ing.quantity + ' ' : '') +
-                                  (ing.unit ? ing.unit + ' ' : '') +
-                                  ing.name}
+                                {(ing.quantity ? ing.quantity + ' ' : '') + (ing.unit ? ing.unit + ' ' : '') + ing.name}
                               </li>
                             ))}
                           </ul>
@@ -2363,11 +1892,7 @@
               <CreateCookbookModal onCreate={handleCreateCookbook} onClose={() => setShowCreateCookbookModal(false)} />
             )}
             {editCookbook && (
-              <EditCookbookModal
-                cookbook={editCookbook.data}
-                onUpdate={(updatedData) => updateCookbookData(editCookbook.index, updatedData)}
-                onClose={() => setEditCookbook(null)}
-              />
+              <EditCookbookModal cookbook={editCookbook.data} onUpdate={(updatedData) => updateCookbookData(editCookbook.index, updatedData)} onClose={() => setEditCookbook(null)} />
             )}
             {showImportModal && (
               <ImportModal onClose={() => setShowImportModal(false)} onImport={handleImportRecipes} />
@@ -2379,17 +1904,9 @@
       function ImportModal({ onClose, onImport }) {
         const [file, setFile] = useState(null);
         const [error, setError] = useState(null);
-
-        const handleFileChange = (e) => {
-          setFile(e.target.files[0]);
-          setError(null);
-        };
-
+        const handleFileChange = (e) => { setFile(e.target.files[0]); setError(null); };
         const handleImport = () => {
-          if (!file) {
-            setError("Please select a file.");
-            return;
-          }
+          if (!file) { setError("Please select a file."); return; }
           const reader = new FileReader();
           reader.onload = (e) => {
             const content = e.target.result;
@@ -2421,7 +1938,6 @@
             reader.readAsText(file);
           }
         };
-
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-gray-800 p-4 rounded text-white">
