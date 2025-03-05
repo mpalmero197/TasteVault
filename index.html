@@ -102,6 +102,55 @@
         .add-recipe-button { display: flex; }
         .section-container { margin-left: 0.2em; margin-right: 0.2em; }
       }
+
+      /* Award-winning Shopping List Design */
+      .award-shopping-list-container {
+        padding: 1rem;
+        background: linear-gradient(145deg, #1f1f1f, #2b2b2b);
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+      .award-shopping-list-item {
+        background: #3a3a3a;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+      }
+      @media (min-width: 640px) {
+        .award-shopping-list-item {
+          flex-direction: row;
+          align-items: center;
+        }
+      }
+      .award-shopping-list-input {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 4px;
+        background-color: #4a4a4a;
+        color: #fff;
+        text-align: center;
+      }
+      .award-shopping-list-input::placeholder {
+        color: #ccc;
+      }
+      .award-shopping-list-button {
+        padding: 0.75rem 1rem;
+        background-color: #ff5722;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .award-shopping-list-button:hover {
+        background-color: #ff8a50;
+      }
     </style>
   </head>
   <body class="bg-gray-900">
@@ -124,6 +173,60 @@
     <!-- Added data-presets attribute to ensure React preset is used -->
     <script type="text/babel" data-presets="react">
       const { useState, useEffect, useRef } = React;
+
+      // Define measurement units for the drop-down list
+      const measurementUnits = ["", "tsp", "tbsp", "cup", "oz", "lb", "ml", "l", "g", "kg", "pcs"];
+
+      // New Component: ShoppingItemNameAutocomplete
+      function ShoppingItemNameAutocomplete({ value, onChange, masterIngredients, addToMaster }) {
+        const [isFocused, setIsFocused] = useState(false);
+        const [query, setQuery] = useState(value || "");
+        useEffect(() => {
+          setQuery(value || "");
+        }, [value]);
+        const suggestions = masterIngredients.filter(item =>
+          item.toLowerCase().includes(query.toLowerCase())
+        );
+        return (
+          <div className="relative">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                onChange(e.target.value);
+              }}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => {
+                setTimeout(() => {
+                  setIsFocused(false);
+                  if (query.trim() !== "" && !masterIngredients.some(m => m.toLowerCase() === query.toLowerCase())) {
+                    addToMaster(query);
+                  }
+                }, 200);
+              }}
+              placeholder="Item Name"
+              className="award-shopping-list-input"
+            />
+            {isFocused && query && suggestions.length > 0 && (
+              <ul className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto">
+                {suggestions.map((suggestion, idx) => (
+                  <li
+                    key={idx}
+                    onMouseDown={() => {
+                      setQuery(suggestion);
+                      onChange(suggestion);
+                    }}
+                    className="p-2 hover:bg-teal-500 cursor-pointer text-white"
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      }
 
       // Utility: generate a simple unique ID
       function generateId() {
@@ -870,6 +973,13 @@
         const recipeImageInputRef = useRef(null);
         const [showImportModal, setShowImportModal] = useState(false);
         const [dotsMenuOpen, setDotsMenuOpen] = useState(false);
+
+        // Function to add an ingredient to the master list if it doesn't exist
+        const addIngredientToMaster = (ingredientName) => {
+          if (ingredientName.trim() !== "" && !masterIngredients.some(m => m.toLowerCase() === ingredientName.toLowerCase())) {
+            setMasterIngredients(prev => [...prev, ingredientName]);
+          }
+        };
 
         // Function to recommend purchasable units for shopping items
         function recommendShoppingListItem(item) {
@@ -1700,35 +1810,46 @@
                 ) : activeTab === 'shoppingList' ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Shopping List</h2>
-                    <div className="mb-4 flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
-                      <button onClick={printShoppingList} className="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                        Print
-                      </button>
-                      <button onClick={downloadShoppingList} className="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                        Download
-                      </button>
-                      <button onClick={shareShoppingList} className="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
-                        Share
-                      </button>
+                    <div className="mb-6 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+                      <button onClick={printShoppingList} className="award-shopping-list-button w-full sm:w-auto">Print</button>
+                      <button onClick={downloadShoppingList} className="award-shopping-list-button w-full sm:w-auto">Download</button>
+                      <button onClick={shareShoppingList} className="award-shopping-list-button w-full sm:w-auto">Share</button>
                     </div>
-                    <div>
+                    <div className="award-shopping-list-container">
                       {editableShoppingList.length === 0 ? (
                         <p className="text-white">No ingredients in the shopping list.</p>
                       ) : (
                         editableShoppingList.map((item, index) => (
-                          <div key={index} className="shopping-list-item flex flex-col md:flex-row md:items-center md:space-x-2 mb-2 p-2 bg-gray-800 rounded">
-                            <input type="number" value={item.quantity} onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)} className="w-full md:w-24 p-2 mb-2 md:mb-0 border rounded bg-gray-700 text-white" />
-                            <input type="text" value={item.unit} onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)} className="w-full md:w-32 p-2 mb-2 md:mb-0 border rounded bg-gray-700 text-white" />
-                            <input type="text" value={item.name} onChange={(e) => handleShoppingItemChange(index, "name", e.target.value)} className="w-full p-2 mb-2 md:mb-0 md:flex-1 border rounded bg-gray-700 text-white" />
-                            <button onClick={() => deleteShoppingItem(index)} className="w-full md:w-auto mt-2 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">
+                          <div key={index} className="award-shopping-list-item">
+                            <input
+                              type="number"
+                              value={item.quantity}
+                              onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)}
+                              className="award-shopping-list-input"
+                              placeholder="Qty"
+                            />
+                            <select
+                              value={item.unit}
+                              onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)}
+                              className="award-shopping-list-input"
+                            >
+                              {measurementUnits.map((unitOption) => (
+                                <option key={unitOption} value={unitOption}>{unitOption}</option>
+                              ))}
+                            </select>
+                            <ShoppingItemNameAutocomplete
+                              value={item.name}
+                              onChange={(newValue) => handleShoppingItemChange(index, "name", newValue)}
+                              masterIngredients={masterIngredients}
+                              addToMaster={addIngredientToMaster}
+                            />
+                            <button onClick={() => deleteShoppingItem(index)} className="award-shopping-list-button">
                               Delete
                             </button>
                           </div>
                         ))
                       )}
-                      <button onClick={addShoppingItem} className="mt-4 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full">
-                        Add Item
-                      </button>
+                      <button onClick={addShoppingItem} className="award-shopping-list-button w-full mt-4">Add Item</button>
                     </div>
                   </div>
                 ) : activeTab === 'ingredients' ? (
