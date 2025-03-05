@@ -49,14 +49,9 @@
       .light-mode input, .light-mode select, .light-mode textarea { background-color: #fff; border: 1px solid #888; color: #111; }
       .light-mode .section-container, .light-mode .recipe-card, .light-mode .meal-plan-section, .light-mode .shopping-list-section { background-color: #fff; color: #111; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
       .light-mode nav a:hover, .light-mode .dropdown-menu a:hover { background-color: #ddd; color: #111; }
-      /* Header & Navigation with vendor prefixes for older browsers */
+      /* Header & Navigation */
       header {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
         display: flex;
-        -webkit-flex-wrap: wrap;
-        -ms-flex-wrap: wrap;
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
@@ -149,6 +144,29 @@
       }
       .award-shopping-list-button:hover {
         background-color: #374151;
+      }
+
+      /* Mobile typography enhancements */
+      @media (max-width: 640px) {
+        header {
+          padding: 1rem 1.5rem;
+          font-size: 1.1em;
+        }
+        .site-title {
+          font-size: 1.8em;
+        }
+        body {
+          font-size: 1.1em;
+        }
+        .recipe-title {
+          font-size: 1.4em;
+        }
+        .recipe-meta {
+          font-size: 1em;
+        }
+        .award-shopping-list-input {
+          font-size: 1.1em;
+        }
       }
     </style>
   </head>
@@ -1504,7 +1522,7 @@
           <div className="min-h-screen flex flex-col" role="document">
             <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex flex-wrap items-center justify-between p-4 shadow-lg" role="banner">
               <div className="flex items-center">
-                <h1 className="text-xl font-bold mr-8">TasteVault</h1>
+                <h1 className="site-title text-xl font-bold mr-8">TasteVault</h1>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="relative">
