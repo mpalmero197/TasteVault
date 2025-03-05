@@ -127,7 +127,6 @@
         }
       }
       .award-shopping-list-input {
-        flex: 1;
         padding: 0.75rem;
         border: none;
         border-radius: 4px;
@@ -206,7 +205,7 @@
                 }, 200);
               }}
               placeholder="Item Name"
-              className="award-shopping-list-input"
+              className="award-shopping-list-input w-full"
             />
             {isFocused && query && suggestions.length > 0 && (
               <ul className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-40 overflow-y-auto">
@@ -1821,28 +1820,32 @@
                       ) : (
                         editableShoppingList.map((item, index) => (
                           <div key={index} className="award-shopping-list-item">
+                            {/* Quantity and measurement get fixed widths */}
                             <input
                               type="number"
                               value={item.quantity}
                               onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)}
-                              className="award-shopping-list-input"
+                              className="award-shopping-list-input w-20"
                               placeholder="Qty"
                             />
                             <select
                               value={item.unit}
                               onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)}
-                              className="award-shopping-list-input"
+                              className="award-shopping-list-input w-20"
                             >
                               {measurementUnits.map((unitOption) => (
                                 <option key={unitOption} value={unitOption}>{unitOption}</option>
                               ))}
                             </select>
-                            <ShoppingItemNameAutocomplete
-                              value={item.name}
-                              onChange={(newValue) => handleShoppingItemChange(index, "name", newValue)}
-                              masterIngredients={masterIngredients}
-                              addToMaster={addIngredientToMaster}
-                            />
+                            {/* Item name field grows to fill remaining space */}
+                            <div className="flex-1">
+                              <ShoppingItemNameAutocomplete
+                                value={item.name}
+                                onChange={(newValue) => handleShoppingItemChange(index, "name", newValue)}
+                                masterIngredients={masterIngredients}
+                                addToMaster={addIngredientToMaster}
+                              />
+                            </div>
                             <button onClick={() => deleteShoppingItem(index)} className="award-shopping-list-button">
                               Delete
                             </button>
