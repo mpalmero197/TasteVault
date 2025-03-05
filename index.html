@@ -1820,7 +1820,7 @@
                       ) : (
                         editableShoppingList.map((item, index) => (
                           <div key={index} className="award-shopping-list-item">
-                            {/* Fixed width for Quantity and Measurement */}
+                            {/* Fixed width for Quantity and a slightly wider Measurement */}
                             <input
                               type="number"
                               value={item.quantity}
@@ -1831,7 +1831,7 @@
                             <select
                               value={item.unit}
                               onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)}
-                              className="award-shopping-list-input w-20"
+                              className="award-shopping-list-input w-24"
                             >
                               {measurementUnits.map((unitOption) => (
                                 <option key={unitOption} value={unitOption}>{unitOption}</option>
