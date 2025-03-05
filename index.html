@@ -1716,17 +1716,17 @@
                         <p className="text-white">No ingredients in the shopping list.</p>
                       ) : (
                         editableShoppingList.map((item, index) => (
-                          <div key={index} className="flex flex-col md:flex-row md:items-center md:space-x-2 mb-2">
-                            <input type="number" value={item.quantity} onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)} className="w-full md:w-20 p-1 border rounded bg-gray-700 text-white" />
-                            <input type="text" value={item.unit} onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)} className="w-full md:w-24 p-1 border rounded bg-gray-700 text-white" />
-                            <input type="text" value={item.name} onChange={(e) => handleShoppingItemChange(index, "name", e.target.value)} className="w-full md:flex-1 p-1 border rounded bg-gray-700 text-white" />
-                            <button onClick={() => deleteShoppingItem(index)} className="mt-2 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                          <div key={index} className="shopping-list-item flex flex-col md:flex-row md:items-center md:space-x-2 mb-2 p-2 bg-gray-800 rounded">
+                            <input type="number" value={item.quantity} onChange={(e) => handleShoppingItemChange(index, "quantity", e.target.value)} className="w-full md:w-24 p-2 mb-2 md:mb-0 border rounded bg-gray-700 text-white" />
+                            <input type="text" value={item.unit} onChange={(e) => handleShoppingItemChange(index, "unit", e.target.value)} className="w-full md:w-32 p-2 mb-2 md:mb-0 border rounded bg-gray-700 text-white" />
+                            <input type="text" value={item.name} onChange={(e) => handleShoppingItemChange(index, "name", e.target.value)} className="w-full p-2 mb-2 md:mb-0 md:flex-1 border rounded bg-gray-700 text-white" />
+                            <button onClick={() => deleteShoppingItem(index)} className="w-full md:w-auto mt-2 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">
                               Delete
                             </button>
                           </div>
                         ))
                       )}
-                      <button onClick={addShoppingItem} className="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                      <button onClick={addShoppingItem} className="mt-4 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full">
                         Add Item
                       </button>
                     </div>
