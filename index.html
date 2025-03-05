@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Meta viewport optimized for mobile devices -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <!-- Optimized viewport settings for mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TasteVault - Recipe Management & Meal Planner</title>
     <!-- Tailwind CSS (v2) -->
     <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
@@ -49,7 +49,7 @@
       .light-mode .section-container, .light-mode .recipe-card, .light-mode .meal-plan-section, .light-mode .shopping-list-section { background-color: #fff; color: #111; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
       .light-mode nav a:hover, .light-mode .dropdown-menu a:hover { background-color: #ddd; color: #111; }
       /* Header & Navigation */
-      header { display: flex; align-items: center; justify-content: space-between; background-color: #222; padding: 0.5em 1em; position: sticky; top: 0; z-index: 999; border-bottom: 1px solid #333; }
+      header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; background-color: #222; padding: 0.5em 1em; position: sticky; top: 0; z-index: 999; border-bottom: 1px solid #333; }
       .site-title { font-size: 1.3em; font-weight: 600; color: #ffcc66; margin-right: 1em; }
       /* Mobile Nav */
       .mobile-nav { display: none; background-color: #222; position: absolute; top: 3.5em; right: 0; left: 0; padding: 1em; border-top: 1px solid #333; }
@@ -1376,7 +1376,7 @@
 
         return (
           <div className="min-h-screen flex flex-col" role="document">
-            <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-between p-4 shadow-lg" role="banner">
+            <header className="bg-gradient-to-r from-gray-700 to-gray-900 text-white flex flex-wrap items-center justify-between p-4 shadow-lg" role="banner">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-8">TasteVault</h1>
               </div>
@@ -1429,8 +1429,8 @@
               </div>
             </header>
             {mobileNavOpen && (
-              <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white">
-                <ul className="flex flex-col">
+              <nav className="bg-gradient-to-r from-gray-700 to-gray-900 text-white fixed inset-x-0 top-16 z-40 p-4">
+                <ul className="flex flex-col space-y-2">
                   {['categories', 'recipes', 'cookbooks', 'mealTimes', 'mealPlan', 'shoppingList', 'ingredients'].map(tab => (
                     <li key={tab}>
                       <button onClick={() => { setActiveTab(tab); setMobileNavOpen(false); setSelectedCookbook(null); setSelectedMealTime(null); }} className="block w-full text-left px-4 py-2 border-b border-gray-600">
