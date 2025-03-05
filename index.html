@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Combined meta viewport with additional scaling settings -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <!-- Meta viewport optimized for mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
     <title>TasteVault - Recipe Management & Meal Planner</title>
     <!-- Tailwind CSS (v2) -->
     <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
@@ -860,12 +860,10 @@
           const numQty = parseFloat(quantity);
           if (isNaN(numQty)) return item;
           if (name.toLowerCase().includes("egg")) {
-            // Recommend a dozen eggs: if less than 12, recommend 12; else round up to nearest dozen.
             const dozens = Math.ceil(numQty / 12);
             quantity = dozens * 12;
             unit = "eggs";
           } else if (name.toLowerCase().includes("milk") && unit.toLowerCase() === "cup") {
-            // Convert cups to gallons (1 gallon = 16 cups)
             const gallons = Math.ceil(numQty / 16);
             quantity = gallons;
             unit = gallons === 1 ? "gallon" : "gallons";
@@ -1147,7 +1145,7 @@
           setFilteredRecipes(filtered);
         };
         const handleAddRecipe = () => {
-          const currentIngredients = ingredients.slice(); // Capture current ingredients before resetting form
+          const currentIngredients = ingredients.slice();
           let newRecipe;
           if (editingIndex !== null) {
             const oldId = recipes[editingIndex].id;
@@ -1190,7 +1188,6 @@
           if (cookbook && !cookbooks.find(cb => cb.title === cookbook)) {
             setCookbooks(prev => [...prev, { title: cookbook, image: '', tags: '' }]);
           }
-          // Automatically add recipe ingredients to masterIngredients list if not already present
           setMasterIngredients(prev => {
             const newList = [...prev];
             currentIngredients.forEach((ing) => {
@@ -1225,7 +1222,6 @@
           setDesiredServings('');
           setShowModal(false);
         };
-        // Updated delete function using functional state update and now updating filteredRecipes as well
         const handleDeleteRecipe = (recipeToDelete) => {
           setRecipes(prevRecipes => prevRecipes.filter(r => r.id !== recipeToDelete.id));
           setMealPlan(prev => {
@@ -1389,7 +1385,7 @@
                   <button
                     onClick={() => {
                       setShowSearch(!showSearch);
-                      setActiveTab('recipes'); // Ensure recipes tab is active when searching
+                      setActiveTab('recipes');
                     }}
                     className="p-2"
                     aria-label="Search"
@@ -1650,7 +1646,6 @@
                 ) : activeTab === 'mealPlan' ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Meal Plan</h2>
-                    {/* Desktop Table Layout */}
                     <div className="hidden md:block">
                       <MealPlanCalendar mealPlan={mealPlan} recipes={recipes} mealTypes={mealTypes} updateMealPlan={(day, mealType, newValue) => {
                         setMealPlan(prev => {
@@ -1660,7 +1655,6 @@
                         });
                       }} />
                     </div>
-                    {/* Mobile Card Layout */}
                     <div className="block md:hidden space-y-4">
                       {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => (
                         <div key={day} className="bg-gray-800 p-4 rounded shadow">
@@ -1689,7 +1683,6 @@
                 ) : activeTab === 'shoppingList' ? (
                   <div id="main-content">
                     <h2 className="text-2xl font-bold mb-4 text-white">Shopping List</h2>
-                    {/* Responsive action buttons */}
                     <div className="mb-4 flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
                       <button onClick={printShoppingList} className="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
                         Print
